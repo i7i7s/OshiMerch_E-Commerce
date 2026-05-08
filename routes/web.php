@@ -39,12 +39,40 @@ Route::get('/', function () {
             'seller_name' => $l->user?->name,
         ]);
 
+    // Real stats from DB
+    $stats = [
+        ['label' => 'Produk Aktif',      'value' => \App\Models\Listing::where('status', 'Available')->count(),                           'suffix' => ''],
+        ['label' => 'Member Terdaftar',  'value' => \App\Models\User::count(),                                                             'suffix' => ''],
+        ['label' => 'Transaksi Sukses',  'value' => \App\Models\Transaction::where('delivery_status', 'Completed')->count(),               'suffix' => ''],
+        ['label' => 'Kategori Produk',   'value' => \App\Models\Listing::where('status', 'Available')->distinct()->count('category'),      'suffix' => ''],
+    ];
+
+    // Category counts from available listings
+    $categoryCounts = \App\Models\Listing::where('status', 'Available')
+        ->selectRaw('category, count(*) as total')
+        ->groupBy('category')
+        ->pluck('total', 'category');
+
+    // Trending members — top 6 by listing count (with at least 1 available listing)
+    $trendingMembers = \App\Models\Listing::where('status', 'Available')
+        ->whereNotNull('featured_member_name')
+        ->whereNotNull('featured_member_code')
+        ->selectRaw('featured_member_name as name, featured_member_team as team, featured_member_code as code, count(*) as listing_count')
+        ->groupBy('featured_member_name', 'featured_member_team', 'featured_member_code')
+        ->orderByDesc('listing_count')
+        ->take(6)
+        ->get()
+        ->toArray();
+
     return Inertia::render('Welcome', [
-        'canLogin'    => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'appName'     => config('app.name'),
-        'auth'        => ['user' => Auth::user()],
-        'listings'    => $listings,
+        'canLogin'        => Route::has('login'),
+        'canRegister'     => Route::has('register'),
+        'appName'         => config('app.name'),
+        'auth'            => ['user' => Auth::user()],
+        'listings'        => $listings,
+        'stats'           => $stats,
+        'categoryCounts'  => $categoryCounts,
+        'trendingMembers' => $trendingMembers,
     ]);
 })->name('home');
 

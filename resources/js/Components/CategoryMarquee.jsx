@@ -12,15 +12,23 @@ function CategoryPill({ category }) {
             <span className="text-2xl group-hover:scale-110 transition-transform">{category.icon}</span>
             <div>
                 <p className="text-sm font-semibold text-surface-800 group-hover:text-primary-600 transition-colors">{category.name}</p>
-                <p className="text-[11px] text-surface-400">{category.count} produk</p>
+                <p className="text-[11px] text-surface-400">
+                    {category.count > 0 ? `${category.count} produk` : 'Segera hadir'}
+                </p>
             </div>
         </motion.a>
     );
 }
 
-export default function CategoryMarquee() {
-    // Double the categories for seamless looping
-    const doubled = [...CATEGORIES, ...CATEGORIES];
+export default function CategoryMarquee({ categoryCounts = {} }) {
+    // Merge static category list with real DB counts
+    const categories = CATEGORIES.map(cat => ({
+        ...cat,
+        count: categoryCounts[cat.id] ?? 0,
+    }));
+
+    // Double for seamless looping
+    const doubled = [...categories, ...categories];
 
     return (
         <section className="py-12 sm:py-16 overflow-hidden">

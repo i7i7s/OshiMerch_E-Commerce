@@ -7,9 +7,7 @@ import CategoryMarquee from '@/Components/CategoryMarquee';
 import ListingCard from '@/Components/ListingCard';
 import FeaturedMembers from '@/Components/FeaturedMembers';
 import StatsSection from '@/Components/StatsSection';
-import TestimonialsSection from '@/Components/TestimonialsSection';
 import Footer from '@/Components/Footer';
-import { STATS } from '@/data/products';
 
 // Initialize Lenis smooth scroll
 function useSmoothScroll() {
@@ -75,44 +73,6 @@ function CTABanner() {
     );
 }
 
-// Activity Feed — Social proof
-function ActivityFeed() {
-    const activities = [
-        { user: 'Rizky A.', action: 'baru saja membeli', item: 'Photocard Freya River Ver.', time: '2 menit lalu' },
-        { user: 'Sari W.', action: 'menambahkan ke wishlist', item: 'Lightstick JKT48 Ver. 3', time: '5 menit lalu' },
-        { user: 'Budi H.', action: 'baru saja membeli', item: 'Kaos Anniversary 11th', time: '8 menit lalu' },
-    ];
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 2, duration: 0.5 }}
-            className="fixed bottom-6 left-6 z-40 hidden lg:block"
-        >
-            <motion.div
-                key={0}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-white/95 backdrop-blur-lg rounded-xl border border-surface-200 shadow-elevated p-3 max-w-xs"
-            >
-                <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white text-xs font-bold shrink-0">
-                        {activities[0].user[0]}
-                    </div>
-                    <div>
-                        <p className="text-xs text-surface-600">
-                            <span className="font-semibold text-surface-800">{activities[0].user}</span> {activities[0].action}
-                        </p>
-                        <p className="text-[11px] text-primary-600 font-medium">{activities[0].item}</p>
-                    </div>
-                </div>
-            </motion.div>
-        </motion.div>
-    );
-}
-
 // Real listings section
 function ListingsSection({ listings, title, subtitle }) {
     if (!listings || listings.length === 0) {
@@ -166,7 +126,7 @@ function ListingsSection({ listings, title, subtitle }) {
     );
 }
 
-export default function Welcome({ canLogin, canRegister, appName, listings = [] }) {
+export default function Welcome({ canLogin, canRegister, appName, listings = [], stats = [], categoryCounts = {}, trendingMembers = [] }) {
     useSmoothScroll();
 
     return (
@@ -182,7 +142,7 @@ export default function Welcome({ canLogin, canRegister, appName, listings = [] 
                 <HeroBanner canLogin={canLogin} />
 
                 {/* 2. Trending Categories */}
-                <CategoryMarquee />
+                <CategoryMarquee categoryCounts={categoryCounts} />
 
                 {/* 3. Listings from DB */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="trending">
@@ -193,25 +153,19 @@ export default function Welcome({ canLogin, canRegister, appName, listings = [] 
                     />
                 </div>
 
-                {/* 4. Stats */}
+                {/* 4. Stats — real counts from DB */}
                 <div id="about">
-                    <StatsSection stats={STATS} />
+                    <StatsSection stats={stats} />
                 </div>
 
-                {/* 5. Featured Members */}
-                <FeaturedMembers />
+                {/* 5. Featured Members — real from DB + JKT48 API photos */}
+                <FeaturedMembers trendingMembers={trendingMembers} />
 
-                {/* 6. Testimonials */}
-                <TestimonialsSection />
-
-                {/* 7. CTA Banner */}
+                {/* 6. CTA Banner */}
                 <CTABanner />
 
-                {/* 8. Footer */}
+                {/* 7. Footer */}
                 <Footer />
-
-                {/* Activity Feed */}
-                <ActivityFeed />
             </div>
         </>
     );
