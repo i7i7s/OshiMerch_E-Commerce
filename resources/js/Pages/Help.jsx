@@ -1,383 +1,284 @@
-import { Head, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    ShoppingCart, Store, ShieldCheck, HelpCircle, Phone, 
-    FileText, Lock, RefreshCcw, Users, Search, ChevronRight 
-} from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { useState, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 
-const ICONS = {
-    'cara-beli': ShoppingCart,
-    'cara-jual': Store,
-    'keamanan-transaksi': ShieldCheck,
-    'faq': HelpCircle,
-    'hubungi-kami': Phone,
-    'syarat-ketentuan': FileText,
-    'kebijakan-privasi': Lock,
-    'kebijakan-pengembalian': RefreshCcw,
-    'panduan-komunitas': Users,
-};
+// Pure SVG Plus/Minus for Accordion
+const PlusSVG = ({ isOpen }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-8 h-8 transition-transform duration-500 ${isOpen ? 'rotate-45' : ''}`}>
+        <path d="M12 5v14M5 12h14" />
+    </svg>
+);
 
-const HELP_DATA = [
+// Raw SVG Star
+const StarSVG = ({ className }) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+);
+
+const HELP_SECTIONS = [
     {
-        category: 'Bantuan',
+        id: 'panduan',
+        number: '01',
+        title: 'PANDUAN TRANSAKSI',
         items: [
-            { 
-                id: 'cara-beli', 
-                title: 'Cara Beli', 
+            {
+                title: 'Cara Beli (Untuk Pembeli)',
                 content: (
-                    <div className="space-y-6">
-                        <p className="text-surface-600 leading-relaxed text-lg">Membeli merchandise incaranmu di OshiMerch sangat mudah dan aman. Ikuti langkah-langkah berikut:</p>
-                        <div className="space-y-4">
+                    <div className="space-y-6 pt-4">
+                        <p className="text-xl text-surface-600 leading-relaxed font-medium">Membeli merchandise incaranmu di OshiMerch sangat mudah dan aman. Ikuti langkah-langkah berikut:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {[
-                                'Cari merchandise incaranmu lewat fitur pencarian atau halaman member.',
-                                'Pilih produk yang kamu inginkan, perhatikan detail kondisi dan harga.',
-                                'Klik "Beli Sekarang" atau mulai percakapan (Chat) dengan penjual.',
-                                'Selesaikan pembayaran menggunakan metode yang tersedia. Saldo akan ditahan oleh sistem kami (Rekber).',
-                                'Setelah barang sampai dan sesuai deskripsi, klik "Selesaikan Transaksi". Dana baru akan diteruskan ke penjual!'
+                                'Cari merchandise lewat fitur pencarian atau halaman member idolamu.',
+                                'Pilih produk, perhatikan detail kondisi barang dan harga.',
+                                'Klik "Beli" atau hubungi penjual melalui sistem pesan.',
+                                'Selesaikan pembayaran. Saldo ditahan oleh Rekber OshiMerch.',
+                                'Barang diterima, klik "Selesai" agar dana diteruskan ke penjual.'
                             ].map((step, i) => (
-                                <div key={i} className="flex gap-4 p-4 rounded-2xl bg-surface-50 border border-surface-100 items-start">
-                                    <div className="w-8 h-8 rounded-full gradient-primary text-white flex items-center justify-center font-bold flex-shrink-0 shadow-sm">{i + 1}</div>
-                                    <p className="text-surface-700 font-medium pt-1">{step}</p>
+                                <div key={i} className="p-6 bg-surface-50 border border-surface-200 rounded-2xl flex flex-col justify-between">
+                                    <span className="text-4xl font-display font-black text-surface-200 mb-4">0{i + 1}</span>
+                                    <p className="text-surface-800 font-bold">{step}</p>
                                 </div>
                             ))}
                         </div>
                     </div>
-                ) 
+                )
             },
-            { 
-                id: 'cara-jual', 
-                title: 'Cara Jual', 
+            {
+                title: 'Cara Jual (Untuk Seller)',
                 content: (
-                    <div className="space-y-6">
-                        <p className="text-surface-600 leading-relaxed text-lg">Ubah koleksi lamamu menjadi cuan! Menjadi seller di OshiMerch sangat cepat.</p>
-                        <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="p-6 rounded-3xl bg-surface-50 border border-surface-100 hover:border-primary-200 transition-colors">
-                                <Store className="w-8 h-8 text-primary-500 mb-4" />
-                                <h3 className="font-bold text-surface-900 mb-2">1. Pasang Listing</h3>
-                                <p className="text-sm text-surface-600">Klik tombol "Jual", unggah foto produk yang jelas, isi deskripsi jujur mengenai kondisi (Mint/Good/Damaged), lalu tetapkan harga.</p>
+                    <div className="space-y-6 pt-4">
+                        <p className="text-xl text-surface-600 leading-relaxed font-medium">Ubah koleksi lamamu menjadi cuan! Menjadi seller di OshiMerch sangat cepat.</p>
+                        <div className="p-8 bg-primary-600 text-white rounded-3xl relative overflow-hidden">
+                            <div className="relative z-10 flex flex-col md:flex-row gap-8">
+                                <div className="flex-1">
+                                    <h4 className="text-2xl font-black uppercase mb-2">1. Pasang Listing</h4>
+                                    <p className="text-primary-100">Unggah foto jelas, deskripsi jujur, dan harga bersaing.</p>
+                                </div>
+                                <div className="hidden md:block w-px bg-primary-500"></div>
+                                <div className="flex-1">
+                                    <h4 className="text-2xl font-black uppercase mb-2">2. Kirim Pesanan</h4>
+                                    <p className="text-primary-100">Kemas barang dengan aman (bubble wrap/toploader), dan input resi valid.</p>
+                                </div>
                             </div>
-                            <div className="p-6 rounded-3xl bg-surface-50 border border-surface-100 hover:border-primary-200 transition-colors">
-                                <ShoppingCart className="w-8 h-8 text-secondary-500 mb-4" />
-                                <h3 className="font-bold text-surface-900 mb-2">2. Terima Pesanan</h3>
-                                <p className="text-sm text-surface-600">Saat ada pembeli, kemas barang dengan aman (gunakan bubble wrap/toploader untuk photocard). Input resi pengiriman ke sistem.</p>
-                            </div>
-                        </div>
-                        <div className="p-4 bg-primary-50 border border-primary-100 rounded-2xl text-primary-800 text-sm font-medium">
-                            💡 Tips: Pastikan kamu mencantumkan member terkait agar listingmu muncul di halaman profil member tersebut!
+                            <StarSVG className="absolute -bottom-10 -right-10 w-48 h-48 text-primary-500 opacity-50 rotate-12" />
                         </div>
                     </div>
-                ) 
-            },
-            { 
-                id: 'keamanan-transaksi', 
-                title: 'Keamanan Transaksi', 
-                content: (
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-16 h-16 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center rotate-3 shadow-sm">
-                                <ShieldCheck className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-surface-900">100% Dilindungi Rekber</h3>
-                                <p className="text-surface-500">Uangmu aman bersama kami.</p>
-                            </div>
-                        </div>
-                        <p className="text-surface-600 leading-relaxed">
-                            Semua transaksi di OshiMerch menggunakan sistem Rekening Bersama (Rekber) otomatis. Artinya:
-                        </p>
-                        <ul className="list-disc pl-5 space-y-2 text-surface-700">
-                            <li>Uang yang dibayar pembeli akan <b>ditahan oleh OshiMerch</b>.</li>
-                            <li>Penjual hanya bisa menerima uang tersebut <b>setelah pembeli mengonfirmasi</b> bahwa barang telah diterima dalam kondisi sesuai.</li>
-                            <li>Jika barang tidak dikirim dalam batas waktu, uang otomatis dikembalikan 100% ke pembeli.</li>
-                        </ul>
-                    </div>
-                ) 
-            },
-            { 
-                id: 'faq', 
-                title: 'FAQ', 
-                content: (
-                    <div className="space-y-4">
-                        {[
-                            { q: "Apakah aplikasi ini resmi buatan JOT (JKT48 Operation Team)?", a: "Tidak. OshiMerch adalah marketplace independen yang dibuat dari fans, oleh fans, dan untuk fans." },
-                            { q: "Apakah ada biaya admin?", a: "Saat ini transaksi di OshiMerch 100% gratis tanpa potongan biaya layanan." },
-                            { q: "Bagaimana jika barang yang datang palsu/bootleg?", a: "Kamu bisa mengajukan komplain sebelum menekan tombol Selesai. Tim kami akan melakukan mediasi dan dana bisa dikembalikan jika terbukti palsu." }
-                        ].map((faq, i) => (
-                            <div key={i} className="p-5 rounded-2xl bg-surface-50 border border-surface-100">
-                                <h4 className="font-bold text-surface-900 mb-2 flex gap-2">
-                                    <span className="text-primary-500">Q:</span> {faq.q}
-                                </h4>
-                                <p className="text-surface-600 text-sm leading-relaxed flex gap-2">
-                                    <span className="text-secondary-500 font-bold">A:</span> {faq.a}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                ) 
-            },
-            { 
-                id: 'hubungi-kami', 
-                title: 'Hubungi Kami', 
-                content: (
-                    <div className="text-center py-8">
-                        <div className="w-20 h-20 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                            <Phone className="w-10 h-10" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-surface-900 mb-2">Butuh Bantuan Langsung?</h3>
-                        <p className="text-surface-600 mb-8 max-w-md mx-auto">Tim support kami (yang juga Wota) siap membalas pesanmu 24/7. Hubungi kami melalui:</p>
-                        
-                        <div className="flex flex-wrap justify-center gap-4">
-                            <a href="mailto:support@oshimerch.test" className="px-6 py-3 rounded-xl bg-surface-900 text-white font-semibold hover:bg-surface-800 transition-colors shadow-md">
-                                Email Support
-                            </a>
-                            <a href="#" className="px-6 py-3 rounded-xl bg-[#25D366] text-white font-semibold hover:bg-[#20b858] transition-colors shadow-md">
-                                WhatsApp Admin
-                            </a>
-                        </div>
-                    </div>
-                ) 
-            },
+                )
+            }
         ]
     },
     {
-        category: 'Kebijakan',
+        id: 'keamanan',
+        number: '02',
+        title: 'KEAMANAN & FAQ',
         items: [
-            { 
-                id: 'syarat-ketentuan', 
-                title: 'Syarat & Ketentuan', 
+            {
+                title: 'Sistem Rekening Bersama (Rekber)',
                 content: (
-                    <div className="prose prose-surface prose-p:text-surface-600 max-w-none">
-                        <h3>1. Penerimaan Syarat</h3>
-                        <p>Dengan mengakses dan menggunakan OshiMerch, Anda menyetujui untuk terikat dengan seluruh syarat dan ketentuan ini.</p>
-                        <h3>2. Penggunaan Layanan</h3>
-                        <p>Platform ini hanya boleh digunakan untuk jual-beli merchandise resmi/fanmade (jika dinyatakan jelas) yang berhubungan dengan JKT48 atau sister groupnya. Dilarang keras menjual barang ilegal, pornografi, atau tiket palsu.</p>
-                        <h3>3. Akun Pengguna</h3>
-                        <p>Anda bertanggung jawab penuh atas keamanan akun Anda. OshiMerch tidak bertanggung jawab atas kerugian akibat peretasan akun pribadi.</p>
-                    </div>
-                ) 
-            },
-            { 
-                id: 'kebijakan-privasi', 
-                title: 'Kebijakan Privasi', 
-                content: (
-                    <div className="prose prose-surface prose-p:text-surface-600 max-w-none">
-                        <p>Kami sangat menghargai privasi Anda. Data pribadi yang kami kumpulkan meliputi:</p>
-                        <ul>
-                            <li><strong>Data Identitas:</strong> Nama, email, nomor HP.</li>
-                            <li><strong>Data Transaksi:</strong> Riwayat pembelian dan alamat pengiriman.</li>
-                        </ul>
-                        <p>Data tersebut <strong>TIDAK AKAN</strong> dijual kepada pihak ketiga dan murni hanya digunakan untuk keperluan operasional platform (pengiriman barang & verifikasi keamanan).</p>
-                    </div>
-                ) 
-            },
-            { 
-                id: 'kebijakan-pengembalian', 
-                title: 'Kebijakan Pengembalian', 
-                content: (
-                    <div className="space-y-6">
-                        <div className="bg-red-50 border border-red-100 p-5 rounded-2xl">
-                            <h3 className="font-bold text-red-800 mb-2">Syarat Mutlak Retur (Wajib Unboxing)</h3>
-                            <p className="text-red-600 text-sm">Pembeli <strong>WAJIB</strong> menyertakan video unboxing penuh (tanpa potong/edit) dari sejak paket masih tertutup resi hingga barang terlihat jelas kerusakannya.</p>
-                        </div>
-                        <ul className="list-decimal pl-5 space-y-2 text-surface-600">
-                            <li>Pengajuan retur maksimal 2x24 jam sejak resi dinyatakan delivered.</li>
-                            <li>Kerusakan akibat kelalaian kurir di luar tanggung jawab penjual (kecuali penjual tidak menggunakan bubble wrap standard).</li>
-                            <li>Barang harus dikirim kembali ke penjual sebelum dana dikembalikan ke pembeli.</li>
-                        </ul>
-                    </div>
-                ) 
-            },
-            { 
-                id: 'panduan-komunitas', 
-                title: 'Panduan Komunitas', 
-                content: (
-                    <div className="text-center py-6">
-                        <Users className="w-16 h-16 text-primary-400 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-surface-900 mb-4">Mari Bangun Komunitas yang Sehat</h3>
-                        <div className="grid sm:grid-cols-2 gap-4 text-left">
-                            <div className="p-4 rounded-xl bg-green-50 border border-green-100">
-                                <h4 className="font-bold text-green-700 flex items-center gap-2 mb-2">✅ Do's</h4>
-                                <ul className="text-sm text-green-600 space-y-1">
-                                    <li>• Berkomunikasi dengan sopan.</li>
-                                    <li>• Berikan deskripsi barang yang jujur.</li>
-                                    <li>• Packing barang dengan super aman.</li>
-                                </ul>
-                            </div>
-                            <div className="p-4 rounded-xl bg-red-50 border border-red-100">
-                                <h4 className="font-bold text-red-700 flex items-center gap-2 mb-2">❌ Don'ts</h4>
-                                <ul className="text-sm text-red-600 space-y-1">
-                                    <li>• Hit and Run (PHP).</li>
-                                    <li>• Menjual barang bootleg tanpa label.</li>
-                                    <li>• Rasisme, hate speech, atau doxxing.</li>
-                                </ul>
+                    <div className="space-y-6 pt-4">
+                        <div className="p-8 border-2 border-surface-900 rounded-3xl bg-surface-900 text-white">
+                            <h3 className="text-3xl font-black uppercase mb-4 text-primary-400">100% Dilindungi Sistem</h3>
+                            <p className="text-lg text-surface-300 leading-relaxed mb-6">
+                                Semua transaksi menggunakan Rekber. Uang ditahan oleh sistem kami dan baru akan diteruskan ke penjual setelah pembeli mengonfirmasi bahwa barang telah diterima dengan baik.
+                            </p>
+                            <div className="flex items-center gap-2 text-sm font-bold tracking-widest uppercase">
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                Uang Anda Aman
                             </div>
                         </div>
                     </div>
-                ) 
+                )
             },
+            {
+                title: 'Pertanyaan Umum (FAQ)',
+                content: (
+                    <div className="space-y-4 pt-4">
+                        {[
+                            { q: "Apakah platform ini resmi dari JOT?", a: "Tidak. OshiMerch murni inisiatif dari fans untuk fans." },
+                            { q: "Apakah ada biaya admin?", a: "Saat ini transaksi 100% gratis tanpa potongan apapun." },
+                            { q: "Barang palsu/bootleg?", a: "Jika terbukti palsu/bootleg tanpa keterangan, dana dikembalikan 100% dan penjual di-banned." }
+                        ].map((faq, i) => (
+                            <div key={i} className="p-6 border-b border-surface-200 last:border-0">
+                                <h4 className="text-xl font-bold text-surface-900 mb-2">Q: {faq.q}</h4>
+                                <p className="text-surface-600 text-lg">A: {faq.a}</p>
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
+        ]
+    },
+    {
+        id: 'legal',
+        number: '03',
+        title: 'LEGALITAS & KEBIJAKAN',
+        items: [
+            {
+                title: 'Syarat & Ketentuan',
+                content: (
+                    <div className="pt-4 text-lg text-surface-700 leading-relaxed space-y-4">
+                        <p>Dengan menggunakan OshiMerch, Anda menyetujui aturan main kami. Dilarang keras melakukan penipuan, menjual barang ilegal, tiket palsu, atau konten yang melanggar hukum.</p>
+                        <p>Akun yang terbukti melakukan pelanggaran akan dinonaktifkan secara permanen tanpa peringatan.</p>
+                    </div>
+                )
+            },
+            {
+                title: 'Kebijakan Pengembalian (Refund)',
+                content: (
+                    <div className="pt-4 space-y-6">
+                        <div className="p-6 bg-red-50 text-red-900 rounded-2xl border border-red-200">
+                            <h4 className="text-xl font-black uppercase mb-2">Syarat Mutlak: Video Unboxing</h4>
+                            <p>Tanpa video unboxing penuh dari awal membuka paket hingga barang terlihat jelas kerusakannya, komplain <strong>TIDAK AKAN DITERIMA</strong>.</p>
+                        </div>
+                        <ul className="list-disc pl-6 space-y-2 text-lg text-surface-700">
+                            <li>Pengajuan komplain maksimal 2x24 jam setelah status Delivered.</li>
+                            <li>Barang harus dikirim balik ke penjual terlebih dahulu.</li>
+                            <li>Kerusakan akibat kelalaian kurir bukan tanggung jawab penjual (kecuali penjual tidak menggunakan packing standar).</li>
+                        </ul>
+                    </div>
+                )
+            }
         ]
     }
 ];
 
-export default function HelpCenter() {
-    const { url } = usePage();
-    const searchParams = new URLSearchParams(url.split('?')[1]);
-    const initialTab = searchParams.get('tab') || 'cara-beli';
-
-    const [activeTab, setActiveTab] = useState(initialTab);
-    const [searchQuery, setSearchQuery] = useState('');
-
-    // Flat list of all items for search & active rendering
-    const allItems = HELP_DATA.flatMap(cat => cat.items);
-    
-    // Find active item content
-    const activeItem = allItems.find(item => item.id === activeTab) || allItems[0];
-
-    // Filter menu based on search
-    const filteredData = HELP_DATA.map(category => ({
-        ...category,
-        items: category.items.filter(item => 
-            item.title.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    })).filter(category => category.items.length > 0);
+const AccordionItem = ({ title, content }) => {
+    const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-surface-50 flex flex-col">
-            <Head title="Pusat Bantuan & Kebijakan — OshiMerch" />
+        <div className="border-b-2 border-surface-900">
+            <button 
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full py-8 sm:py-12 flex items-center justify-between text-left group"
+            >
+                <h3 className={`text-3xl sm:text-5xl font-display font-black uppercase tracking-tight transition-colors duration-300 ${isOpen ? 'text-primary-600' : 'text-surface-950 group-hover:text-primary-500'}`}>
+                    {title}
+                </h3>
+                <div className={`p-2 rounded-full transition-colors duration-300 ${isOpen ? 'bg-primary-50 text-primary-600' : 'bg-transparent text-surface-400 group-hover:text-primary-500 group-hover:bg-primary-50'}`}>
+                    <PlusSVG isOpen={isOpen} />
+                </div>
+            </button>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                        className="overflow-hidden"
+                    >
+                        <div className="pb-12 pt-2 pr-4 sm:pr-24">
+                            {content}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+export default function HelpCenter() {
+    const containerRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end end"]
+    });
+
+    return (
+        <div className="min-h-screen bg-white text-surface-950 selection:bg-primary-500 selection:text-white font-sans" ref={containerRef}>
+            <Head title="Pusat Bantuan — OshiMerch" />
             <Navbar />
 
-            {/* Hero Section */}
-            <div className="bg-surface-900 pt-32 pb-20 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-10 mix-blend-overlay" />
-                <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full blur-[100px] bg-primary-600/30 pointer-events-none" />
-                
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            {/* --- HERO EDITORIAL --- */}
+            <div className="pt-40 pb-20 px-6 sm:px-12 lg:px-24">
+                <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-end gap-12 border-b-4 border-surface-950 pb-12">
+                    <div>
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="flex items-center gap-4 mb-8"
+                        >
+                            <StarSVG className="w-8 h-8 text-primary-600" />
+                            <span className="text-xl font-bold uppercase tracking-widest text-primary-600">OshiMerch Support</span>
+                        </motion.div>
+                        <motion.h1 
+                            initial={{ opacity: 0, y: 40 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.1 }}
+                            className="text-6xl sm:text-8xl md:text-[8rem] leading-[0.85] font-display font-black uppercase tracking-tighter"
+                        >
+                            WE'VE GOT<br/>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-500">YOUR BACK.</span>
+                        </motion.h1>
+                    </div>
                     <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                        className="max-w-sm text-xl text-surface-600 font-medium"
                     >
-                        <h1 className="text-4xl sm:text-5xl font-black font-display text-white mb-6 tracking-tight">
-                            Pusat <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">Bantuan & Kebijakan</span>
-                        </h1>
-                        <p className="text-lg text-surface-400 max-w-2xl mx-auto mb-10">
-                            Temukan jawaban untuk semua pertanyaanmu mengenai layanan OshiMerch. Kami di sini untuk membantumu.
-                        </p>
-
-                        <div className="max-w-xl mx-auto relative group">
-                            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                                <Search className="w-5 h-5 text-surface-400 group-focus-within:text-primary-500 transition-colors" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Cari topik bantuan... (cth: Retur, Jual)"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-surface-800/50 border border-surface-700 text-white placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-surface-800 transition-all shadow-xl backdrop-blur-sm"
-                            />
-                        </div>
+                        Semua jawaban yang kamu butuhkan untuk transaksi aman, nyaman, dan anti-ribet di ekosistem fandom JKT48.
                     </motion.div>
                 </div>
             </div>
 
-            {/* Content Section */}
-            <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full -mt-12 relative z-20">
-                <div className="bg-white rounded-3xl shadow-xl border border-surface-200 overflow-hidden flex flex-col lg:flex-row min-h-[600px]">
+            {/* --- MAIN CONTENT (STICKY SIDEBAR LAYOUT) --- */}
+            <div className="px-6 sm:px-12 lg:px-24 pb-32">
+                <div className="max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-16 lg:gap-32">
                     
-                    {/* Sidebar / Vertical Tabs */}
-                    <div className="w-full lg:w-80 bg-surface-50 border-r border-surface-200 flex-shrink-0 flex flex-col max-h-[80vh] lg:max-h-none overflow-y-auto custom-scrollbar">
-                        <div className="p-6">
-                            {filteredData.length === 0 ? (
-                                <p className="text-surface-500 text-center py-4 text-sm">Tidak ada topik yang sesuai dengan pencarianmu.</p>
-                            ) : (
-                                <div className="space-y-8">
-                                    {filteredData.map((category, catIdx) => (
-                                        <div key={catIdx}>
-                                            <h3 className="text-xs font-black text-surface-400 uppercase tracking-widest mb-3 px-3">
-                                                {category.category}
-                                            </h3>
-                                            <div className="space-y-1">
-                                                {category.items.map((item) => {
-                                                    const Icon = ICONS[item.id] || HelpCircle;
-                                                    const isActive = activeTab === item.id;
-                                                    return (
-                                                        <button
-                                                            key={item.id}
-                                                            onClick={() => {
-                                                                setActiveTab(item.id);
-                                                                // Mobile scroll to content
-                                                                if (window.innerWidth < 1024) {
-                                                                    window.scrollTo({ top: 400, behavior: 'smooth' });
-                                                                }
-                                                            }}
-                                                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all duration-200 group ${
-                                                                isActive 
-                                                                ? 'bg-primary-50 text-primary-700 font-bold' 
-                                                                : 'text-surface-600 hover:bg-surface-100 hover:text-surface-900 font-medium'
-                                                            }`}
-                                                        >
-                                                            <div className="flex items-center gap-3">
-                                                                <Icon className={`w-5 h-5 ${isActive ? 'text-primary-500' : 'text-surface-400 group-hover:text-surface-600'}`} />
-                                                                <span>{item.title}</span>
-                                                            </div>
-                                                            {isActive && (
-                                                                <motion.div layoutId="activeTabIndicator">
-                                                                    <ChevronRight className="w-4 h-4 text-primary-500" />
-                                                                </motion.div>
-                                                            )}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
+                    {/* Sticky Sidebar */}
+                    <div className="lg:w-1/3 relative">
+                        <div className="sticky top-32">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-surface-400 mb-8 border-b border-surface-200 pb-4">
+                                Table of Contents
+                            </h2>
+                            <ul className="space-y-6">
+                                {HELP_SECTIONS.map((section) => (
+                                    <li key={section.id}>
+                                        <a href={`#${section.id}`} className="group flex items-baseline gap-6">
+                                            <span className="text-lg font-mono font-bold text-surface-300 group-hover:text-primary-500 transition-colors">{section.number}</span>
+                                            <span className="text-2xl font-display font-black uppercase text-surface-500 group-hover:text-surface-950 transition-colors">{section.title}</span>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <div className="mt-16 p-8 bg-surface-50 border border-surface-200 rounded-3xl">
+                                <h3 className="text-lg font-bold mb-2">Masih Bingung?</h3>
+                                <p className="text-surface-600 mb-6">Tim dukungan Wota kami siap membantu kendalamu 24/7.</p>
+                                <a href="mailto:support@oshimerch.id" className="inline-block w-full py-4 bg-surface-950 text-white text-center font-bold uppercase tracking-widest rounded-xl hover:bg-primary-600 transition-colors">
+                                    Hubungi Admin
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Accordion Content */}
+                    <div className="lg:w-2/3">
+                        {HELP_SECTIONS.map((section) => (
+                            <div key={section.id} id={section.id} className="scroll-mt-32 mb-24 last:mb-0">
+                                <div className="flex items-center gap-6 mb-12">
+                                    <span className="text-3xl font-mono font-bold text-primary-500">{section.number}</span>
+                                    <h2 className="text-4xl sm:text-6xl font-display font-black uppercase tracking-tighter">
+                                        {section.title}
+                                    </h2>
+                                </div>
+
+                                <div className="border-t-2 border-surface-900">
+                                    {section.items.map((item, idx) => (
+                                        <AccordionItem key={idx} title={item.title} content={item.content} />
                                     ))}
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Content Display */}
-                    <div className="flex-1 p-6 sm:p-10 lg:p-12 bg-white relative overflow-hidden">
-                        {/* Decorative Background Icon */}
-                        <div className="absolute -bottom-10 -right-10 opacity-[0.03] pointer-events-none">
-                            {(() => {
-                                const ActiveIcon = ICONS[activeItem.id] || HelpCircle;
-                                return <ActiveIcon className="w-96 h-96" />;
-                            })()}
-                        </div>
-
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeItem.id}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                transition={{ duration: 0.3, ease: "easeOut" }}
-                                className="relative z-10 max-w-3xl"
-                            >
-                                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-surface-100 text-surface-600 font-semibold text-sm mb-6">
-                                    {(() => {
-                                        const ActiveIcon = ICONS[activeItem.id] || HelpCircle;
-                                        return <ActiveIcon className="w-4 h-4 text-primary-500" />;
-                                    })()}
-                                    {activeItem.title}
-                                </div>
-                                
-                                <h2 className="text-3xl sm:text-4xl font-bold font-display text-surface-900 mb-8 pb-6 border-b border-surface-100">
-                                    {activeItem.title}
-                                </h2>
-                                
-                                <div className="text-surface-800">
-                                    {activeItem.content}
-                                </div>
-                            </motion.div>
-                        </AnimatePresence>
-                    </div>
                 </div>
-            </main>
+            </div>
 
             <Footer />
         </div>
