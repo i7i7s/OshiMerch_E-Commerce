@@ -24,7 +24,7 @@ export default function Footer() {
             <footer className="bg-surface-900 text-surface-300 rounded-t-[3rem] sm:rounded-t-[4rem] relative overflow-hidden shadow-2xl mt-8">
                 
                 {/* Background ambient glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-32 bg-primary-500/20 blur-[100px] pointer-events-none rounded-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-32 bg-gradient-to-r from-primary-500/20 to-purple-600/20 blur-[100px] pointer-events-none rounded-full" />
 
                 <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-20 pb-10 relative z-10">
                     
@@ -32,8 +32,8 @@ export default function Footer() {
                     <div className="flex flex-col lg:flex-row justify-between items-start gap-12 border-b border-surface-800 pb-16 mb-16">
                         <div className="lg:w-1/2">
                             <div className="flex items-center gap-3 mb-8">
-                                <img src="/images/logo.png" alt="OshiMerch" className="w-12 h-12 rounded-2xl shadow-lg shadow-primary-500/20" />
-                                <span className="text-3xl font-bold font-display text-white tracking-tight">Oshi<span className="text-primary-500">Merch</span></span>
+                                <img src="/images/logo.png" alt="OshiMerch" className="w-12 h-12 rounded-2xl shadow-lg shadow-purple-500/20" />
+                                <span className="text-3xl font-bold font-display text-white tracking-tight">Oshi<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-purple-500">Merch</span></span>
                             </div>
                             
                             {/* The User's Beautiful Quote */}
@@ -42,12 +42,12 @@ export default function Footer() {
                                     <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                                 </svg>
                                 <p className="text-xl sm:text-2xl font-display font-medium leading-relaxed text-surface-200 relative z-10 italic">
-                                    "Dibuat dengan <span className="text-primary-400 font-bold">passion</span>, dihadirkan dengan <span className="text-primary-400 font-bold">cinta</span>, diwujudkan untuk <span className="text-primary-400 font-bold">mimpimu</span>. Karena setiap pilihan yang kamu buat di sini adalah langkah menuju versi terbaik dirimu."
+                                    "Dibuat dengan <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-purple-400 font-bold">passion</span>, dihadirkan dengan <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-purple-400 font-bold">cinta</span>, diwujudkan untuk <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-purple-400 font-bold">mimpimu</span>. Karena setiap pilihan yang kamu buat di sini adalah langkah menuju versi terbaik dirimu."
                                 </p>
                             </div>
                         </div>
 
-                        <div className="lg:w-1/3 w-full bg-surface-800/50 backdrop-blur-md rounded-3xl p-8 border border-surface-700/50 hover:border-primary-500/30 transition-colors">
+                        <div className="lg:w-1/3 w-full bg-surface-800/50 backdrop-blur-md rounded-3xl p-8 border border-surface-700/50 hover:border-purple-500/30 transition-colors">
                             <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
                                 <MailIcon /> Hubungi Kami
                             </h3>
@@ -68,7 +68,7 @@ export default function Footer() {
                             <ul className="space-y-3.5">
                                 {CATEGORIES.slice(0, 5).map((cat) => (
                                     <li key={cat.id}>
-                                        <a href="#" className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">
+                                        <a href="#" className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">
                                             {cat.name}
                                         </a>
                                     </li>
@@ -81,13 +81,13 @@ export default function Footer() {
                             <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Navigasi</h4>
                             <ul className="space-y-3.5">
                                 <li>
-                                    <Link href={route('products.index')} className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">Semua Produk</Link>
+                                    <Link href={route('products.index')} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">Semua Produk</Link>
                                 </li>
                                 <li>
-                                    <Link href={route('about')} className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">Tentang Kami</Link>
+                                    <Link href={route('about')} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">Tentang Kami</Link>
                                 </li>
                                 <li>
-                                    <Link href={route('members')} className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">Daftar Member</Link>
+                                    <Link href={route('members')} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">Daftar Member</Link>
                                 </li>
                             </ul>
                         </div>
@@ -98,7 +98,7 @@ export default function Footer() {
                             <ul className="space-y-3.5">
                                 {['Cara Beli', 'Cara Jual', 'FAQ'].map((item) => (
                                     <li key={item}>
-                                        <Link href={route('help', { tab: slugify(item) })} className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">
+                                        <Link href={route('help', { tab: slugify(item) })} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">
                                             {item}
                                         </Link>
                                     </li>
@@ -112,7 +112,7 @@ export default function Footer() {
                             <ul className="space-y-3.5">
                                 {['Privasi', 'Ketentuan', 'Refund'].map((item) => (
                                     <li key={item}>
-                                        <Link href={route('help', { tab: slugify(item) })} className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">
+                                        <Link href={route('help', { tab: slugify(item) })} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">
                                             {item}
                                         </Link>
                                     </li>
@@ -131,7 +131,7 @@ export default function Footer() {
 
                         <div className="flex items-center gap-3">
                             {['Instagram', 'Twitter', 'TikTok'].map((social) => (
-                                <a key={social} href="#" className="w-10 h-10 rounded-xl bg-surface-800 hover:bg-primary-600 flex items-center justify-center text-surface-400 hover:text-white transition-all text-xs font-bold shadow-sm hover:shadow-primary-500/20 hover:-translate-y-1">
+                                <a key={social} href="#" className="w-10 h-10 rounded-xl bg-surface-800 hover:bg-purple-600 flex items-center justify-center text-surface-400 hover:text-white transition-all text-xs font-bold shadow-sm hover:shadow-purple-500/20 hover:-translate-y-1">
                                     {social.substring(0, 2).toUpperCase()}
                                 </a>
                             ))}
