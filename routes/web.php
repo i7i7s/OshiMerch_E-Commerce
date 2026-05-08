@@ -8,6 +8,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\MemberController;
 use App\Http\Middleware\EnsureOnboardingCompleted;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
@@ -76,12 +77,19 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/help', function () {
+    return Inertia::render('Help');
+})->name('help');
+
 // Public: Members page
 Route::get('/members', function () {
     return Inertia::render('Members', [
         'auth' => ['user' => Auth::user()],
     ]);
 })->name('members');
+
+// Public: Member detail page
+Route::get('/members/{code}', [MemberController::class, 'show'])->name('members.show');
 
 // Public: Products page (listing index — full marketplace)
 Route::get('/products', [ListingController::class, 'index'])->name('products.index');

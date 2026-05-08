@@ -97,6 +97,7 @@ php artisan serve
 ```
 /                       → Landing page (Welcome)
 /members                → Daftar member JKT48
+/members/{code}         → Halaman detail member & listing terkait
 /products               → Marketplace listing (publik)
 /products/{id}          → Detail listing (publik)
 /auth/google/redirect   → Login via Google
@@ -105,14 +106,24 @@ php artisan serve
 /listings/create        → Form tambah listing (auth)
 /listings/{id}/edit     → Form edit listing (auth + owner)
 /profile                → Profil pengguna (auth)
+/help                   → Pusat Bantuan & Kebijakan (SPA)
 ```
+
+---
+
+### ✅ Phase 3 — Advanced UI/UX & User Experience
+- **Halaman Detail Member** (`/members/{code}`) — Efek Parallax, Glassmorphism, 3D Photo Reveal, GSAP Stagger Animations.
+- **Global Error Handling** — Custom UI untuk error HTTP (404, 500, dll) dan Mode Offline (deteksi hilangnya koneksi internet secara real-time).
+- **Pusat Bantuan & Kebijakan** (`/help`) — SPA interaktif dengan vertical tabs, live search, dan dukungan navigasi via URL Query Params.
+- **Mock Social Media Feed** — Tampilan timeline interaktif untuk update terbaru Instagram, X, dan TikTok dari para member di halaman detail.
+- **Penyempurnaan Integrasi API** — Perbaikan fuzzy matching nickname dan penanganan data kosong.
 
 ---
 
 ## Roadmap
 
-- **Phase 3** — Sistem pesan antar pengguna, transaksi, wishlist backend, rating penjual
-- **Phase 4** — Notifikasi real-time, review & rating, laporan transaksi
+- **Phase 4** — Sistem pesan antar pengguna, transaksi Rekber sungguhan, rating penjual
+- **Phase 5** — Notifikasi real-time, laporan transaksi, dashboard admin
 
 ---
 

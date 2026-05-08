@@ -1,4 +1,7 @@
 import { CATEGORIES } from '@/data/products';
+import { Link } from '@inertiajs/react';
+
+const slugify = (text) => text.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-');
 
 export default function Footer() {
     return (
@@ -41,7 +44,7 @@ export default function Footer() {
                         <ul className="space-y-2.5">
                             {['Cara Beli', 'Cara Jual', 'Keamanan Transaksi', 'FAQ', 'Hubungi Kami'].map((item) => (
                                 <li key={item}>
-                                    <a href="#" className="text-sm text-surface-400 hover:text-primary-400 transition-colors">{item}</a>
+                                    <Link href={route('help', { tab: slugify(item) })} className="text-sm text-surface-400 hover:text-primary-400 transition-colors">{item}</Link>
                                 </li>
                             ))}
                         </ul>
@@ -53,7 +56,7 @@ export default function Footer() {
                         <ul className="space-y-2.5">
                             {['Syarat & Ketentuan', 'Kebijakan Privasi', 'Kebijakan Pengembalian', 'Panduan Komunitas'].map((item) => (
                                 <li key={item}>
-                                    <a href="#" className="text-sm text-surface-400 hover:text-primary-400 transition-colors">{item}</a>
+                                    <Link href={route('help', { tab: slugify(item) })} className="text-sm text-surface-400 hover:text-primary-400 transition-colors">{item}</Link>
                                 </li>
                             ))}
                         </ul>

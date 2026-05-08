@@ -1,4 +1,4 @@
-﻿import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Users, Calendar, Droplets, Ruler } from 'lucide-react';
@@ -36,7 +36,7 @@ const TABS = [
     { label: 'LOVE',       value: 'LOVE',     apiValue: 'LOVE' },
     { label: 'DREAM',      value: 'DREAM',    apiValue: 'DREAM' },
     { label: 'TRAINEE',    value: 'TRAINEE',  apiValue: 'TRAINEE' },
-    { label: 'JKT48V',     value: 'JKT48V',   apiValue: 'VIRTUAL' },
+    { label: 'JKT48V',     value: 'JKT48V',   apiValue: 'JKT48_VIRTUAL' },
 ];
 
 const teamStyle = {
@@ -44,7 +44,7 @@ const teamStyle = {
     LOVE:    { badge: 'bg-team-love/10 text-team-love border-team-love/30',          dot: 'bg-team-love' },
     DREAM:   { badge: 'bg-team-dream/10 text-team-dream border-team-dream/30',       dot: 'bg-team-dream' },
     TRAINEE: { badge: 'bg-team-trainee/10 text-team-trainee border-team-trainee/30', dot: 'bg-team-trainee' },
-    VIRTUAL: { badge: 'bg-team-virtual/10 text-team-virtual border-team-virtual/30', dot: 'bg-team-virtual' },
+    JKT48_VIRTUAL: { badge: 'bg-team-virtual/10 text-team-virtual border-team-virtual/30', dot: 'bg-team-virtual' },
 };
 
 const tabActiveClass = {
@@ -79,194 +79,7 @@ const TikTokIcon = () => (
     </svg>
 );
 
-// ─── Member Detail Modal
-// Note: AnimatePresence lives in the parent; motion.div exit props fire on unmount
-const MemberDetailModal = ({ member, onClose }) => {
-    const team = getTeam(member);
-    const style = teamStyle[team] || teamStyle.PASSION;
-    const name = member.name || member.nickname || 'Member';
-    const photo = proxyPhoto(member.photo || member.image || null) || avatarFallback(name);
-    const social = member.social_media || {};
-    const teamLabel = team === 'VIRTUAL' ? 'JKT48V' : `Team ${team}`;
 
-    useEffect(() => {
-        const handler = (e) => { if (e.key === 'Escape') onClose(); };
-        window.addEventListener('keydown', handler);
-        document.body.style.overflow = 'hidden';
-        return () => {
-            window.removeEventListener('keydown', handler);
-            document.body.style.overflow = '';
-        };
-    }, [onClose]);
-
-    return (
-        <>
-            {/* Backdrop */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-                onClick={onClose}
-                aria-hidden="true"
-            />
-
-            {/* Sheet — bottom-sheet on mobile, centered dialog on desktop */}
-            <motion.div
-                role="dialog"
-                aria-modal="true"
-                aria-label={`Detail member ${name}`}
-                initial={{ opacity: 0, y: 80 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 60 }}
-                transition={{ type: 'spring', damping: 30, stiffness: 340 }}
-                className="fixed inset-x-0 bottom-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50 w-full sm:w-[560px] max-h-[90dvh] bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-y-auto"
-            >
-                {/* Mobile drag handle */}
-                <div className="flex justify-center pt-3 pb-1 sm:hidden" aria-hidden="true">
-                    <div className="w-10 h-1 rounded-full bg-surface-200" />
-                </div>
-
-                {/* Hero photo */}
-                <div className="relative h-56 sm:h-72 overflow-hidden sm:rounded-t-3xl bg-surface-100">
-                    <img
-                        src={photo}
-                        alt={name}
-                        className="w-full h-full object-cover object-top"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => { e.target.src = avatarFallback(name); }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-
-                    {/* Close */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-                        aria-label="Tutup"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
-
-                    {/* Team badge */}
-                    <span className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-sm ${style.badge}`}>
-                        {teamLabel}
-                    </span>
-
-                    {/* Name */}
-                    <div className="absolute bottom-4 left-5 right-14">
-                        <h2 className="text-2xl font-bold font-display text-white leading-tight">{name}</h2>
-                        {member.nickname && member.nickname !== name && (
-                            <p className="text-sm text-white/70 mt-0.5">"{member.nickname}"</p>
-                        )}
-                    </div>
-                </div>
-
-                {/* Body */}
-                <div className="p-5 space-y-5">
-                    {/* Jikoshoukai */}
-                    {member.jikoshoukai && (
-                        <div className="p-4 rounded-2xl bg-surface-50 border border-surface-100">
-                            <p className="text-sm text-surface-600 leading-relaxed italic">"{member.jikoshoukai}"</p>
-                        </div>
-                    )}
-
-                    {/* Stats row */}
-                    {(member.birth_date || member.blood_type || member.zodiac || member.height) && (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            {member.birth_date && (
-                                <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-surface-50 border border-surface-100">
-                                    <Calendar className="w-4 h-4 text-primary-400" />
-                                    <span className="text-[10px] text-surface-400 font-medium">Lahir</span>
-                                    <span className="text-[11px] font-semibold text-surface-700 text-center leading-tight">
-                                        {new Date(member.birth_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                    </span>
-                                </div>
-                            )}
-                            {member.blood_type && (
-                                <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-surface-50 border border-surface-100">
-                                    <Droplets className="w-4 h-4 text-red-400" />
-                                    <span className="text-[10px] text-surface-400 font-medium">Darah</span>
-                                    <span className="text-sm font-bold text-surface-700">{member.blood_type}</span>
-                                </div>
-                            )}
-                            {member.zodiac && (
-                                <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-surface-50 border border-surface-100">
-                                    <span className="text-lg leading-none">{zodiacEmoji[member.zodiac] || '⭐'}</span>
-                                    <span className="text-[10px] text-surface-400 font-medium">Zodiak</span>
-                                    <span className="text-[11px] font-semibold text-surface-700">{member.zodiac}</span>
-                                </div>
-                            )}
-                            {member.height && (
-                                <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-surface-50 border border-surface-100">
-                                    <Ruler className="w-4 h-4 text-secondary-400" />
-                                    <span className="text-[10px] text-surface-400 font-medium">Tinggi</span>
-                                    <span className="text-sm font-bold text-surface-700">{member.height} cm</span>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Hobbies */}
-                    {member.hobbies && member.hobbies.length > 0 && (
-                        <div>
-                            <h3 className="text-xs font-semibold text-surface-400 uppercase tracking-widest mb-2.5">Hobi</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {member.hobbies.map((h, i) => (
-                                    <span key={i} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${style.badge}`}>
-                                        {h}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Social Media */}
-                    {(social.instagram || social.x || social.tiktok) && (
-                        <div>
-                            <h3 className="text-xs font-semibold text-surface-400 uppercase tracking-widest mb-2.5">Sosial Media</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {social.instagram && (
-                                    <a
-                                        href={`https://instagram.com/${social.instagram}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-medium hover:opacity-90 transition-opacity"
-                                        style={{ background: 'linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' }}
-                                    >
-                                        <IgIcon /> @{social.instagram}
-                                    </a>
-                                )}
-                                {social.x && (
-                                    <a
-                                        href={`https://x.com/${social.x}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-900 text-white text-sm font-medium hover:bg-surface-700 transition-colors"
-                                    >
-                                        <TwitterXIcon /> @{social.x}
-                                    </a>
-                                )}
-                                {social.tiktok && (
-                                    <a
-                                        href={`https://tiktok.com/@${social.tiktok}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-900 text-white text-sm font-medium hover:bg-surface-700 transition-colors"
-                                    >
-                                        <TikTokIcon /> @{social.tiktok}
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="pb-2" />
-                </div>
-            </motion.div>
-        </>
-    );
-};
 
 // ─── Member card
 const MemberCard = ({ member, index, onClick }) => {
@@ -274,7 +87,7 @@ const MemberCard = ({ member, index, onClick }) => {
     const style = teamStyle[team] || teamStyle.PASSION;
     const name = member.name || member.nickname || 'Member';
     const imgSrc = getPhoto(member) || avatarFallback(name);
-    const teamLabel = team === 'VIRTUAL' ? 'JKT48V' : team;
+    const teamLabel = team === 'JKT48_VIRTUAL' ? 'JKT48V' : team;
 
     return (
         <motion.div
@@ -336,10 +149,8 @@ export default function Members({ auth }) {
     const [query, setQuery] = useState('');
     const [activeTab, setActiveTab] = useState('Semua');
     const [searchFocused, setSearchFocused] = useState(false);
-    const [selectedMember, setSelectedMember] = useState(null);
 
     const debouncedQuery = useDebounce(query, 300);
-    const closeModal = useCallback(() => setSelectedMember(null), []);
 
     useEffect(() => {
         fetch('https://jkt-48-member-api-i7i7.vercel.app/api/members')
@@ -506,7 +317,7 @@ export default function Members({ auth }) {
                                     key={member.code || member.id || i}
                                     member={member}
                                     index={i}
-                                    onClick={setSelectedMember}
+                                    onClick={(member) => router.visit(route('members.show', member.code))}
                                 />
                             ))}
                         </div>
@@ -516,16 +327,6 @@ export default function Members({ auth }) {
                 <Footer />
             </div>
 
-            {/* Member Detail Modal */}
-            <AnimatePresence>
-                {selectedMember && (
-                    <MemberDetailModal
-                        key={selectedMember.code || selectedMember.name}
-                        member={selectedMember}
-                        onClose={closeModal}
-                    />
-                )}
-            </AnimatePresence>
         </>
     );
 }
