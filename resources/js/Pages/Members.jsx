@@ -387,7 +387,7 @@ export default function Members({ auth }) {
                 <Navbar auth={auth} />
 
                 {/* Page Header */}
-                <div className="relative bg-white border-b border-surface-200 overflow-hidden">
+                <div className="relative bg-white border-b border-surface-200 overflow-hidden pt-16 sm:pt-[72px]">
                     <div className="absolute -top-16 -right-16 w-64 h-64 bg-primary-100/40 rounded-full blur-3xl pointer-events-none" />
                     <div className="absolute -bottom-8 left-1/4 w-48 h-48 bg-secondary-100/30 rounded-full blur-3xl pointer-events-none" />
                     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">

@@ -48,7 +48,7 @@ export default function Show({ listing, related, auth }) {
             <div className="min-h-dvh bg-surface-50 flex flex-col">
                 <Navbar auth={auth} />
 
-                <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+                <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pt-[88px] sm:pt-[88px]">
                     {/* Breadcrumb */}
                     <nav className="flex items-center gap-2 text-sm text-surface-500 mb-6">
                         <Link href={route('products.index')} className="flex items-center gap-1.5 hover:text-surface-700 transition-colors">
