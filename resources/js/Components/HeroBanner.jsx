@@ -52,22 +52,57 @@ function MeteorStreaks() {
     );
 }
 
-// Floating product mini-card
-function FloatingCard({ product, className, delay = 0 }) {
+// Stacked card fan — back to front
+// [0] = Fritzy (biggest, back), [1] Lightstick, [2] PC Oline, [3] PC Erine (front)
+const STACK_CONFIG = [
+    { item: HERO_ITEMS[3], rotate: -14, tx: -24, ty:  28, width: 200, z: 10, floatDelay: 1.5 },
+    { item: HERO_ITEMS[2], rotate:  -5, tx: -55, ty:  -8, width: 172, z: 20, floatDelay: 0.5 },
+    { item: HERO_ITEMS[1], rotate:   4, tx:  18, ty: -20, width: 164, z: 30, floatDelay: 1.0 },
+    { item: HERO_ITEMS[0], rotate:  13, tx:  55, ty:  16, width: 156, z: 40, floatDelay: 0.0 },
+];
+
+function StackedCards() {
     return (
-        <motion.div
-            className={`absolute rounded-2xl bg-white/90 backdrop-blur-sm border border-white/40 shadow-elevated overflow-hidden ${className}`}
-            animate={{ y: [-8, 8, -8] }}
-            transition={{ duration: 4 + delay, repeat: Infinity, ease: 'easeInOut', delay }}
-        >
-            <div className="w-full aspect-[3/4] overflow-hidden">
-                <img src={product.image} alt={product.title} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div className="p-2.5">
-                <p className="text-[11px] font-semibold text-surface-800 line-clamp-1">{product.title}</p>
-                <p className="text-xs font-bold text-primary-600 mt-0.5">{formatPrice(product.price)}</p>
-            </div>
-        </motion.div>
+        <div className="relative flex items-center justify-center w-full h-full">
+            {/* Soft glow behind the stack */}
+            <motion.div
+                className="absolute w-72 h-72 rounded-full opacity-40 pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(255,45,111,0.25) 0%, transparent 70%)' }}
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 4, repeat: Infinity }}
+            />
+
+            {STACK_CONFIG.map(({ item, rotate, tx, ty, width, z, floatDelay }, i) => (
+                <motion.div
+                    key={item.id}
+                    className="absolute rounded-2xl bg-white/92 backdrop-blur-sm border border-white/50 shadow-elevated overflow-hidden cursor-pointer"
+                    style={{
+                        width,
+                        zIndex: z,
+                        rotate,
+                        x: tx,
+                        y: ty,
+                        transformOrigin: 'bottom center',
+                    }}
+                    animate={{ y: [ty - 7, ty + 7, ty - 7] }}
+                    transition={{
+                        duration: 4 + floatDelay,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                        delay: floatDelay,
+                    }}
+                    whileHover={{ scale: 1.06, zIndex: 50, rotate: 0, transition: { duration: 0.25 } }}
+                >
+                    <div className="w-full aspect-[3/4] overflow-hidden">
+                        <img src={item.image} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                    <div className="p-2.5">
+                        <p className="text-[11px] font-semibold text-surface-800 line-clamp-1">{item.title}</p>
+                        <p className="text-xs font-bold text-primary-600 mt-0.5">{formatPrice(item.price)}</p>
+                    </div>
+                </motion.div>
+            ))}
+        </div>
     );
 }
 
@@ -77,8 +112,6 @@ export default function HeroBanner({ canLogin }) {
     const mouseY = useMotionValue(0);
     const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 30 });
     const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 30 });
-
-    const featuredProducts = HERO_ITEMS;
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -216,39 +249,18 @@ export default function HeroBanner({ canLogin }) {
                         </motion.div>
                     </div>
 
-                    {/* Right — Floating Product Cards */}
-                    <div className="relative h-[500px] sm:h-[560px] hidden lg:block">
-                        {/* Glow behind cards */}
-                        <motion.div
-                            className="absolute inset-0 opacity-40"
-                            style={{
-                                background: 'radial-gradient(ellipse at center, rgba(255,45,111,0.15) 0%, transparent 60%)',
-                            }}
-                            animate={{ scale: [1, 1.05, 1] }}
-                            transition={{ duration: 4, repeat: Infinity }}
-                        />
+                    {/* Right — Stacked Product Cards */}
+                    <div className="relative h-[500px] sm:h-[560px] hidden lg:flex items-center justify-center">
+                        <StackedCards />
 
-                        {featuredProducts[0] && (
-                            <FloatingCard product={featuredProducts[0]} className="w-44 top-4 left-8 z-20" delay={0} />
-                        )}
-                        {featuredProducts[1] && (
-                            <FloatingCard product={featuredProducts[1]} className="w-48 top-12 right-4 z-30" delay={1} />
-                        )}
-                        {featuredProducts[2] && (
-                            <FloatingCard product={featuredProducts[2]} className="w-40 bottom-16 left-16 z-10" delay={0.5} />
-                        )}
-                        {featuredProducts[3] && (
-                            <FloatingCard product={featuredProducts[3]} className="w-44 bottom-4 right-12 z-20" delay={1.5} />
-                        )}
-
-                        {/* Central glow ring */}
+                        {/* Outer glow rings */}
                         <motion.div
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-primary-200/30"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-primary-200/30 pointer-events-none"
                             animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
                             transition={{ duration: 3, repeat: Infinity }}
                         />
                         <motion.div
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full border border-secondary-200/20"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full border border-secondary-200/20 pointer-events-none"
                             animate={{ scale: [1.1, 1, 1.1], opacity: [0.2, 0.4, 0.2] }}
                             transition={{ duration: 4, repeat: Infinity, delay: 1 }}
                         />
