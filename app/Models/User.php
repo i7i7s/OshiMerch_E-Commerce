@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'google_id',
+        'twitter_id',
         'profile_picture_url',
         'oshi_member_code',
         'oshi_member_name',

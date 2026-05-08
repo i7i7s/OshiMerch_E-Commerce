@@ -9,6 +9,12 @@ const GoogleIcon = () => (
     </svg>
 );
 
+const XIcon = () => (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.626 5.905-5.626zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+);
+
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
@@ -62,14 +68,23 @@ export default function Login({ status, canResetPassword }) {
                             </div>
                         )}
 
-                        {/* Google Login Button — Primary CTA */}
-                        <a
-                            href={route('google.redirect')}
-                            className="group w-full inline-flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl bg-white border-2 border-surface-200 text-surface-700 font-semibold text-sm hover:bg-surface-50 hover:border-surface-300 hover:shadow-md transition-all duration-200 mb-6"
-                        >
-                            <GoogleIcon />
-                            Masuk dengan Google
-                        </a>
+                        {/* Social Login Buttons */}
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                            <a
+                                href={route('google.redirect')}
+                                className="inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-white border-2 border-surface-200 text-surface-700 font-semibold text-sm hover:bg-surface-50 hover:border-surface-300 hover:shadow-md transition-all duration-200 min-h-[44px]"
+                            >
+                                <GoogleIcon />
+                                Google
+                            </a>
+                            <a
+                                href={route('twitter.redirect')}
+                                className="inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-black text-white font-semibold text-sm hover:bg-surface-800 hover:shadow-md transition-all duration-200 min-h-[44px]"
+                            >
+                                <XIcon />
+                                X / Twitter
+                            </a>
+                        </div>
 
                         {/* Divider */}
                         <div className="flex items-center gap-3 mb-6">

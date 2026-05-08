@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Auth\TwitterAuthController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
@@ -43,6 +44,12 @@ Route::get('/products/{listing}', [ListingController::class, 'show'])->name('pro
 Route::prefix('auth/google')->group(function () {
     Route::get('/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
     Route::get('/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
+});
+
+// X (Twitter) OAuth Routes
+Route::prefix('auth/twitter')->group(function () {
+    Route::get('/redirect', [TwitterAuthController::class, 'redirect'])->name('twitter.redirect');
+    Route::get('/callback', [TwitterAuthController::class, 'callback'])->name('twitter.callback');
 });
 
 // Authenticated Routes

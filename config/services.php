@@ -41,6 +41,12 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'twitter-oauth-2' => [
+        'client_id' => env('TWITTER_CLIENT_ID'),
+        'client_secret' => env('TWITTER_CLIENT_SECRET'),
+        'redirect' => env('TWITTER_REDIRECT_URI'),
+    ],
+
     'jkt48' => [
         'api_url' => env('JKT48_API_URL', 'https://jkt-48-member-api-i7i7.vercel.app'),
     ],
