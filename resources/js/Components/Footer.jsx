@@ -87,7 +87,7 @@ export default function Footer() {
                                     <Link href={route('about')} className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">Tentang Kami</Link>
                                 </li>
                                 <li>
-                                    <Link href={route('members.index')} className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">Daftar Member</Link>
+                                    <Link href={route('members')} className="text-sm font-medium text-surface-400 hover:text-primary-400 hover:translate-x-1 transition-all inline-block">Daftar Member</Link>
                                 </li>
                             </ul>
                         </div>
