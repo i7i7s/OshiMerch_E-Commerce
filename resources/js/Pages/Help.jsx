@@ -152,9 +152,9 @@ const AccordionItem = ({ title, content }) => {
         <div className="border-b-2 border-surface-900">
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full py-8 sm:py-12 flex items-center justify-between text-left group"
+                className="w-full py-6 sm:py-8 flex items-center justify-between text-left group"
             >
-                <h3 className={`text-3xl sm:text-5xl font-display font-black uppercase tracking-tight transition-colors duration-300 ${isOpen ? 'text-primary-600' : 'text-surface-950 group-hover:text-primary-500'}`}>
+                <h3 className={`text-2xl sm:text-4xl font-display font-black uppercase tracking-tight transition-colors duration-300 ${isOpen ? 'text-primary-600' : 'text-surface-950 group-hover:text-primary-500'}`}>
                     {title}
                 </h3>
                 <div className={`p-2 rounded-full transition-colors duration-300 ${isOpen ? 'bg-primary-50 text-primary-600' : 'bg-transparent text-surface-400 group-hover:text-primary-500 group-hover:bg-primary-50'}`}>
@@ -209,10 +209,10 @@ export default function HelpCenter() {
                             initial={{ opacity: 0, y: 40 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.1 }}
-                            className="text-6xl sm:text-8xl md:text-[8rem] leading-[0.85] font-display font-black uppercase tracking-tighter"
+                            className="text-5xl sm:text-7xl md:text-8xl leading-[0.9] font-display font-black uppercase tracking-tighter"
                         >
                             WE'VE GOT<br/>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-500">YOUR BACK.</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-400">YOUR BACK.</span>
                         </motion.h1>
                     </div>
                     <motion.div 
@@ -261,9 +261,9 @@ export default function HelpCenter() {
                     <div className="lg:w-2/3">
                         {HELP_SECTIONS.map((section) => (
                             <div key={section.id} id={section.id} className="scroll-mt-32 mb-24 last:mb-0">
-                                <div className="flex items-center gap-6 mb-12">
-                                    <span className="text-3xl font-mono font-bold text-primary-500">{section.number}</span>
-                                    <h2 className="text-4xl sm:text-6xl font-display font-black uppercase tracking-tighter">
+                                <div className="flex items-center gap-4 mb-8">
+                                    <span className="text-2xl font-mono font-bold text-primary-500">{section.number}</span>
+                                    <h2 className="text-3xl sm:text-5xl font-display font-black uppercase tracking-tighter">
                                         {section.title}
                                     </h2>
                                 </div>
