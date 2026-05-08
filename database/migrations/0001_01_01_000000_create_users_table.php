@@ -13,10 +13,17 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->string('google_id')->unique()->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable(); // nullable for Google OAuth users
+            $table->string('profile_picture_url')->nullable();
+            $table->string('oshi_member_code')->nullable();
+            $table->string('oshi_member_name')->nullable();
+            $table->text('bio')->nullable();
+            $table->string('role')->default('buyer'); // buyer, seller
+            $table->boolean('onboarding_completed')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

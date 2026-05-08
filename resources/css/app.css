@@ -3,9 +3,242 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
-@source '../**/*.js';
+@source '../**/*.jsx';
+
+/* ============================================
+   OshiMerch Design System — Tailwind CSS 4
+   JKT48 Fandom E-Commerce Platform
+   ============================================ */
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* === Typography === */
+    --font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Outfit', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /* === Brand Colors — JKT48 Inspired === */
+    /* Primary: Vibrant coral-pink (energetic, Gen Z aesthetic) */
+    --color-primary-50: #fff0f3;
+    --color-primary-100: #ffe0e8;
+    --color-primary-200: #ffc6d6;
+    --color-primary-300: #ff9db8;
+    --color-primary-400: #ff6393;
+    --color-primary-500: #ff2d6f;
+    --color-primary-600: #ed1160;
+    --color-primary-700: #c80851;
+    --color-primary-800: #a80a4a;
+    --color-primary-900: #8e0d44;
+    --color-primary-950: #500022;
+
+    /* Secondary: Electric violet (premium, modern) */
+    --color-secondary-50: #f5f0ff;
+    --color-secondary-100: #ede5ff;
+    --color-secondary-200: #dcceff;
+    --color-secondary-300: #c3a8ff;
+    --color-secondary-400: #a574ff;
+    --color-secondary-500: #8b3dff;
+    --color-secondary-600: #7c1aff;
+    --color-secondary-700: #6e0dec;
+    --color-secondary-800: #5c0ec6;
+    --color-secondary-900: #4c10a2;
+    --color-secondary-950: #2d046e;
+
+    /* Accent: Warm amber-gold (trust, premium feel) */
+    --color-accent-50: #fffbeb;
+    --color-accent-100: #fff3c6;
+    --color-accent-200: #ffe588;
+    --color-accent-300: #ffd149;
+    --color-accent-400: #ffbc20;
+    --color-accent-500: #f99b07;
+    --color-accent-600: #dd7302;
+    --color-accent-700: #b75006;
+    --color-accent-800: #943d0c;
+    --color-accent-900: #7a320d;
+    --color-accent-950: #461902;
+
+    /* Surface colors */
+    --color-surface-50: #fafbfc;
+    --color-surface-100: #f4f6f8;
+    --color-surface-200: #eaecf0;
+    --color-surface-300: #d0d5dd;
+    --color-surface-400: #98a2b3;
+    --color-surface-500: #667085;
+    --color-surface-600: #475467;
+    --color-surface-700: #344054;
+    --color-surface-800: #1d2939;
+    --color-surface-900: #101828;
+    --color-surface-950: #0c111d;
+
+    /* Team Colors */
+    --color-team-passion: #ff2d6f;
+    --color-team-love: #ff6393;
+    --color-team-dream: #8b3dff;
+    --color-team-trainee: #ffbc20;
+    --color-team-virtual: #00d4aa;
+
+    /* === Spacing & Sizing === */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --radius-3xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* === Shadows === */
+    --shadow-glow-primary: 0 0 20px rgba(255, 45, 111, 0.3);
+    --shadow-glow-secondary: 0 0 20px rgba(139, 61, 255, 0.3);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06);
+    --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.08);
+    --shadow-elevated: 0 8px 30px rgba(0, 0, 0, 0.12);
+
+    /* === Animations === */
+    --animate-fade-in: fade-in 0.5s ease-out;
+    --animate-slide-up: slide-up 0.5s ease-out;
+    --animate-scale-in: scale-in 0.3s ease-out;
+    --animate-shimmer: shimmer 2s linear infinite;
+    --animate-float: float 6s ease-in-out infinite;
+    --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+    --animate-meteor-effect: meteor 5s linear infinite;
+}
+
+/* === Keyframes === */
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 45, 111, 0.2); }
+    50% { box-shadow: 0 0 40px rgba(255, 45, 111, 0.4); }
+}
+
+@keyframes meteor {
+    0% { transform: rotate(215deg) translateX(0); opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: rotate(215deg) translateX(-500px); opacity: 0; }
+}
+
+@keyframes hero-ray {
+    0%   { transform: translateX(50px) translateY(-18px) rotate(-32deg); opacity: 0; }
+    12%  { opacity: 1; }
+    80%  { opacity: 0.75; }
+    100% { transform: translateX(-240px) translateY(95px) rotate(-32deg); opacity: 0; }
+}
+
+/* === Base Styles === */
+@layer base {
+    html {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-family: var(--font-sans);
+        background-color: var(--color-surface-50);
+        color: var(--color-surface-900);
+        line-height: 1.6;
+    }
+
+    ::selection {
+        background-color: var(--color-primary-200);
+        color: var(--color-primary-900);
+    }
+}
+
+/* === Utility Classes === */
+@layer utilities {
+    .glass {
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .glass-dark {
+        background: rgba(12, 17, 29, 0.8);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .gradient-primary {
+        background: linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500));
+    }
+
+    .gradient-warm {
+        background: linear-gradient(135deg, var(--color-primary-400), var(--color-accent-400));
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .skeleton {
+        background: linear-gradient(90deg, var(--color-surface-200) 25%, var(--color-surface-100) 50%, var(--color-surface-200) 75%);
+        background-size: 400% 100%;
+        animation: shimmer 2s linear infinite;
+    }
+
+    .animate-meteor-effect {
+        animation: meteor 5s linear infinite;
+    }
+
+    .animate-hero-ray {
+        animation: hero-ray linear infinite;
+    }
+
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    .line-clamp-1 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+    }
+
+    .line-clamp-2 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .border-3 {
+        border-width: 3px;
+    }
 }
