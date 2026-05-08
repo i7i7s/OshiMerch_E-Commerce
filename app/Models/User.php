@@ -70,4 +70,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Listing::class);
     }
+
+    public function purchasedTransactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Transaction::class, 'buyer_id');
+    }
+
+    public function soldTransactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Transaction::class, 'seller_id');
+    }
 }

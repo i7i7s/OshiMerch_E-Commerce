@@ -1,6 +1,15 @@
 import { useRef, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import { PRODUCTS, formatPrice } from '@/data/products';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
+
+const formatPrice = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+
+// Hero floating cards — real assets from public/images/heroassets/
+const HERO_ITEMS = [
+    { id: 1, title: 'PC Erine — River',    price: 85000,  image: '/images/heroassets/pc_erine.jpg',           category: 'Photocard' },
+    { id: 2, title: 'PC Oline — Bday',     price: 75000,  image: '/images/heroassets/pc_oline.jpg',           category: 'Photocard' },
+    { id: 3, title: 'Lightstick JKT48',    price: 350000, image: '/images/heroassets/lightstick 1.png',       category: 'Lightstick' },
+    { id: 4, title: 'Fritzy Bday T-Shirt', price: 185000, image: '/images/heroassets/fritzty_bdaytshirt.png', category: 'Apparel' },
+];
 
 const GoogleIcon = () => (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
@@ -69,7 +78,7 @@ export default function HeroBanner({ canLogin }) {
     const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 30 });
     const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 30 });
 
-    const featuredProducts = PRODUCTS.filter(p => p.isTrending).slice(0, 4);
+    const featuredProducts = HERO_ITEMS;
 
     useEffect(() => {
         const handleMouseMove = (e) => {

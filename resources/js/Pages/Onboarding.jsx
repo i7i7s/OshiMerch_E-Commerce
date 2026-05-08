@@ -34,6 +34,12 @@ const TEAM_COLORS = {
     JKT48_VIRTUAL: { bg: 'bg-team-virtual', ring: 'ring-team-virtual', text: 'text-team-virtual', label: 'VIRTUAL', emoji: '🌐' },
 };
 
+// jkt48.com images are hotlink-protected — proxy through wsrv.nl
+const proxyPhoto = (url) => {
+    if (!url) return null;
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=400&h=533&fit=cover&output=webp`;
+};
+
 // Skeleton loader component
 function MemberCardSkeleton() {
     return (
@@ -86,7 +92,7 @@ function MemberCard({ member, isSelected, onSelect }) {
                     </div>
                 ) : (
                     <img
-                        src={member.photo}
+                        src={proxyPhoto(member.photo)}
                         alt={member.name}
                         className={`w-full h-full object-cover object-top transition-all duration-500 group-hover:scale-105 ${
                             imgLoaded ? 'opacity-100' : 'opacity-0'
@@ -361,7 +367,7 @@ export default function Onboarding({ apiUrl }) {
                                             {selectedMember && (
                                                 <>
                                                     <img
-                                                        src={selectedMember.photo}
+                                                        src={proxyPhoto(selectedMember.photo)}
                                                         alt={selectedMember.name}
                                                         className="w-12 h-12 rounded-xl object-cover object-top border-2 border-primary-200 shrink-0"
                                                         onError={(e) => { e.target.style.display = 'none'; }}
@@ -418,7 +424,7 @@ export default function Onboarding({ apiUrl }) {
                                     <div className="mb-8 p-6 rounded-2xl bg-white border border-surface-200 shadow-card">
                                         <div className="flex items-start gap-4">
                                             <img
-                                                src={selectedMember.photo}
+                                                src={proxyPhoto(selectedMember.photo)}
                                                 alt={selectedMember.name}
                                                 className="w-20 h-20 rounded-2xl object-cover object-top border-2 border-primary-200 shrink-0"
                                                 onError={(e) => {

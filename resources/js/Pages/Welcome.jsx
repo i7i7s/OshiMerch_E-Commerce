@@ -1,15 +1,15 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import HeroBanner from '@/Components/HeroBanner';
 import CategoryMarquee from '@/Components/CategoryMarquee';
-import ProductGrid from '@/Components/ProductGrid';
+import ListingCard from '@/Components/ListingCard';
 import FeaturedMembers from '@/Components/FeaturedMembers';
 import StatsSection from '@/Components/StatsSection';
 import TestimonialsSection from '@/Components/TestimonialsSection';
 import Footer from '@/Components/Footer';
-import { PRODUCTS, STATS } from '@/data/products';
+import { STATS } from '@/data/products';
 
 // Initialize Lenis smooth scroll
 function useSmoothScroll() {
@@ -113,13 +113,61 @@ function ActivityFeed() {
     );
 }
 
-export default function Welcome({ canLogin, canRegister, appName }) {
-    useSmoothScroll();
+// Real listings section
+function ListingsSection({ listings, title, subtitle }) {
+    if (!listings || listings.length === 0) {
+        return (
+            <section className="py-12 sm:py-16">
+                <div className="flex items-end justify-between mb-8">
+                    <div>
+                        <h2 className="text-2xl sm:text-3xl font-bold font-display text-surface-900 tracking-tight">{title}</h2>
+                        {subtitle && <p className="text-surface-500 mt-1 text-sm sm:text-base">{subtitle}</p>}
+                    </div>
+                </div>
+                <div className="rounded-3xl border border-dashed border-surface-300 bg-surface-50 py-16 text-center">
+                    <p className="text-4xl mb-3">🛍️</p>
+                    <p className="text-surface-500 font-medium">Belum ada listing tersedia.</p>
+                    <Link href={route('listings.create')} className="mt-4 inline-block text-sm font-semibold text-primary-600 hover:text-primary-700">
+                        Jadilah yang pertama berjualan →
+                    </Link>
+                </div>
+            </section>
+        );
+    }
+    return (
+        <section className="py-12 sm:py-16">
+            <div className="flex items-end justify-between mb-8">
+                <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold font-display text-surface-900 tracking-tight">{title}</h2>
+                    {subtitle && <p className="text-surface-500 mt-1 text-sm sm:text-base">{subtitle}</p>}
+                </div>
+                <Link
+                    href={route('products.index')}
+                    className="shrink-0 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1 group"
+                >
+                    Lihat Semua
+                    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                </Link>
+            </div>
+            <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.06 } } }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
+            >
+                {listings.map(listing => (
+                    <ListingCard key={listing.id} listing={listing} />
+                ))}
+            </motion.div>
+        </section>
+    );
+}
 
-    // Prepare product sections
-    const trendingProducts = PRODUCTS.filter(p => p.isTrending);
-    const newArrivals = PRODUCTS.filter(p => p.isNew);
-    const bestSellers = [...PRODUCTS].sort((a, b) => b.soldCount - a.soldCount).slice(0, 8);
+export default function Welcome({ canLogin, canRegister, appName, listings = [] }) {
+    useSmoothScroll();
 
     return (
         <>
@@ -136,14 +184,12 @@ export default function Welcome({ canLogin, canRegister, appName }) {
                 {/* 2. Trending Categories */}
                 <CategoryMarquee />
 
-                {/* 3. Best Selling Products */}
+                {/* 3. Listings from DB */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="trending">
-                    <ProductGrid
-                        products={bestSellers}
-                        title="Best Seller 🏆"
-                        subtitle="Produk paling laris minggu ini"
-                        viewAllHref="#"
-                        columns={4}
+                    <ListingsSection
+                        listings={listings}
+                        title="Listing Terbaru ✨"
+                        subtitle="Merchandise JKT48 terbaru dari komunitas"
                     />
                 </div>
 
@@ -152,38 +198,16 @@ export default function Welcome({ canLogin, canRegister, appName }) {
                     <StatsSection stats={STATS} />
                 </div>
 
-                {/* 5. New Arrivals */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <ProductGrid
-                        products={newArrivals}
-                        title="Baru Ditambahkan ✨"
-                        subtitle="Listing terbaru dari penjual terverifikasi"
-                        viewAllHref="#"
-                        columns={4}
-                    />
-                </div>
-
-                {/* 6. Featured Members */}
+                {/* 5. Featured Members */}
                 <FeaturedMembers />
 
-                {/* 7. Trending Products */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <ProductGrid
-                        products={trendingProducts}
-                        title="Sedang Trending 🔥"
-                        subtitle="Yang paling banyak dicari fans"
-                        viewAllHref="#"
-                        columns={4}
-                    />
-                </div>
-
-                {/* 8. Testimonials */}
+                {/* 6. Testimonials */}
                 <TestimonialsSection />
 
-                {/* 9. CTA Banner */}
+                {/* 7. CTA Banner */}
                 <CTABanner />
 
-                {/* 10. Footer */}
+                {/* 8. Footer */}
                 <Footer />
 
                 {/* Activity Feed */}
