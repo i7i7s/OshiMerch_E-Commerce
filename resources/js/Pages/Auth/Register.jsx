@@ -43,9 +43,7 @@ export default function Register() {
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 mb-8 relative z-10">
-                    <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow-primary">
-                        <span className="text-white font-bold text-lg">O</span>
-                    </div>
+                    <img src="/images/logo.png" alt="OshiMerch" className="w-10 h-10 rounded-xl object-contain" />
                     <span className="text-2xl font-bold font-display text-surface-900">
                         Oshi<span className="gradient-text">Merch</span>
                     </span>

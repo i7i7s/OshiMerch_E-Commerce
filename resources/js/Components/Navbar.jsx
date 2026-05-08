@@ -149,7 +149,7 @@ export default function Navbar() {
                         ) : (
                             <>
                                 <a href={route('login')} className="px-4 py-2 rounded-xl text-sm font-medium text-surface-600 hover:text-surface-900 transition-all hidden sm:block">Masuk</a>
-                                <a href={route('google.redirect')} className="px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-semibold shadow-sm hover:shadow-glow-primary transition-all hover:scale-[1.02] active:scale-[0.98]">Daftar</a>
+                                <a href={route('register')} className="px-4 py-2.5 rounded-xl gradient-primary text-white text-sm font-semibold shadow-sm hover:shadow-glow-primary transition-all hover:scale-[1.02] active:scale-[0.98]">Daftar</a>
                             </>
                         )}
                     </div>
