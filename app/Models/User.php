@@ -27,6 +27,9 @@ class User extends Authenticatable
         'oshi_member_code',
         'oshi_member_name',
         'bio',
+        'phone',
+        'addresses',
+        'default_address_index',
         'role',
         'onboarding_completed',
     ];
@@ -49,9 +52,11 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'    => 'datetime',
+            'password'             => 'hashed',
             'onboarding_completed' => 'boolean',
+            'addresses'            => 'array',
+            'default_address_index'=> 'integer',
         ];
     }
 
@@ -79,5 +84,38 @@ class User extends Authenticatable
     public function soldTransactions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Transaction::class, 'seller_id');
+    }
+
+    /**
+     * Reviews received as a seller.
+     */
+    public function reviewsReceived(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Review::class, 'seller_id');
+    }
+
+    /**
+     * Reviews written by this user.
+     */
+    public function reviewsGiven(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Review::class, 'reviewer_id');
+    }
+
+    /**
+     * Average seller rating.
+     */
+    public function getAverageRatingAttribute(): ?float
+    {
+        $avg = $this->reviewsReceived()->avg('rating');
+        return $avg ? round($avg, 1) : null;
+    }
+
+    /**
+     * Available listings (for public seller profile).
+     */
+    public function availableListings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Listing::class)->where('status', 'Available');
     }
 }

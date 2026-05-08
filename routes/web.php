@@ -3,10 +3,13 @@
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\TwitterAuthController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SellerProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\MemberController;
 use App\Http\Middleware\EnsureOnboardingCompleted;
@@ -91,11 +94,18 @@ Route::get('/members', function () {
 // Public: Member detail page
 Route::get('/members/{code}', [MemberController::class, 'show'])->name('members.show');
 
+Route::get('/about', function () {
+    return Inertia::render('About');
+})->name('about');
+
 // Public: Products page (listing index — full marketplace)
 Route::get('/products', [ListingController::class, 'index'])->name('products.index');
 
 // Public: Single product detail
 Route::get('/products/{listing}', [ListingController::class, 'show'])->name('products.show');
+
+// Public: Seller profile
+Route::get('/seller/{user}', [SellerProfileController::class, 'show'])->name('seller.profile');
 
 // Google OAuth Routes
 Route::prefix('auth/google')->group(function () {
@@ -193,8 +203,29 @@ Route::middleware('auth')->group(function () {
         // Messages (per transaction)
         Route::post('/transactions/{transaction}/messages', [MessageController::class, 'store'])->name('messages.store');
 
+        // Reviews
+        Route::post('/transactions/{transaction}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+
         // Chat overview
         Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+
+        // Cart page
+        Route::get('/cart', function () {
+            return Inertia::render('Cart', [
+                'auth' => ['user' => Auth::user()],
+            ]);
+        })->name('cart');
+
+        // Favorites / Wishlist page
+        Route::get('/favorites', function () {
+            return Inertia::render('Favorites', [
+                'auth' => ['user' => Auth::user()],
+            ]);
+        })->name('favorites');
+
+        // Direct chat with a specific user (seller)
+        Route::get('/chat/with/{user}', [ConversationController::class, 'show'])->name('chat.direct');
+        Route::post('/chat/conversations/{conversation}/messages', [ConversationController::class, 'sendMessage'])->name('chat.sendDirect');
     });
 });
 

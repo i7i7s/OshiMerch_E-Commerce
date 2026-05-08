@@ -105,6 +105,9 @@ class TransactionController extends Controller
                     'created_at' => $m->created_at->toISOString(),
                     'created_at_human' => $m->created_at->diffForHumans(),
                 ]),
+                'has_review' => $transaction->reviews()
+                    ->where('reviewer_id', Auth::id())
+                    ->exists(),
             ],
         ]);
     }

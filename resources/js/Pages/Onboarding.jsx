@@ -224,7 +224,7 @@ export default function Onboarding({ apiUrl }) {
                             </div>
                             <div className="flex items-center gap-3">
                                 <img
-                                    src={auth.user.profile_picture_url || `https://ui-avatars.com/api/?name=${auth.user.name}&background=ff2d6f&color=fff`}
+                                    src={auth.user.profile_picture_url || `https://ui-avatars.com/api/?name=${auth.user.name}&background=FF1100&color=fff`}
                                     alt={auth.user.name}
                                     className="w-8 h-8 rounded-full border-2 border-primary-200"
                                 />
@@ -428,7 +428,7 @@ export default function Onboarding({ apiUrl }) {
                                                 alt={selectedMember.name}
                                                 className="w-20 h-20 rounded-2xl object-cover object-top border-2 border-primary-200 shrink-0"
                                                 onError={(e) => {
-                                                    e.target.src = `https://ui-avatars.com/api/?name=${selectedMember.nickname}&background=ff2d6f&color=fff&size=80`;
+                                                    e.target.src = `https://ui-avatars.com/api/?name=${selectedMember.nickname}&background=FF1100&color=fff&size=80`;
                                                 }}
                                             />
                                             <div className="min-w-0 flex-1">

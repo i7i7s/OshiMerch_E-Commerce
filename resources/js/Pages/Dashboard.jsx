@@ -1,7 +1,48 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage, Link, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+// ── Count-up with random scramble animation ────────────────────────────────────
+function useCountUp(target, duration = 1400) {
+    const [display, setDisplay] = useState(0);
+    const [done, setDone]       = useState(false);
+    const frameRef = useRef(null);
+
+    useEffect(() => {
+        setDisplay(0);
+        setDone(false);
+        const start     = performance.now();
+        // how long to scramble vs settle
+        const scrambleMs = duration * 0.65;
+        const settleMs   = duration * 0.35;
+
+        const tick = (now) => {
+            const elapsed = now - start;
+
+            if (elapsed < scrambleMs) {
+                // random scramble phase – show numbers up to ~9999
+                const maxRandom = Math.max(target, 1000);
+                setDisplay(Math.floor(Math.random() * maxRandom));
+                frameRef.current = requestAnimationFrame(tick);
+            } else if (elapsed < scrambleMs + settleMs) {
+                // ease-out settle phase
+                const t   = (elapsed - scrambleMs) / settleMs;
+                const ease = 1 - Math.pow(1 - t, 3); // cubic ease-out
+                setDisplay(Math.round(ease * target));
+                frameRef.current = requestAnimationFrame(tick);
+            } else {
+                setDisplay(target);
+                setDone(true);
+            }
+        };
+
+        frameRef.current = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(frameRef.current);
+    }, [target, duration]);
+
+    return { display, done };
+}
 import { Plus, Package, Edit3, Trash2, ShoppingBag, MessageSquare, ShoppingCart, Store } from 'lucide-react';
 
 const TEAM_COLORS = {
@@ -26,6 +67,35 @@ const TRANSACTION_STATUS = {
     Shipped:   { label: 'Dikirim',        style: 'bg-blue-100 text-blue-700'  },
     Completed: { label: 'Selesai',        style: 'bg-surface-100 text-surface-500' },
 };
+
+// ── Stat Card with count-up animation ─────────────────────────────────────────
+
+function StatCard({ stat, delay = 0 }) {
+    const { display, done } = useCountUp(stat.value, 1400);
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay }}
+            className="p-5 rounded-2xl bg-white border border-surface-200"
+        >
+            <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
+                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+            </div>
+            <motion.p
+                key={done ? 'done' : 'counting'}
+                animate={done ? { scale: [1, 1.18, 1] } : {}}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className={`text-2xl font-bold font-display transition-colors ${
+                    done ? 'text-surface-900' : 'text-surface-400'
+                }`}
+            >
+                {display}
+            </motion.p>
+            <p className="text-sm text-surface-500 mt-0.5">{stat.label}</p>
+        </motion.div>
+    );
+}
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -79,7 +149,7 @@ function TransactionRow({ trx, index }) {
                  : trx.delivery_status === 'Shipped'   ? TRANSACTION_STATUS.Shipped
                  : TRANSACTION_STATUS[trx.payment_status] || TRANSACTION_STATUS.Pending;
     const partnerAvatar = trx.partner_avatar
-        || `https://ui-avatars.com/api/?name=${encodeURIComponent(trx.partner_name || '?')}&background=ff2d6f&color=fff&size=40`;
+        || `https://ui-avatars.com/api/?name=${encodeURIComponent(trx.partner_name || '?')}&background=FF1100&color=fff&size=40`;
     return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
             <Link href={route('transactions.show', trx.id)} className="flex items-center gap-3 p-4 rounded-xl bg-white border border-surface-200 hover:border-primary-200 hover:shadow-sm transition-all">
@@ -159,7 +229,7 @@ export default function Dashboard({ listings = [], purchases = [], sales = [] })
                     <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/10 rounded-full" />
                     <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-6">
                         <img
-                            src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=ff2d6f&color=fff&size=80`}
+                            src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF1100&color=fff&size=80`}
                             alt={user.name}
                             className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-white/30 shadow-lg"
                         />
@@ -185,13 +255,7 @@ export default function Dashboard({ listings = [], purchases = [], sales = [] })
                         { label: 'Pembelian',       value: purchases.length,  icon: ShoppingCart,  color: 'text-secondary-500', bg: 'bg-secondary-50' },
                         { label: 'Penjualan',       value: sales.length,      icon: Package,       color: 'text-amber-500',   bg: 'bg-amber-50'   },
                     ].map((stat, i) => (
-                        <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="p-5 rounded-2xl bg-white border border-surface-200">
-                            <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
-                                <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                            </div>
-                            <p className="text-2xl font-bold font-display text-surface-900">{stat.value}</p>
-                            <p className="text-sm text-surface-500 mt-0.5">{stat.label}</p>
-                        </motion.div>
+                        <StatCard key={i} stat={stat} delay={i * 0.06} />
                     ))}
                 </div>
 

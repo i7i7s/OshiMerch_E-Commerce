@@ -46,6 +46,11 @@ class Transaction extends Model
         return $this->hasMany(Message::class)->orderBy('created_at');
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     // ── Accessors ─────────────────────────────────────────────────────────────
 
     public function getProofUrlAttribute(): ?string

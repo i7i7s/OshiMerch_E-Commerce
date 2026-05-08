@@ -139,7 +139,7 @@ export default function Welcome({ canLogin, canRegister, appName, listings = [],
                 <Navbar />
 
                 {/* 1. Hero Banner */}
-                <HeroBanner canLogin={canLogin} />
+                <HeroBanner canLogin={canLogin} activeProductsCount={stats[0]?.value || 0} />
 
                 {/* 2. Trending Categories */}
                 <CategoryMarquee categoryCounts={categoryCounts} />

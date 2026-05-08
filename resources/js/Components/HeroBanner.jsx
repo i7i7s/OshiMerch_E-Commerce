@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 const formatPrice = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
@@ -23,27 +23,28 @@ const GoogleIcon = () => (
 // Meteor streak effect
 function MeteorStreaks() {
     return (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(6)].map((_, i) => (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            {[...Array(20)].map((_, i) => (
                 <motion.div
                     key={i}
-                    className="absolute h-[1px] rounded-full"
+                    className="absolute h-[2px] rounded-full"
                     style={{
-                        width: `${60 + Math.random() * 100}px`,
-                        background: `linear-gradient(90deg, transparent, ${i % 2 === 0 ? 'rgba(255,45,111,0.4)' : 'rgba(139,61,255,0.3)'}, transparent)`,
-                        top: `${10 + Math.random() * 80}%`,
+                        width: `${80 + Math.random() * 120}px`,
+                        background: `linear-gradient(90deg, transparent, ${i % 2 === 0 ? 'rgba(255,17,0,0.9)' : 'rgba(139,61,255,0.8)'}, transparent)`,
+                        top: `${Math.random() * 90}%`,
                         left: `${Math.random() * 100}%`,
                         rotate: `${-25 + Math.random() * 10}deg`,
+                        boxShadow: `0 0 8px ${i % 2 === 0 ? 'rgba(255,17,0,0.6)' : 'rgba(139,61,255,0.6)'}`
                     }}
                     animate={{
-                        x: [0, -300],
-                        y: [0, 150],
+                        x: [0, -500],
+                        y: [0, 250],
                         opacity: [0, 1, 0],
                     }}
                     transition={{
-                        duration: 2 + Math.random() * 2,
+                        duration: 1.5 + Math.random() * 1.5,
                         repeat: Infinity,
-                        delay: i * 1.5 + Math.random() * 3,
+                        delay: Math.random() * 4,
                         ease: 'linear',
                     }}
                 />
@@ -52,61 +53,82 @@ function MeteorStreaks() {
     );
 }
 
-// Stacked card fan — back to front
-// [0] = Fritzy (biggest, back), [1] Lightstick, [2] PC Oline, [3] PC Erine (front)
-const STACK_CONFIG = [
-    { item: HERO_ITEMS[3], rotate: -14, tx: -24, ty:  28, width: 200, z: 10, floatDelay: 1.5 },
-    { item: HERO_ITEMS[2], rotate:  -5, tx: -55, ty:  -8, width: 172, z: 20, floatDelay: 0.5 },
-    { item: HERO_ITEMS[1], rotate:   4, tx:  18, ty: -20, width: 164, z: 30, floatDelay: 1.0 },
-    { item: HERO_ITEMS[0], rotate:  13, tx:  55, ty:  16, width: 156, z: 40, floatDelay: 0.0 },
+// Carousel slots (Front, Left, Back, Right)
+const SLOT_CONFIGS = [
+    { rotate: 0,   x: 0,    y: 20,  scale: 1,    zIndex: 40 }, // Front
+    { rotate: -12, x: -95,  y: -10, scale: 0.85, zIndex: 30 }, // Left
+    { rotate: 0,   x: 0,    y: -40, scale: 0.7,  zIndex: 20 }, // Back
+    { rotate: 12,  x: 95,   y: -10, scale: 0.85, zIndex: 30 }, // Right
 ];
 
 function StackedCards() {
+    const [cards, setCards] = useState(HERO_ITEMS);
+
+    useEffect(() => {
+        // Auto-shuffle carousel every 3 seconds
+        const timer = setInterval(() => {
+            setCards(prev => {
+                const next = [...prev];
+                const first = next.shift();
+                next.push(first);
+                return next;
+            });
+        }, 3000);
+        return () => clearInterval(timer);
+    }, []);
+
     return (
         <div className="relative flex items-center justify-center w-full h-full">
             {/* Soft glow behind the stack */}
             <motion.div
                 className="absolute w-72 h-72 rounded-full opacity-40 pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(255,45,111,0.25) 0%, transparent 70%)' }}
+                style={{ background: 'radial-gradient(circle, rgba(255,17,0,0.25) 0%, transparent 70%)' }}
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 4, repeat: Infinity }}
             />
 
-            {STACK_CONFIG.map(({ item, rotate, tx, ty, width, z, floatDelay }, i) => (
-                <motion.div
-                    key={item.id}
-                    className="absolute rounded-2xl bg-white/92 backdrop-blur-sm border border-white/50 shadow-elevated overflow-hidden cursor-pointer"
-                    style={{
-                        width,
-                        zIndex: z,
-                        rotate,
-                        x: tx,
-                        y: ty,
-                        transformOrigin: 'bottom center',
-                    }}
-                    animate={{ y: [ty - 7, ty + 7, ty - 7] }}
-                    transition={{
-                        duration: 4 + floatDelay,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                        delay: floatDelay,
-                    }}
-                    whileHover={{ scale: 1.06, zIndex: 50, rotate: 0, transition: { duration: 0.25 } }}
-                >
-                    <div className="w-full aspect-[3/4] overflow-hidden">
-                        <img src={item.image} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
-                    </div>
-                    <div className="p-2.5">
-                        <p className="text-[11px] font-semibold text-surface-800 line-clamp-1">{item.title}</p>
-                        <p className="text-xs font-bold text-primary-600 mt-0.5">{formatPrice(item.price)}</p>
-                    </div>
-                </motion.div>
-            ))}
+            {cards.map((item, index) => {
+                const config = SLOT_CONFIGS[index];
+                return (
+                    <motion.div
+                        key={item.id}
+                        layout
+                        className="absolute rounded-2xl bg-white/95 backdrop-blur-sm border border-white shadow-elevated overflow-hidden"
+                        style={{
+                            width: 220, // Increased base width
+                            transformOrigin: 'center center',
+                        }}
+                        initial={false}
+                        animate={{
+                            rotate: config.rotate,
+                            x: config.x,
+                            y: config.y,
+                            scale: config.scale,
+                            zIndex: config.zIndex,
+                        }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 150,
+                            damping: 18,
+                            mass: 0.8
+                        }}
+                        whileHover={index === 0 ? { y: config.y - 10, transition: { duration: 0.2 } } : {}}
+                    >
+                        <div className="w-full aspect-[3/4] overflow-hidden bg-surface-100">
+                            <img src={item.image} alt={item.title} className="w-full h-full object-cover select-none pointer-events-none" loading="lazy" />
+                        </div>
+                        <div className="p-3 bg-white">
+                            <p className="text-[12px] font-semibold text-surface-800 line-clamp-1">{item.title}</p>
+                            <p className="text-sm font-bold text-primary-600 mt-0.5">{formatPrice(item.price)}</p>
+                        </div>
+                    </motion.div>
+                );
+            })}
         </div>
     );
 }
 
-export default function HeroBanner({ canLogin }) {
+export default function HeroBanner({ canLogin, activeProductsCount = 0 }) {
     const containerRef = useRef(null);
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -133,7 +155,7 @@ export default function HeroBanner({ canLogin }) {
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <motion.div
                     className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full opacity-30"
-                    style={{ background: 'radial-gradient(circle, rgba(255,45,111,0.4) 0%, transparent 70%)', x: smoothMouseX, y: smoothMouseY }}
+                    style={{ background: 'radial-gradient(circle, rgba(255,17,0,0.4) 0%, transparent 70%)', x: smoothMouseX, y: smoothMouseY }}
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
                 />
@@ -170,7 +192,7 @@ export default function HeroBanner({ canLogin }) {
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-200 text-primary-700 text-sm font-medium mb-6"
                         >
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            1,247+ Produk Tersedia
+                            {activeProductsCount.toLocaleString('id-ID')} Produk Tersedia
                         </motion.div>
 
                         <motion.h1
@@ -244,7 +266,7 @@ export default function HeroBanner({ canLogin }) {
                                 <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
                                 </div>
-                                <span>3,890+ Fans</span>
+                                <span>15 Juta+ Fans</span>
                             </div>
                         </motion.div>
                     </div>

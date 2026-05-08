@@ -25,7 +25,7 @@ const CATEGORIES = [
 
 const TEAMS = [
     { value: 'ALL', label: 'Semua Tim' },
-    { value: 'PASSION', label: 'Team PASSION', color: '#ff2d6f' },
+    { value: 'PASSION', label: 'Team PASSION', color: '#FF1100' },
     { value: 'LOVE', label: 'Team LOVE', color: '#ff6393' },
     { value: 'DREAM', label: 'Team DREAM', color: '#8b3dff' },
     { value: 'TRAINEE', label: 'TRAINEE', color: '#ffbc20' },

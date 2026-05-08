@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
 
 const TEAM_BADGE = {
-    PASSION: 'bg-[#ff2d6f] text-white',
+    PASSION: 'bg-[#FF1100] text-white',
     LOVE: 'bg-[#ff6393] text-white',
     DREAM: 'bg-[#8b3dff] text-white',
     TRAINEE: 'bg-[#ffbc20] text-white',
@@ -43,7 +43,7 @@ export default function ListingCard({ listing }) {
     const condStyle = CONDITION_BADGE[listing.condition] || CONDITION_BADGE.Used;
 
     const fallbackAvatar = listing.seller?.name
-        ? `https://ui-avatars.com/api/?name=${encodeURIComponent(listing.seller.name)}&background=ff2d6f&color=fff&size=40`
+        ? `https://ui-avatars.com/api/?name=${encodeURIComponent(listing.seller.name)}&background=FF1100&color=fff&size=40`
         : null;
 
     return (

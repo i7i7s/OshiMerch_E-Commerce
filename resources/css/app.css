@@ -18,17 +18,17 @@
 
     /* === Brand Colors — JKT48 Inspired === */
     /* Primary: Vibrant coral-pink (energetic, Gen Z aesthetic) */
-    --color-primary-50: #fff0f3;
-    --color-primary-100: #ffe0e8;
-    --color-primary-200: #ffc6d6;
-    --color-primary-300: #ff9db8;
-    --color-primary-400: #ff6393;
-    --color-primary-500: #ff2d6f;
-    --color-primary-600: #ed1160;
-    --color-primary-700: #c80851;
-    --color-primary-800: #a80a4a;
-    --color-primary-900: #8e0d44;
-    --color-primary-950: #500022;
+    --color-primary-50: #fff1f1;
+    --color-primary-100: #ffdfdf;
+    --color-primary-200: #ffc5c5;
+    --color-primary-300: #ff9d9d;
+    --color-primary-400: #ff6464;
+    --color-primary-500: #ff2d2d;
+    --color-primary-600: #FF1100;
+    --color-primary-700: #cc0d00;
+    --color-primary-800: #a60f04;
+    --color-primary-900: #891309;
+    --color-primary-950: #4b0500;
 
     /* Secondary: Electric violet (premium, modern) */
     --color-secondary-50: #f5f0ff;
@@ -70,7 +70,7 @@
     --color-surface-950: #0c111d;
 
     /* Team Colors */
-    --color-team-passion: #ff2d6f;
+    --color-team-passion: #FF1100;
     --color-team-love: #ff6393;
     --color-team-dream: #8b3dff;
     --color-team-trainee: #ffbc20;
@@ -86,7 +86,7 @@
     --radius-full: 9999px;
 
     /* === Shadows === */
-    --shadow-glow-primary: 0 0 20px rgba(255, 45, 111, 0.3);
+    --shadow-glow-primary: 0 0 20px rgba(255, 17, 0, 0.3);
     --shadow-glow-secondary: 0 0 20px rgba(139, 61, 255, 0.3);
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06);
     --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.08);
@@ -129,8 +129,8 @@
 }
 
 @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(255, 45, 111, 0.2); }
-    50% { box-shadow: 0 0 40px rgba(255, 45, 111, 0.4); }
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 17, 0, 0.2); }
+    50% { box-shadow: 0 0 40px rgba(255, 17, 0, 0.4); }
 }
 
 @keyframes meteor {

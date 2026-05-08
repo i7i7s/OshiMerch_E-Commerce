@@ -18,7 +18,7 @@ const proxyPhoto = (url) => {
 };
 
 const avatarFallback = (name, teamColor) =>
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'M')}&background=${(teamColor?.bg || '#ff2d6f').replace('#', '')}&color=fff&bold=true&size=512`;
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'M')}&background=${(teamColor?.bg || '#FF1100').replace('#', '')}&color=fff&bold=true&size=512`;
 
 export default function MemberShow({ memberCode, listings, apiUrl }) {
     const [member, setMember] = useState(null);

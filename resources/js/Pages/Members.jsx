@@ -18,7 +18,7 @@ function useDebounce(value, delay) {
 // ─── Field helpers — API returns `type` and `photo`, not `team`/`image`
 const getTeam = (m) => (m.type || m.team || '').toUpperCase();
 const avatarFallback = (name) =>
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'M')}&background=ff2d6f&color=fff&bold=true&size=256`;
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'M')}&background=FF1100&color=fff&bold=true&size=256`;
 
 // jkt48.com images are hotlink-protected — proxy through wsrv.nl so the
 // request originates server-side (no referrer) and always succeeds.

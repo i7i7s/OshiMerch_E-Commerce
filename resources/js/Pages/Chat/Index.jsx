@@ -39,7 +39,7 @@ function ConversationItem({ convo, index }) {
                 {/* Partner avatar */}
                 <img
                     src={convo.partner?.profile_picture_url ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(convo.partner?.name || '?')}&background=ff2d6f&color=fff&size=40`}
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(convo.partner?.name || '?')}&background=FF1100&color=fff&size=40`}
                     alt={convo.partner?.name}
                     className="w-10 h-10 rounded-full object-cover border-2 border-surface-100 shrink-0"
                 />

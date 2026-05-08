@@ -15,7 +15,7 @@ const PAYMENT_METHODS = [
 ];
 
 const TEAM_BADGE = {
-    PASSION: 'bg-[#ff2d6f]/10 text-[#ff2d6f] border-[#ff2d6f]/30',
+    PASSION: 'bg-[#FF1100]/10 text-[#FF1100] border-[#FF1100]/30',
     LOVE: 'bg-[#ff6393]/10 text-[#ff6393] border-[#ff6393]/30',
     DREAM: 'bg-[#8b3dff]/10 text-[#8b3dff] border-[#8b3dff]/30',
     TRAINEE: 'bg-[#ffbc20]/10 text-[#ffbc20] border-[#ffbc20]/30',
@@ -65,7 +65,7 @@ export default function Show({ listing, related, auth }) {
 
     const sellerAvatar =
         listing.seller?.avatar ||
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(listing.seller?.name || 'S')}&background=ff2d6f&color=fff&size=80`;
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(listing.seller?.name || 'S')}&background=FF1100&color=fff&size=80`;
 
     return (
         <>
@@ -73,7 +73,7 @@ export default function Show({ listing, related, auth }) {
             <div className="min-h-dvh bg-surface-50 flex flex-col">
                 <Navbar auth={auth} />
 
-                <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pt-[88px] sm:pt-[88px]">
+                <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pt-[96px] sm:pt-[96px]">
                     {/* Breadcrumb */}
                     <nav className="flex items-center gap-2 text-sm text-surface-500 mb-6">
                         <Link href={route('products.index')} className="flex items-center gap-1.5 hover:text-surface-700 transition-colors">
@@ -228,16 +228,18 @@ export default function Show({ listing, related, auth }) {
                             <div className="bg-white rounded-2xl border border-surface-200 p-5">
                                 <h2 className="text-sm font-bold text-surface-700 mb-4">Tentang Penjual</h2>
                                 <div className="flex items-start gap-4">
-                                    <img
-                                        src={sellerAvatar}
-                                        alt={listing.seller?.name}
-                                        className="w-14 h-14 rounded-2xl object-cover shrink-0"
-                                        onError={(e) => {
-                                            e.target.src = sellerAvatar;
-                                        }}
-                                    />
+                                    <Link href={route('seller.profile', listing.seller?.id)} className="shrink-0">
+                                        <img
+                                            src={sellerAvatar}
+                                            alt={listing.seller?.name}
+                                            className="w-14 h-14 rounded-2xl object-cover hover:opacity-80 transition-opacity"
+                                            onError={(e) => { e.target.src = sellerAvatar; }}
+                                        />
+                                    </Link>
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-surface-900">{listing.seller?.name}</p>
+                                        <Link href={route('seller.profile', listing.seller?.id)} className="font-bold text-surface-900 hover:text-primary-600 transition-colors">
+                                            {listing.seller?.name}
+                                        </Link>
                                         {listing.seller?.oshi_member_name && (
                                             <p className="text-xs text-primary-500 font-medium mt-0.5">
                                                 Oshi: {listing.seller.oshi_member_name}
@@ -248,6 +250,10 @@ export default function Show({ listing, related, auth }) {
                                                 {listing.seller.bio}
                                             </p>
                                         )}
+                                        <Link href={route('seller.profile', listing.seller?.id)}
+                                            className="inline-flex items-center gap-1 text-xs text-primary-500 font-semibold mt-2 hover:text-primary-700 transition-colors">
+                                            Lihat Profil Penjual →
+                                        </Link>
                                     </div>
                                 </div>
                             </div>

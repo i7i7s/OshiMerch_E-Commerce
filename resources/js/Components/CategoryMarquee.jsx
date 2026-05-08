@@ -49,20 +49,22 @@ export default function CategoryMarquee({ categoryCounts = {} }) {
             </div>
 
             {/* Marquee row */}
-            <div className="relative">
-                {/* Gradient fade edges */}
-                <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-surface-50 to-transparent z-10 pointer-events-none" />
-                <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-surface-50 to-transparent z-10 pointer-events-none" />
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Gradient fade edges (adjusted for padding) */}
+                <div className="absolute left-4 sm:left-6 lg:left-8 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-r from-surface-50 to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-4 sm:right-6 lg:right-8 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-l from-surface-50 to-transparent z-10 pointer-events-none" />
 
-                <motion.div
-                    className="flex gap-4 w-max"
-                    animate={{ x: ['0%', '-50%'] }}
-                    transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-                >
-                    {doubled.map((cat, i) => (
-                        <CategoryPill key={`${cat.id}-${i}`} category={cat} />
-                    ))}
-                </motion.div>
+                <div className="overflow-hidden py-2 -my-2">
+                    <motion.div
+                        className="flex gap-4 w-max px-2"
+                        animate={{ x: ['0%', '-50%'] }}
+                        transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+                    >
+                        {doubled.map((cat, i) => (
+                            <CategoryPill key={`${cat.id}-${i}`} category={cat} />
+                        ))}
+                    </motion.div>
+                </div>
             </div>
         </section>
     );

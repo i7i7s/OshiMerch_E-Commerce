@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const NAV_LINKS = [
     { label: 'Products', href: '/products' },
-    { label: 'About',    href: '/#about' },
+    { label: 'Tentang Kami', href: '/about' },
     { label: 'Member',   href: '/members' },
 ];
 
@@ -125,11 +125,17 @@ export default function Navbar() {
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                                     </svg>
                                 </Link>
-                                <button className="p-2 rounded-xl text-surface-500 hover:text-primary-500 hover:bg-primary-50 transition-all" aria-label="Wishlist"><WishlistIcon count={3} /></button>
-                                <button className="p-2 rounded-xl text-surface-500 hover:text-primary-500 hover:bg-primary-50 transition-all" aria-label="Cart"><CartIcon count={2} /></button>
+                                {/* Favorites / Wishlist — now links to /favorites */}
+                                <Link href={route('favorites')} className="p-2 rounded-xl text-surface-500 hover:text-primary-500 hover:bg-primary-50 transition-all" aria-label="Favorit">
+                                    <WishlistIcon count={0} />
+                                </Link>
+                                {/* Cart — now links to /cart */}
+                                <Link href={route('cart')} className="p-2 rounded-xl text-surface-500 hover:text-primary-500 hover:bg-primary-50 transition-all" aria-label="Keranjang">
+                                    <CartIcon count={0} />
+                                </Link>
                                 <div className="relative ml-1">
                                     <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center p-1 rounded-xl hover:bg-surface-100 transition-all">
-                                        <img src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${user.name}&background=ff2d6f&color=fff`} alt={user.name} className="w-8 h-8 rounded-lg border border-surface-200" />
+                                        <img src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${user.name}&background=FF1100&color=fff`} alt={user.name} className="w-8 h-8 rounded-lg border border-surface-200" />
                                     </button>
                                     <AnimatePresence>
                                         {showDropdown && (
@@ -141,8 +147,11 @@ export default function Navbar() {
                                                         <p className="text-xs text-surface-500 truncate">{user.email}</p>
                                                     </div>
                                                     <div className="py-1">
-                                                        <Link href={route('dashboard')} className="block px-4 py-2 text-sm text-surface-700 hover:bg-surface-50">Dashboard</Link>
-                                                        <Link href={route('profile.edit')} className="block px-4 py-2 text-sm text-surface-700 hover:bg-surface-50">Profil</Link>
+                                                        <Link href={route('dashboard')} className="block px-4 py-2 text-sm text-surface-700 hover:bg-surface-50" onClick={() => setShowDropdown(false)}>Dashboard</Link>
+                                                        <Link href={route('profile.edit')} className="block px-4 py-2 text-sm text-surface-700 hover:bg-surface-50" onClick={() => setShowDropdown(false)}>Profil</Link>
+                                                        <Link href={route('favorites')} className="block px-4 py-2 text-sm text-surface-700 hover:bg-surface-50" onClick={() => setShowDropdown(false)}>Favorit</Link>
+                                                        <Link href={route('cart')} className="block px-4 py-2 text-sm text-surface-700 hover:bg-surface-50" onClick={() => setShowDropdown(false)}>Keranjang</Link>
+                                                        <div className="border-t border-surface-100 my-1" />
                                                         <Link href={route('logout')} method="post" as="button" className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Keluar</Link>
                                                     </div>
                                                 </motion.div>

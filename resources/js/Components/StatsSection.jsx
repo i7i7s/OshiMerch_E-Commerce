@@ -1,36 +1,58 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 
-function Counter({ value, suffix = '', duration = 2 }) {
-    const [count, setCount] = useState(0);
-    const ref = useRef(null);
-    const inView = useInView(ref, { once: true });
+function Counter({ value, suffix = '', duration = 1600 }) {
+    const [display, setDisplay] = useState(0);
+    const [done, setDone]       = useState(false);
+    const ref      = useRef(null);
+    const frameRef = useRef(null);
+    const inView   = useInView(ref, { once: true });
 
     useEffect(() => {
         if (!inView) return;
-        let start = 0;
-        const end = value;
-        const incrementTime = (duration * 1000) / end;
-        const maxInterval = 16; // ~60fps cap
-        const step = Math.max(1, Math.floor(end / (duration * 60)));
 
-        const timer = setInterval(() => {
-            start += step;
-            if (start >= end) {
-                setCount(end);
-                clearInterval(timer);
+        setDisplay(0);
+        setDone(false);
+
+        const startTime  = performance.now();
+        const scrambleMs = duration * 0.65; // 65 % scramble
+        const settleMs   = duration * 0.35; // 35 % ease-in to real value
+        // Scramble range is always at least 100 so even value=1 shows wild numbers
+        const scrambleMax = Math.max(value, 100);
+
+        const tick = (now) => {
+            const elapsed = now - startTime;
+
+            if (elapsed < scrambleMs) {
+                // Slot-machine: random number in [0, scrambleMax)
+                setDisplay(Math.floor(Math.random() * scrambleMax));
+                frameRef.current = requestAnimationFrame(tick);
+            } else if (elapsed < scrambleMs + settleMs) {
+                // Cubic ease-out deceleration toward real value
+                const t    = (elapsed - scrambleMs) / settleMs;
+                const ease = 1 - Math.pow(1 - t, 3);
+                setDisplay(Math.round(ease * value));
+                frameRef.current = requestAnimationFrame(tick);
             } else {
-                setCount(start);
+                setDisplay(value);
+                setDone(true);
             }
-        }, Math.max(incrementTime, maxInterval));
+        };
 
-        return () => clearInterval(timer);
+        frameRef.current = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(frameRef.current);
     }, [inView, value, duration]);
 
     return (
-        <span ref={ref}>
-            {count.toLocaleString('id-ID')}{suffix}
-        </span>
+        <motion.span
+            ref={ref}
+            key={done ? 'done' : 'counting'}
+            animate={done ? { scale: [1, 1.2, 1] } : {}}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            style={{ display: 'inline-block' }}
+        >
+            {display.toLocaleString('id-ID')}{suffix}
+        </motion.span>
     );
 }
 

@@ -1,7 +1,7 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle, Package, Send, Truck, Upload, X } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Package, Send, Star, Truck, Upload, X } from 'lucide-react';
 import Navbar from '@/Components/Navbar';
 
 // ── Status helpers ────────────────────────────────────────────────────────────
@@ -70,7 +70,7 @@ function ChatBubble({ message, currentUserId }) {
         <div className={`flex gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
             <img
                 src={message.sender?.profile_picture_url ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(message.sender?.name || '?')}&background=ff2d6f&color=fff&size=40`}
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(message.sender?.name || '?')}&background=FF1100&color=fff&size=40`}
                 alt={message.sender?.name}
                 className="w-8 h-8 rounded-full object-cover shrink-0 mt-1"
             />
@@ -85,6 +85,54 @@ function ChatBubble({ message, currentUserId }) {
                 <p className="text-[10px] text-surface-400">{message.created_at_human}</p>
             </div>
         </div>
+    );
+}
+
+// ── Review Form ───────────────────────────────────────────────────────────────
+
+function ReviewForm({ transactionId, sellerName }) {
+    const { data, setData, post, processing, errors, reset, recentlySuccessful } = useForm({ rating: 5, comment: '' });
+    const [hoveredStar, setHoveredStar] = useState(0);
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('reviews.store', transactionId), { onSuccess: () => reset(), preserveScroll: true });
+    };
+
+    if (recentlySuccessful) {
+        return (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="bg-green-50 border border-green-200 rounded-2xl p-5 text-center">
+                <p className="text-2xl mb-1">⭐</p>
+                <p className="font-bold text-green-800">Ulasan terkirim! Terima kasih.</p>
+            </motion.div>
+        );
+    }
+
+    return (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl border border-surface-200 p-5 space-y-4">
+            <h3 className="font-bold text-surface-900">Beri Ulasan untuk {sellerName}</h3>
+            <div className="flex items-center gap-1">
+                {[1,2,3,4,5].map(i => (
+                    <button key={i} type="button"
+                        onMouseEnter={() => setHoveredStar(i)}
+                        onMouseLeave={() => setHoveredStar(0)}
+                        onClick={() => setData('rating', i)}>
+                        <Star className={`w-8 h-8 transition-colors ${i <= (hoveredStar || data.rating) ? 'text-amber-400 fill-amber-400' : 'text-surface-200'}`} />
+                    </button>
+                ))}
+                <span className="text-sm text-surface-500 ml-2">{data.rating}/5</span>
+            </div>
+            <textarea value={data.comment} onChange={e => setData('comment', e.target.value)}
+                placeholder="Ceritakan pengalamanmu bertransaksi dengan penjual ini..."
+                rows={3} className="w-full px-4 py-2.5 rounded-xl border border-surface-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none" />
+            {errors.rating && <p className="text-xs text-red-500">{errors.rating}</p>}
+            <button onClick={submit} disabled={processing}
+                className="px-5 py-2.5 rounded-xl gradient-primary text-white font-bold text-sm shadow-glow-primary transition-all disabled:opacity-60">
+                {processing ? 'Mengirim...' : 'Kirim Ulasan ⭐'}
+            </button>
+        </motion.div>
     );
 }
 
@@ -153,7 +201,7 @@ export default function Show({ transaction }) {
             <div className="min-h-dvh bg-surface-50 flex flex-col">
                 <Navbar />
 
-                <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pt-[88px]">
+                <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pt-[96px]">
                     {/* Back */}
                     <nav className="flex items-center gap-2 text-sm text-surface-500 mb-6">
                         <Link href={route('dashboard')} className="flex items-center gap-1.5 hover:text-surface-700 transition-colors">
@@ -358,6 +406,11 @@ export default function Show({ transaction }) {
                                     <p className="text-white/80 text-sm mt-1">Terima kasih sudah bertransaksi di OshiMerch.</p>
                                 </motion.div>
                             )}
+
+                            {/* Review Form — buyer only, transaction completed, not yet reviewed */}
+                            {isBuyer && transaction.delivery_status === 'Completed' && !transaction.has_review && (
+                                <ReviewForm transactionId={transaction.id} sellerId={transaction.seller.id} sellerName={transaction.seller.name} />
+                            )}
                         </div>
 
                         {/* ── Right column: chat ── */}
@@ -373,7 +426,7 @@ export default function Show({ transaction }) {
                                     {[transaction.buyer, transaction.seller].map((u, i) => (
                                         <img
                                             key={i}
-                                            src={u.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=ff2d6f&color=fff&size=40`}
+                                            src={u.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=FF1100&color=fff&size=40`}
                                             alt={u.name}
                                             className="w-8 h-8 rounded-full border-2 border-white object-cover"
                                         />

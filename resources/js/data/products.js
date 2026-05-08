@@ -31,7 +31,7 @@ export const PRODUCTS = [
         isNew: true,
         isTrending: true,
         rarity: 'Rare',
-        seller: { name: 'JKT48Store', rating: 4.9, avatar: 'https://ui-avatars.com/api/?name=JKT48Store&background=ff2d6f&color=fff' },
+        seller: { name: 'JKT48Store', rating: 4.9, avatar: 'https://ui-avatars.com/api/?name=JKT48Store&background=FF1100&color=fff' },
         createdAt: '2026-05-07',
     },
     {
@@ -164,7 +164,7 @@ export const PRODUCTS = [
         isNew: true,
         isTrending: false,
         rarity: 'Common',
-        seller: { name: 'CraftFandom', rating: 4.5, avatar: 'https://ui-avatars.com/api/?name=CraftFandom&background=ff2d6f&color=fff' },
+        seller: { name: 'CraftFandom', rating: 4.5, avatar: 'https://ui-avatars.com/api/?name=CraftFandom&background=FF1100&color=fff' },
         createdAt: '2026-05-04',
     },
     {
@@ -255,7 +255,7 @@ export const TRENDING_MEMBERS = [
 ];
 
 export const TESTIMONIALS = [
-    { name: 'Rizky A.', avatar: 'https://ui-avatars.com/api/?name=Rizky+A&background=ff2d6f&color=fff', text: 'Akhirnya ada marketplace khusus JKT48! Nggak perlu takut ketipu lagi.', rating: 5 },
+    { name: 'Rizky A.', avatar: 'https://ui-avatars.com/api/?name=Rizky+A&background=FF1100&color=fff', text: 'Akhirnya ada marketplace khusus JKT48! Nggak perlu takut ketipu lagi.', rating: 5 },
     { name: 'Dinda S.', avatar: 'https://ui-avatars.com/api/?name=Dinda+S&background=8b3dff&color=fff', text: 'UI-nya keren banget, kerasa premium. Cari PC jadi lebih gampang!', rating: 5 },
     { name: 'Farhan M.', avatar: 'https://ui-avatars.com/api/?name=Farhan+M&background=ffbc20&color=fff', text: 'Filter berdasarkan member itu game changer. Langsung nemu oshi!', rating: 4 },
 ];
@@ -268,7 +268,7 @@ export const STATS = [
 ];
 
 export const TEAM_COLORS = {
-    PASSION: { bg: '#ff2d6f', light: '#fff0f3', text: '#c80851' },
+    PASSION: { bg: '#FF1100', light: '#fff0f3', text: '#c80851' },
     LOVE: { bg: '#ff6393', light: '#ffe0e8', text: '#a80a4a' },
     DREAM: { bg: '#8b3dff', light: '#f5f0ff', text: '#6e0dec' },
     TRAINEE: { bg: '#ffbc20', light: '#fffbeb', text: '#b75006' },
