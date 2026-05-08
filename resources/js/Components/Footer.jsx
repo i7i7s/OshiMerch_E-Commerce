@@ -54,7 +54,7 @@ export default function Footer() {
                             <p className="text-surface-400 mb-6 text-sm leading-relaxed">
                                 Punya pertanyaan atau butuh bantuan dengan pesananmu? Tim dukungan wota kami siap membantu 24/7.
                             </p>
-                            <a href="mailto:support@oshimerch.id" className="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-primary-500/20 active:scale-95">
+                            <a href="mailto:support@oshimerch.id" className="inline-flex items-center justify-center w-full bg-gradient-to-r from-primary-500 to-purple-600 hover:from-primary-400 hover:to-purple-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-purple-500/20 active:scale-95">
                                 support@oshimerch.id
                             </a>
                         </div>
