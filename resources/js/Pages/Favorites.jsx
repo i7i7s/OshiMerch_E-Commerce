@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
@@ -45,21 +45,11 @@ const EmptyState = () => (
 export default function Favorites({ favorites = [] }) {
     const { auth } = usePage().props;
 
-    const handleToggle = async (listingId) => {
-        try {
-            await fetch('/api/favorites/toggle', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content,
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({ listing_id: listingId }),
-            });
-            // Reload to reflect change — Inertia router.reload() would be better
-            window.location.reload();
-        } catch {}
+    const handleToggle = (listingId) => {
+        router.post(route('favorites.toggle'), { listing_id: listingId }, {
+            preserveScroll: true,
+            preserveState: false, // let server re-send updated favorites list
+        });
     };
 
     return (

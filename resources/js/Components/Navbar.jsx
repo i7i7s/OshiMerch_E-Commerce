@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NAV_LINKS = [
@@ -209,16 +209,24 @@ export default function Navbar() {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
-    // CSRF helper — reads from meta tag (guaranteed present in app.blade.php)
-    const getCsrf = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+    // CSRF helper — reads from XSRF-TOKEN cookie (set by Laravel on every response)
+    // This is the SPA-safe approach: no meta tag needed
+    const getCsrf = () => {
+        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)
+        return match ? decodeURIComponent(match[1]) : (
+            document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
+        );
+    };
 
     const apiFetch = (url, method = 'POST') =>
         fetch(url, {
             method,
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCsrf(),
+                'X-XSRF-TOKEN': getCsrf(),   // Laravel accepts this from cookie
+                'X-CSRF-TOKEN':  getCsrf(),   // Laravel also accepts this from meta tag
                 'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
             },
             credentials: 'same-origin',
         });

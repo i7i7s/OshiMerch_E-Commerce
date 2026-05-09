@@ -1,10 +1,26 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, MessageCircle, ShoppingCart, MapPin, Package, Clock, X } from 'lucide-react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import ListingCard from '@/Components/ListingCard';
+
+// ── Raw SVG Icons ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+const IconArrowLeft    = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>;
+const IconCart         = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>;
+const IconMessage      = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>;
+const IconPackage      = () => <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>;
+const IconClock        = () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>;
+const IconMapPin       = () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>;
+const IconClose        = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>;
+const IconStar         = ({ filled }) => <svg className={`w-4 h-4 ${filled ? 'text-amber-400 fill-amber-400' : 'text-surface-200 fill-surface-200'}`} viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>;
+
+const IconHeart = ({ filled }) => (
+    <svg className={`w-5 h-5 transition-all duration-200 ${filled ? 'text-rose-500 fill-rose-500 scale-110' : 'text-surface-500'}`}
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+    </svg>
+);
 
 const PAYMENT_METHODS = [
     { id: 'BCA',       label: 'Transfer BCA',   icon: '🏦', number: '1234567890', name: 'OshiMerch Official' },
@@ -39,9 +55,24 @@ const CATEGORY_LABEL = {
     penlight: 'Penlight',
 };
 
-export default function Show({ listing, related, auth }) {
-    const [imgError, setImgError] = useState(false);
+export default function Show({ listing, related, auth, is_favorited = false }) {
+    const [imgError, setImgError]         = useState(false);
     const [showCheckout, setShowCheckout] = useState(false);
+    const [favorited, setFavorited]       = useState(is_favorited);
+    const [favLoading, setFavLoading]     = useState(false);
+
+    const toggleFavorite = () => {
+        if (!auth?.user) { window.location.href = route('login'); return; }
+        setFavLoading(true);
+        const next = !favorited;
+        setFavorited(next); // optimistic
+        router.post(route('favorites.toggle'), { listing_id: listing.id }, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => setFavLoading(false),
+            onError:   () => { setFavorited(!next); setFavLoading(false); }, // revert
+        });
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         listing_id:      listing.id,
@@ -59,8 +90,8 @@ export default function Show({ listing, related, auth }) {
     };
 
     const teamStyle = TEAM_BADGE[listing.featured_member_team] || null;
-    const condInfo = CONDITION_LABEL[listing.condition] || CONDITION_LABEL.Used;
-    const isOwner = auth?.user?.id === listing.seller?.id;
+    const condInfo   = CONDITION_LABEL[listing.condition] || CONDITION_LABEL.Used;
+    const isOwner    = auth?.user?.id === listing.seller?.id;
     const isAvailable = listing.status === 'Available';
 
     const sellerAvatar =
@@ -77,7 +108,7 @@ export default function Show({ listing, related, auth }) {
                     {/* Breadcrumb */}
                     <nav className="flex items-center gap-2 text-sm text-surface-500 mb-6">
                         <Link href={route('products.index')} className="flex items-center gap-1.5 hover:text-surface-700 transition-colors">
-                            <ArrowLeft className="w-4 h-4" />
+                            <IconArrowLeft />
                             Semua Produk
                         </Link>
                         <span>/</span>
@@ -94,8 +125,8 @@ export default function Show({ listing, related, auth }) {
                                 className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-surface-100 shadow-elevated"
                             >
                                 {imgError || !listing.image_url ? (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <Package className="w-16 h-16 text-surface-300" />
+                                    <div className="absolute inset-0 flex items-center justify-center text-surface-300">
+                                        <IconPackage />
                                     </div>
                                 ) : (
                                     <img
@@ -148,7 +179,7 @@ export default function Show({ listing, related, auth }) {
                                     Rp{listing.price.toLocaleString('id-ID')}
                                 </p>
                                 <p className="text-xs text-surface-500 mt-1 flex items-center gap-1">
-                                    <Clock className="w-3.5 h-3.5" />
+                                    <IconClock />
                                     Diposting {listing.created_at}
                                 </p>
                             </div>
@@ -165,35 +196,54 @@ export default function Show({ listing, related, auth }) {
 
                             {/* CTA Buttons */}
                             {!isOwner && (
-                                <div className="flex flex-col sm:flex-row gap-3">
+                                <div className="flex flex-col gap-3">
                                     {auth?.user ? (
                                         isAvailable ? (
                                             <>
+                                                {/* Primary: Beli Sekarang */}
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowCheckout(true)}
-                                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary hover:shadow-xl hover:scale-[1.01] transition-all active:scale-[0.99]"
+                                                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary hover:shadow-xl hover:scale-[1.01] transition-all active:scale-[0.99]"
                                                 >
-                                                    <ShoppingCart className="w-4 h-4" />
+                                                    <IconCart />
                                                     Beli Sekarang
                                                 </button>
-                                                <Link
-                                                    href={route('chat.index')}
-                                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl border-2 border-primary-400 text-primary-600 font-semibold text-sm hover:bg-primary-50 transition-all"
-                                                >
-                                                    <MessageCircle className="w-4 h-4" />
-                                                    Chat Penjual
-                                                </Link>
+                                                {/* Secondary row: Chat + Wishlist */}
+                                                <div className="flex gap-3">
+                                                    <Link
+                                                        href={route('chat.index')}
+                                                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-primary-400 text-primary-600 font-semibold text-sm hover:bg-primary-50 transition-all"
+                                                    >
+                                                        <IconMessage />
+                                                        Chat Penjual
+                                                    </Link>
+                                                    <motion.button
+                                                        type="button"
+                                                        onClick={toggleFavorite}
+                                                        disabled={favLoading}
+                                                        whileTap={{ scale: 0.88 }}
+                                                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 font-semibold text-sm transition-all ${
+                                                            favorited
+                                                                ? 'border-rose-300 bg-rose-50 text-rose-600'
+                                                                : 'border-surface-200 text-surface-600 hover:border-rose-300 hover:text-rose-500 hover:bg-rose-50'
+                                                        } disabled:opacity-50`}
+                                                        aria-label={favorited ? 'Hapus dari Favorit' : 'Simpan ke Favorit'}
+                                                    >
+                                                        <IconHeart filled={favorited} />
+                                                        <span className="hidden sm:inline">{favorited ? 'Disimpan' : 'Simpan'}</span>
+                                                    </motion.button>
+                                                </div>
                                             </>
                                         ) : (
-                                            <div className="flex-1 py-3.5 rounded-xl bg-surface-100 text-surface-500 font-semibold text-sm text-center">
+                                            <div className="w-full py-3.5 rounded-xl bg-surface-100 text-surface-500 font-semibold text-sm text-center">
                                                 {listing.status === 'Reserved' ? '🔒 Sedang Dalam Proses' : '✅ Terjual'}
                                             </div>
                                         )
                                     ) : (
                                         <a
                                             href={route('google.redirect')}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary hover:shadow-xl transition-all"
+                                            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary hover:shadow-xl transition-all"
                                         >
                                             Login untuk Membeli
                                         </a>

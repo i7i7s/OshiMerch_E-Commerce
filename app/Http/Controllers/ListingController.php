@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Favorite;
 use App\Models\Listing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -93,7 +94,7 @@ class ListingController extends Controller
             ]);
 
         return Inertia::render('Products/Show', [
-            'listing' => [
+            'listing'      => [
                 'id'                   => $listing->id,
                 'title'                => $listing->title,
                 'description'          => $listing->description,
@@ -114,8 +115,12 @@ class ListingController extends Controller
                     'bio'              => $listing->user->bio,
                 ],
             ],
-            'related' => $related,
-            'auth'    => ['user' => Auth::user()],
+            'related'      => $related,
+            'auth'         => ['user' => Auth::user()],
+            // Whether the logged-in user has already favorited this listing
+            'is_favorited' => Auth::check()
+                ? Favorite::where('user_id', Auth::id())->where('listing_id', $listing->id)->exists()
+                : false,
         ]);
     }
 
