@@ -1,23 +1,22 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import ListingCard from '@/Components/ListingCard';
 
 // ── Raw SVG Icons ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-const IconArrowLeft    = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>;
-const IconCart         = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>;
-const IconMessage      = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>;
-const IconPackage      = () => <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>;
-const IconClock        = () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>;
-const IconMapPin       = () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>;
-const IconClose        = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>;
-const IconStar         = ({ filled }) => <svg className={`w-4 h-4 ${filled ? 'text-amber-400 fill-amber-400' : 'text-surface-200 fill-surface-200'}`} viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>;
+const IconArrowLeft    = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>;
+const IconCart         = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>;
+const IconMessage      = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>;
+const IconPackage      = () => <svg className="w-16 h-16 text-surface-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>;
+const IconClock        = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>;
+const IconMapPin       = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>;
+const IconClose        = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>;
 
 const IconHeart = ({ filled }) => (
-    <svg className={`w-5 h-5 transition-all duration-200 ${filled ? 'text-rose-500 fill-rose-500 scale-110' : 'text-surface-500'}`}
-        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg className={`w-6 h-6 transition-all duration-300 ${filled ? 'text-rose-500 fill-rose-500 scale-110' : 'text-surface-900 group-hover:scale-110'}`}
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
     </svg>
 );
@@ -31,28 +30,28 @@ const PAYMENT_METHODS = [
 ];
 
 const TEAM_BADGE = {
-    PASSION: 'bg-[#FF1100]/10 text-[#FF1100] border-[#FF1100]/30',
-    LOVE: 'bg-[#ff6393]/10 text-[#ff6393] border-[#ff6393]/30',
-    DREAM: 'bg-[#8b3dff]/10 text-[#8b3dff] border-[#8b3dff]/30',
-    TRAINEE: 'bg-[#ffbc20]/10 text-[#ffbc20] border-[#ffbc20]/30',
-    VIRTUAL: 'bg-[#00d4aa]/10 text-[#00d4aa] border-[#00d4aa]/30',
+    PASSION: 'bg-[#FF1100] text-white border-[#FF1100]',
+    LOVE: 'bg-[#ff6393] text-white border-[#ff6393]',
+    DREAM: 'bg-[#8b3dff] text-white border-[#8b3dff]',
+    TRAINEE: 'bg-[#ffbc20] text-surface-900 border-[#ffbc20]',
+    VIRTUAL: 'bg-[#00d4aa] text-surface-900 border-[#00d4aa]',
 };
 
 const CONDITION_LABEL = {
-    New: { text: 'Baru (New)', style: 'bg-green-50 text-green-700 border-green-200' },
-    Mint: { text: 'Mint Condition', style: 'bg-blue-50 text-blue-700 border-blue-200' },
-    Used: { text: 'Bekas (Used)', style: 'bg-surface-100 text-surface-600 border-surface-200' },
+    New: { text: 'NEW', style: 'bg-green-500 text-white border-green-500' },
+    Mint: { text: 'MINT', style: 'bg-blue-500 text-white border-blue-500' },
+    Used: { text: 'USED', style: 'bg-surface-800 text-white border-surface-800' },
 };
 
 const CATEGORY_LABEL = {
-    photocard: 'Photocard',
-    lightstick: 'Lightstick',
-    apparel: 'Apparel',
-    poster: 'Poster',
-    album: 'Album & CD',
-    keychain: 'Keychain',
-    towel: 'Towel',
-    penlight: 'Penlight',
+    photocard: 'PHOTOCARD',
+    lightstick: 'LIGHTSTICK',
+    apparel: 'APPAREL',
+    poster: 'POSTER',
+    album: 'ALBUM & CD',
+    keychain: 'KEYCHAIN',
+    towel: 'TOWEL',
+    penlight: 'PENLIGHT',
 };
 
 export default function Show({ listing, related, auth, is_favorited = false }) {
@@ -101,258 +100,235 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
     return (
         <>
             <Head title={`${listing.title} — OshiMerch`} />
-            <div className="min-h-dvh bg-surface-50 flex flex-col">
+            <div className="min-h-dvh bg-surface-50 flex flex-col font-sans selection:bg-primary-500 selection:text-white">
                 <Navbar auth={auth} />
 
-                <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pt-[96px] sm:pt-[96px]">
-                    {/* Breadcrumb */}
-                    <nav className="flex items-center gap-2 text-sm text-surface-500 mb-6">
-                        <Link href={route('products.index')} className="flex items-center gap-1.5 hover:text-surface-700 transition-colors">
-                            <IconArrowLeft />
-                            Semua Produk
-                        </Link>
-                        <span>/</span>
-                        <span className="text-surface-700 font-medium truncate max-w-xs">{listing.title}</span>
-                    </nav>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8">
-                        {/* Left: Photo */}
-                            <div className="space-y-4">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.97 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.4 }}
-                                className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-surface-100 shadow-elevated"
+                <main className="flex-1 w-full pt-28 pb-20">
+                    
+                    {/* E-Commerce Standard Layout with Brutalist Style */}
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        
+                        {/* Breadcrumbs / Back button */}
+                        <div className="flex items-center gap-4 mb-8">
+                            <Link 
+                                href={route('products.index')} 
+                                className="w-10 h-10 rounded-xl bg-white border-2 border-surface-900 flex items-center justify-center text-surface-900 shadow-[2px_2px_0_#0f172a] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0_#0f172a] transition-all"
                             >
-                                {/* Floating action buttons on image */}
-                                {auth?.user && !isOwner && (
-                                    <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
-                                        <motion.button
-                                            type="button"
-                                            onClick={toggleFavorite}
-                                            disabled={favLoading}
-                                            whileTap={{ scale: 0.85 }}
-                                            className={`w-10 h-10 rounded-full backdrop-blur-md shadow-lg flex items-center justify-center transition-all ${
-                                                favorited
-                                                    ? 'bg-rose-500 text-white'
-                                                    : 'bg-white/80 text-surface-600 hover:bg-rose-50 hover:text-rose-500'
-                                            }`}
-                                            aria-label={favorited ? 'Hapus dari Favorit' : 'Simpan ke Favorit'}
-                                        >
-                                            <IconHeart filled={favorited} />
-                                        </motion.button>
-                                    </div>
-                                )}
-                                {imgError || !listing.image_url ? (
-                                    <div className="absolute inset-0 flex items-center justify-center text-surface-300">
-                                        <IconPackage />
-                                    </div>
-                                ) : (
-                                    <img
-                                        src={listing.image_url}
-                                        alt={listing.title}
-                                        className="w-full h-full object-cover"
-                                        onError={() => setImgError(true)}
-                                    />
-                                )}
-                            </motion.div>
+                                <IconArrowLeft />
+                            </Link>
+                            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-surface-500">
+                                <Link href="/" className="hover:text-surface-900 transition-colors">HOME</Link>
+                                <span>/</span>
+                                <Link href={route('products.index')} className="hover:text-surface-900 transition-colors">PRODUCTS</Link>
+                                <span>/</span>
+                                <span className="text-surface-900 truncate max-w-[200px] sm:max-w-[300px]">{listing.title}</span>
+                            </div>
                         </div>
 
-                        {/* Right: Details */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.4, delay: 0.1 }}
-                            className="space-y-6"
-                        >
-                            {/* Badges row */}
-                            <div className="flex flex-wrap gap-2">
-                                {listing.featured_member_team && teamStyle && (
-                                    <span className={`px-3 py-1 rounded-xl text-xs font-bold border ${teamStyle}`}>
-                                        {listing.featured_member_team === 'VIRTUAL' ? 'JKT48V' : `Team ${listing.featured_member_team}`}
-                                    </span>
-                                )}
-                                <span className={`px-3 py-1 rounded-xl text-xs font-semibold border ${condInfo.style}`}>
-                                    {condInfo.text}
-                                </span>
-                                <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-surface-100 text-surface-600 border border-surface-200">
-                                    {CATEGORY_LABEL[listing.category] || listing.category}
-                                </span>
-                            </div>
-
-                            {/* Title + member */}
-                            <div>
-                                {listing.featured_member_name && (
-                                    <p className="text-sm text-primary-500 font-semibold mb-1">
-                                        {listing.featured_member_name}
-                                    </p>
-                                )}
-                                <h1 className="text-2xl sm:text-3xl font-bold font-display text-surface-900 leading-snug">
-                                    {listing.title}
-                                </h1>
-                            </div>
-
-                            {/* Price */}
-                            <div className="py-4 border-t border-b border-surface-200">
-                                <p className="text-3xl font-bold text-surface-900">
-                                    Rp{listing.price.toLocaleString('id-ID')}
-                                </p>
-                                <p className="text-xs text-surface-500 mt-1 flex items-center gap-1">
-                                    <IconClock />
-                                    Diposting {listing.created_at}
-                                </p>
-                            </div>
-
-                            {/* Description */}
-                            {listing.description && (
-                                <div>
-                                    <h2 className="text-sm font-bold text-surface-700 mb-2">Deskripsi Produk</h2>
-                                    <p className="text-sm text-surface-600 leading-relaxed whitespace-pre-line">
-                                        {listing.description}
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* CTA Buttons */}
-                            {!isOwner && (
-                                <div className="flex flex-col gap-3">
-                                    {auth?.user ? (
-                                        isAvailable ? (
-                                            <>
-                                                {/* Primary: Beli Sekarang */}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowCheckout(true)}
-                                                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary hover:shadow-xl hover:scale-[1.01] transition-all active:scale-[0.99]"
-                                                >
-                                                    <IconCart />
-                                                    Beli Sekarang
-                                                </button>
-                                                {/* Secondary row: Chat + Wishlist */}
-                                                <div className="flex gap-3">
-                                                    <Link
-                                                        href={route('chat.index')}
-                                                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-primary-400 text-primary-600 font-semibold text-sm hover:bg-primary-50 transition-all"
-                                                    >
-                                                        <IconMessage />
-                                                        Chat Penjual
-                                                    </Link>
-                                                    <motion.button
-                                                        type="button"
-                                                        onClick={toggleFavorite}
-                                                        disabled={favLoading}
-                                                        whileTap={{ scale: 0.88 }}
-                                                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 font-semibold text-sm transition-all ${
-                                                            favorited
-                                                                ? 'border-rose-300 bg-rose-50 text-rose-600'
-                                                                : 'border-surface-200 text-surface-600 hover:border-rose-300 hover:text-rose-500 hover:bg-rose-50'
-                                                        } disabled:opacity-50`}
-                                                        aria-label={favorited ? 'Hapus dari Favorit' : 'Simpan ke Favorit'}
-                                                    >
-                                                        <IconHeart filled={favorited} />
-                                                        <span className="hidden sm:inline">{favorited ? 'Disimpan' : 'Simpan'}</span>
-                                                    </motion.button>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="w-full py-3.5 rounded-xl bg-surface-100 text-surface-500 font-semibold text-sm text-center">
-                                                {listing.status === 'Reserved' ? '🔒 Sedang Dalam Proses' : '✅ Terjual'}
-                                            </div>
-                                        )
+                        {/* Grid Layout: [Image (4)] [Info (5)] [Action Box (3)] */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+                            
+                            {/* LEFT: Product Image */}
+                            <div className="col-span-1 lg:col-span-4">
+                                <div className="relative w-full flex items-center justify-center rounded-[2rem] bg-surface-100 border-4 border-surface-900 overflow-hidden shadow-[8px_8px_0_#0f172a] group">
+                                    {/* Abstract background pattern for the image container */}
+                                    <div className="absolute inset-0 opacity-[0.15] bg-[radial-gradient(#0f172a_2px,transparent_2px)] [background-size:24px_24px]"></div>
+                                    
+                                    {imgError || !listing.image_url ? (
+                                        <div className="w-full aspect-[3/4] flex items-center justify-center relative z-10">
+                                            <IconPackage />
+                                        </div>
                                     ) : (
-                                        <a
-                                            href={route('google.redirect')}
-                                            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary hover:shadow-xl transition-all"
-                                        >
-                                            Login untuk Membeli
-                                        </a>
+                                        <motion.img
+                                            initial={{ scale: 1.05 }}
+                                            animate={{ scale: 1 }}
+                                            transition={{ duration: 0.5 }}
+                                            src={listing.image_url}
+                                            alt={listing.title}
+                                            className="w-full max-h-[75vh] object-contain relative z-10 transition-transform duration-500 group-hover:scale-105 drop-shadow-2xl"
+                                            onError={() => setImgError(true)}
+                                        />
+                                    )}
+                                    
+                                    {/* Overlay Tags */}
+                                    <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                                        <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase border-2 shadow-[2px_2px_0_rgba(0,0,0,0.2)] ${condInfo.style}`}>
+                                            {condInfo.text}
+                                        </span>
+                                        {listing.featured_member_team && teamStyle && (
+                                            <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase border-2 shadow-[2px_2px_0_rgba(0,0,0,0.2)] ${teamStyle}`}>
+                                                {listing.featured_member_team === 'VIRTUAL' ? 'JKT48V' : listing.featured_member_team}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Favorite Button Overlay */}
+                                    {auth?.user && !isOwner && (
+                                        <div className="absolute top-4 right-4 z-10">
+                                            <motion.button
+                                                type="button"
+                                                onClick={toggleFavorite}
+                                                disabled={favLoading}
+                                                whileTap={{ scale: 0.8 }}
+                                                className="w-12 h-12 rounded-xl bg-white border-2 border-surface-900 flex items-center justify-center shadow-[4px_4px_0_#0f172a] transition-transform hover:-translate-y-1"
+                                            >
+                                                <IconHeart filled={favorited} />
+                                            </motion.button>
+                                        </div>
                                     )}
                                 </div>
-                            )}
+                            </div>
 
-                            {/* Owner actions */}
-                            {isOwner && (
-                                <div className="flex gap-3">
-                                    <Link
-                                        href={route('listings.edit', listing.id)}
-                                        className="flex-1 py-3 rounded-xl border border-surface-300 text-surface-700 font-semibold text-sm text-center hover:bg-surface-100 transition-colors"
-                                    >
-                                        Edit Listing
-                                    </Link>
-                                    <Link
-                                        href={route('listings.destroy', listing.id)}
-                                        method="delete"
-                                        as="button"
-                                        className="px-5 py-3 rounded-xl border border-red-200 text-red-600 font-semibold text-sm hover:bg-red-50 transition-colors"
-                                        onClick={(e) => {
-                                            if (!confirm('Hapus listing ini?')) e.preventDefault();
-                                        }}
-                                    >
-                                        Hapus
-                                    </Link>
+                            {/* MIDDLE: Product Information */}
+                            <div className="col-span-1 lg:col-span-5 flex flex-col gap-6">
+                                <div className="pb-6 border-b-4 border-surface-200">
+                                    <span className="inline-block px-3 py-1 rounded-lg bg-surface-900 text-white text-xs font-black uppercase tracking-widest mb-4">
+                                        {CATEGORY_LABEL[listing.category] || listing.category}
+                                    </span>
+                                    <h1 className="text-3xl md:text-5xl font-black font-display text-surface-950 uppercase tracking-tighter leading-[1] mb-2">
+                                        {listing.title}
+                                    </h1>
+                                    {listing.featured_member_name && (
+                                        <p className="text-primary-500 font-bold uppercase tracking-widest text-sm flex items-center gap-2 mt-3">
+                                            <span className="w-2 h-2 rounded-full bg-primary-500 inline-block"></span>
+                                            {listing.featured_member_name}
+                                        </p>
+                                    )}
                                 </div>
-                            )}
 
-                            {/* Seller card */}
-                            <div className="bg-white rounded-2xl border border-surface-200 p-5">
-                                <h2 className="text-sm font-bold text-surface-700 mb-4">Tentang Penjual</h2>
-                                <div className="flex items-start gap-4">
+                                {/* Price Mobile - only visible on small screens */}
+                                <div className="lg:hidden text-4xl font-black font-display text-surface-950 tracking-tight pb-4 border-b-4 border-surface-200">
+                                    Rp{listing.price.toLocaleString('id-ID')}
+                                </div>
+
+                                {/* Description */}
+                                {listing.description && (
+                                    <div className="pb-6 border-b-4 border-surface-200">
+                                        <h2 className="text-xs font-black text-surface-500 uppercase tracking-widest mb-3">DESKRIPSI PRODUK</h2>
+                                        <p className="text-surface-700 leading-relaxed whitespace-pre-line font-medium text-base">
+                                            {listing.description}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Seller Info */}
+                                <div className="bg-white rounded-2xl border-4 border-surface-900 p-5 flex items-center gap-4 shadow-[4px_4px_0_#0f172a]">
                                     <Link href={route('seller.profile', listing.seller?.id)} className="shrink-0">
                                         <img
                                             src={sellerAvatar}
                                             alt={listing.seller?.name}
-                                            className="w-14 h-14 rounded-2xl object-cover hover:opacity-80 transition-opacity"
+                                            className="w-14 h-14 rounded-xl object-cover border-2 border-surface-900 hover:scale-105 transition-transform"
                                             onError={(e) => { e.target.src = sellerAvatar; }}
                                         />
                                     </Link>
                                     <div className="flex-1 min-w-0">
-                                        <Link href={route('seller.profile', listing.seller?.id)} className="font-bold text-surface-900 hover:text-primary-600 transition-colors">
+                                        <p className="text-[10px] font-black text-surface-500 uppercase tracking-widest mb-0.5">SELLER INFO</p>
+                                        <Link href={route('seller.profile', listing.seller?.id)} className="font-black text-lg text-surface-950 uppercase hover:text-primary-600 transition-colors truncate block">
                                             {listing.seller?.name}
                                         </Link>
-                                        {listing.seller?.oshi_member_name && (
-                                            <p className="text-xs text-primary-500 font-medium mt-0.5">
-                                                Oshi: {listing.seller.oshi_member_name}
-                                            </p>
-                                        )}
-                                        {listing.seller?.bio && (
-                                            <p className="text-xs text-surface-500 mt-2 line-clamp-2 leading-relaxed">
-                                                {listing.seller.bio}
-                                            </p>
-                                        )}
-                                        <Link href={route('seller.profile', listing.seller?.id)}
-                                            className="inline-flex items-center gap-1 text-xs text-primary-500 font-semibold mt-2 hover:text-primary-700 transition-colors">
-                                            Lihat Profil Penjual →
-                                        </Link>
                                     </div>
+                                    <Link href={route('seller.profile', listing.seller?.id)}
+                                        className="hidden sm:block shrink-0 px-4 py-2 rounded-lg border-2 border-surface-900 text-surface-900 font-bold text-xs uppercase tracking-widest hover:bg-surface-900 hover:text-white transition-colors">
+                                        CEK TOKO
+                                    </Link>
                                 </div>
                             </div>
 
-                            {/* Safe trade notice */}
-                            <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
-                                <IconMapPin />
-                                <div>
-                                    <p className="text-xs font-bold text-amber-800">Tips Transaksi Aman</p>
-                                    <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                                        Selalu lakukan chat terlebih dahulu, konfirmasi detail produk, dan gunakan metode transfer yang terlacak. Jangan transfer sebelum deal disepakati.
-                                    </p>
+                            {/* RIGHT: Action Card (Sticky) */}
+                            <div className="col-span-1 lg:col-span-3 relative">
+                                <div className="sticky top-28 bg-white rounded-[2rem] border-4 border-surface-900 p-6 shadow-[12px_12px_0_#0f172a] flex flex-col gap-6">
+                                    <h2 className="text-xs font-black text-surface-500 uppercase tracking-widest pb-3 border-b-2 border-surface-200 text-center">
+                                        TRANSAKSI
+                                    </h2>
+
+                                    <div className="text-center">
+                                        <p className="text-sm font-bold uppercase tracking-widest text-surface-500 mb-1">HARGA ITEM</p>
+                                        <p className="text-3xl lg:text-4xl font-black font-display text-surface-950 tracking-tight">
+                                            Rp{listing.price.toLocaleString('id-ID')}
+                                        </p>
+                                    </div>
+
+                                    {!isOwner ? (
+                                        <div className="flex flex-col gap-3">
+                                            {auth?.user ? (
+                                                isAvailable ? (
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowCheckout(true)}
+                                                            className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-surface-950 text-white font-black text-sm uppercase tracking-widest shadow-[4px_4px_0_rgba(244,63,94,0.5)] hover:-translate-y-1 hover:shadow-[6px_6px_0_rgba(244,63,94,0.5)] transition-all bg-gradient-to-r from-primary-600 to-purple-600"
+                                                        >
+                                                            <IconCart /> BELI LANGSUNG
+                                                        </button>
+                                                        <Link
+                                                            href={route('chat.index')}
+                                                            className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-white border-4 border-surface-900 text-surface-950 font-black text-sm uppercase tracking-widest hover:bg-surface-100 hover:-translate-y-1 transition-all shadow-[4px_4px_0_#0f172a]"
+                                                        >
+                                                            <IconMessage /> CHAT PENJUAL
+                                                        </Link>
+                                                    </>
+                                                ) : (
+                                                    <div className="w-full py-4 rounded-xl bg-surface-200 border-4 border-surface-300 text-surface-500 font-black text-sm uppercase tracking-widest text-center">
+                                                        {listing.status === 'Reserved' ? '🔒 IN PROGRESS' : '✅ TERJUAL'}
+                                                    </div>
+                                                )
+                                            ) : (
+                                                <a
+                                                    href={route('google.redirect')}
+                                                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl gradient-primary text-white font-black text-sm uppercase tracking-widest hover:-translate-y-1 transition-all shadow-glow-primary"
+                                                >
+                                                    LOGIN UTK BELI
+                                                </a>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col gap-3">
+                                            <Link
+                                                href={route('listings.edit', listing.id)}
+                                                className="w-full py-4 rounded-xl bg-surface-950 text-white font-black text-sm uppercase tracking-widest text-center hover:bg-surface-800 transition-all shadow-xl"
+                                            >
+                                                EDIT LISTING
+                                            </Link>
+                                            <Link
+                                                href={route('listings.destroy', listing.id)}
+                                                method="delete"
+                                                as="button"
+                                                className="w-full py-4 rounded-xl border-4 border-red-500 text-red-600 font-black text-sm uppercase tracking-widest text-center hover:bg-red-50 transition-all shadow-[4px_4px_0_#ef4444]"
+                                                onClick={(e) => {
+                                                    if (!confirm('Hapus listing ini secara permanen?')) e.preventDefault();
+                                                }}
+                                            >
+                                                HAPUS LISTING
+                                            </Link>
+                                        </div>
+                                    )}
+
+                                    {/* Security badge */}
+                                    <div className="mt-2 flex items-center gap-3 p-3 rounded-xl bg-surface-100 border-2 border-surface-200">
+                                        <IconMapPin />
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-surface-600 leading-tight">
+                                            Transaksi dilindungi OshiMerch Escrow.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
 
                     {/* Related listings */}
                     {related?.length > 0 && (
-                        <section className="mt-16">
-                            <h2 className="text-xl font-bold font-display text-surface-900 mb-6">
-                                Produk Serupa
+                        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 mt-16 border-t-4 border-surface-900">
+                            <h2 className="text-3xl md:text-4xl font-black font-display text-surface-950 uppercase tracking-tighter mb-10">
+                                MUNGKIN KAMU <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-purple-600">SUKA.</span>
                             </h2>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                                 {related.map((item, i) => (
                                     <motion.div
                                         key={item.id}
-                                        initial={{ opacity: 0, y: 16 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: i * 0.05 }}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true, margin: "-50px" }}
+                                        transition={{ delay: i * 0.1 }}
                                     >
                                         <ListingCard listing={item} />
                                     </motion.div>
@@ -365,7 +341,7 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                 <Footer />
             </div>
 
-            {/* ── Checkout Modal ── */}
+            {/* ── Checkout Modal (Brutalist Theme) ── */}
             <AnimatePresence>
                 {showCheckout && (
                     <>
@@ -373,126 +349,124 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+                            className="fixed inset-0 z-50 bg-surface-950/80 backdrop-blur-md"
                             onClick={() => setShowCheckout(false)}
                         />
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 40 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.96, y: 20 }}
-                            transition={{ duration: 0.2 }}
-                            className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90dvh] flex flex-col"
+                            exit={{ opacity: 0, scale: 0.9, y: 40 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-lg mx-auto bg-white rounded-[2rem] border-4 border-surface-900 shadow-[12px_12px_0_#0f172a] overflow-hidden max-h-[90dvh] flex flex-col"
                         >
                             {/* Header */}
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-surface-100">
+                            <div className="flex items-center justify-between px-8 py-6 border-b-4 border-surface-900 bg-surface-50">
                                 <div>
-                                    <h2 className="font-bold text-surface-900 text-lg">Checkout</h2>
-                                    <p className="text-xs text-surface-500 truncate max-w-[220px]">{listing.title}</p>
+                                    <h2 className="font-black font-display text-2xl text-surface-950 uppercase tracking-tighter">CHECKOUT</h2>
+                                    <p className="text-xs font-bold text-surface-500 uppercase tracking-widest mt-1 truncate max-w-[250px]">{listing.title}</p>
                                 </div>
-                                <button onClick={() => setShowCheckout(false)} className="p-2 rounded-xl hover:bg-surface-100 transition-colors text-surface-500">
+                                <button onClick={() => setShowCheckout(false)} className="w-10 h-10 rounded-xl bg-surface-200 flex items-center justify-center hover:bg-surface-300 transition-colors text-surface-900">
                                     <IconClose />
                                 </button>
                             </div>
 
-                            <form onSubmit={handleBuy} className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+                            <form onSubmit={handleBuy} className="overflow-y-auto flex-1 p-8 space-y-8 bg-white">
                                 {/* Price summary */}
-                                <div className="rounded-2xl bg-primary-50 border border-primary-100 p-4">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-surface-600">Total Pembayaran</span>
-                                        <span className="text-lg font-bold text-primary-600">
-                                            Rp{listing.price.toLocaleString('id-ID')}
-                                        </span>
-                                    </div>
+                                <div className="rounded-2xl bg-gradient-to-r from-primary-600 to-purple-600 border-4 border-surface-900 p-6 text-white shadow-[4px_4px_0_#0f172a]">
+                                    <p className="text-xs font-black uppercase tracking-widest opacity-80 mb-1">TOTAL PEMBAYARAN</p>
+                                    <p className="text-4xl font-black font-display tracking-tight">
+                                        Rp{listing.price.toLocaleString('id-ID')}
+                                    </p>
                                 </div>
 
                                 {/* Recipient */}
-                                <div className="space-y-3">
-                                    <h3 className="text-sm font-bold text-surface-700">Informasi Penerima</h3>
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-black text-surface-900 uppercase tracking-widest border-b-2 border-surface-200 pb-2">INFO PENERIMA</h3>
                                     <div>
-                                        <label className="block text-xs font-medium text-surface-600 mb-1">Nama Penerima *</label>
+                                        <label className="block text-xs font-bold text-surface-600 mb-2 uppercase tracking-wide">Nama Lengkap *</label>
                                         <input
                                             type="text"
                                             value={data.recipient_name}
                                             onChange={e => setData('recipient_name', e.target.value)}
                                             placeholder="Nama lengkap penerima"
-                                            className="w-full px-4 py-2.5 rounded-xl border border-surface-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                                            className="w-full px-5 py-4 rounded-xl border-2 border-surface-200 font-bold focus:outline-none focus:border-primary-500 focus:shadow-[4px_4px_0_rgba(244,63,94,0.2)] transition-all"
                                             required
                                         />
-                                        {errors.recipient_name && <p className="text-xs text-red-500 mt-1">{errors.recipient_name}</p>}
+                                        {errors.recipient_name && <p className="text-xs font-bold text-red-500 mt-2">{errors.recipient_name}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-surface-600 mb-1">No. HP (opsional)</label>
+                                        <label className="block text-xs font-bold text-surface-600 mb-2 uppercase tracking-wide">No. WhatsApp (Opsional)</label>
                                         <input
                                             type="text"
                                             value={data.recipient_phone}
                                             onChange={e => setData('recipient_phone', e.target.value)}
                                             placeholder="08xx-xxxx-xxxx"
-                                            className="w-full px-4 py-2.5 rounded-xl border border-surface-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                                            className="w-full px-5 py-4 rounded-xl border-2 border-surface-200 font-bold focus:outline-none focus:border-primary-500 focus:shadow-[4px_4px_0_rgba(244,63,94,0.2)] transition-all"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-surface-600 mb-1">Alamat Pengiriman Lengkap *</label>
+                                        <label className="block text-xs font-bold text-surface-600 mb-2 uppercase tracking-wide">Alamat Pengiriman *</label>
                                         <textarea
                                             value={data.shipping_address}
                                             onChange={e => setData('shipping_address', e.target.value)}
-                                            placeholder="Jl. Contoh No. 1, Kelurahan, Kecamatan, Kota, Kode Pos"
+                                            placeholder="Jl. Contoh No. 1, Kelurahan, Kecamatan..."
                                             rows={3}
-                                            className="w-full px-4 py-2.5 rounded-xl border border-surface-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none"
+                                            className="w-full px-5 py-4 rounded-xl border-2 border-surface-200 font-bold focus:outline-none focus:border-primary-500 focus:shadow-[4px_4px_0_rgba(244,63,94,0.2)] transition-all resize-none"
                                             required
                                         />
-                                        {errors.shipping_address && <p className="text-xs text-red-500 mt-1">{errors.shipping_address}</p>}
+                                        {errors.shipping_address && <p className="text-xs font-bold text-red-500 mt-2">{errors.shipping_address}</p>}
                                     </div>
                                 </div>
 
                                 {/* Payment method */}
-                                <div className="space-y-2">
-                                    <h3 className="text-sm font-bold text-surface-700">Metode Pembayaran</h3>
-                                    {PAYMENT_METHODS.map(m => (
-                                        <label
-                                            key={m.id}
-                                            className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                                                data.payment_method === m.id
-                                                    ? 'border-primary-400 bg-primary-50'
-                                                    : 'border-surface-200 hover:border-surface-300'
-                                            }`}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name="payment_method"
-                                                value={m.id}
-                                                checked={data.payment_method === m.id}
-                                                onChange={() => setData('payment_method', m.id)}
-                                                className="sr-only"
-                                            />
-                                            <span className="text-xl">{m.icon}</span>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-semibold text-surface-800">{m.label}</p>
-                                                <p className="text-xs text-surface-500">{m.number} · {m.name}</p>
-                                            </div>
-                                            {data.payment_method === m.id && (
-                                                <div className="w-4 h-4 rounded-full bg-primary-500 flex items-center justify-center shrink-0">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-black text-surface-900 uppercase tracking-widest border-b-2 border-surface-200 pb-2">METODE PEMBAYARAN</h3>
+                                    <div className="space-y-3">
+                                        {PAYMENT_METHODS.map(m => (
+                                            <label
+                                                key={m.id}
+                                                className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                                                    data.payment_method === m.id
+                                                        ? 'border-surface-900 bg-surface-50 shadow-[4px_4px_0_#0f172a]'
+                                                        : 'border-surface-200 hover:border-surface-400'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="payment_method"
+                                                    value={m.id}
+                                                    checked={data.payment_method === m.id}
+                                                    onChange={() => setData('payment_method', m.id)}
+                                                    className="sr-only"
+                                                />
+                                                <span className="text-2xl bg-white w-10 h-10 rounded-lg flex items-center justify-center border-2 border-surface-100">{m.icon}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-black text-surface-900 uppercase tracking-wide">{m.label}</p>
+                                                    <p className="text-xs font-bold text-surface-500">{m.number}</p>
                                                 </div>
-                                            )}
-                                        </label>
-                                    ))}
+                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${data.payment_method === m.id ? 'border-primary-500 bg-primary-500' : 'border-surface-300'}`}>
+                                                    {data.payment_method === m.id && <div className="w-2 h-2 rounded-full bg-white" />}
+                                                </div>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
 
-                                <p className="text-xs text-surface-500 bg-amber-50 border border-amber-200 rounded-xl p-3 leading-relaxed">
-                                    ⚠️ Setelah submit, listing akan direservasi untukmu. Lakukan transfer sesuai instruksi di halaman transaksi, lalu upload bukti bayar.
-                                </p>
+                                <div className="p-4 rounded-xl bg-amber-300 border-4 border-surface-900 text-surface-950 font-bold text-sm leading-relaxed">
+                                    ⚠️ Setelah confirm, listing akan di-*reserve*. Lakukan transfer sesuai instruksi di halaman transaksi.
+                                </div>
                             </form>
 
                             {/* Footer */}
-                            <div className="px-6 pb-6 pt-3 border-t border-surface-100">
+                            <div className="px-8 py-6 border-t-4 border-surface-900 bg-surface-50">
                                 <button
                                     type="submit"
                                     form=""
                                     onClick={handleBuy}
                                     disabled={processing}
-                                    className="w-full py-3.5 rounded-xl gradient-primary text-white font-bold text-sm shadow-glow-primary hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                    className="w-full py-5 rounded-2xl bg-surface-950 text-white font-black text-lg uppercase tracking-widest shadow-[4px_4px_0_#f43f5e] hover:-translate-y-1 hover:shadow-[6px_6px_0_#f43f5e] transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
                                 >
-                                    {processing ? 'Memproses...' : `Konfirmasi Pembelian — Rp${listing.price.toLocaleString('id-ID')}`}
+                                    {processing ? 'MEMPROSES...' : `CONFIRM CHECKOUT`}
                                 </button>
                             </div>
                         </motion.div>
