@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,9 +12,8 @@ class NotificationController extends Controller
     /**
      * GET /api/notifications
      * Returns the latest 20 notifications for the authenticated user.
-     * Used by the Navbar polling mechanism.
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $user = Auth::user();
         if (! $user) {
@@ -44,12 +44,18 @@ class NotificationController extends Controller
     }
 
     /**
-     * POST /api/notifications/{id}/read
+     * POST /api/notifications/{notification}/read
      * Mark a single notification as read.
+     * Uses inline ownership check instead of policy to avoid Inertia
+     * exception handler intercepting 403 responses.
      */
-    public function markRead(Notification $notification)
+    public function markRead(Notification $notification): JsonResponse
     {
-        $this->authorize('update', $notification);
+        $user = Auth::user();
+        if (! $user || $user->id !== $notification->user_id) {
+            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+        }
+
         $notification->markAsRead();
 
         return response()->json(['success' => true]);
@@ -57,9 +63,9 @@ class NotificationController extends Controller
 
     /**
      * POST /api/notifications/read-all
-     * Mark all notifications as read.
+     * Mark all notifications as read for authenticated user.
      */
-    public function markAllRead()
+    public function markAllRead(): JsonResponse
     {
         $user = Auth::user();
         if (! $user) {
@@ -74,12 +80,16 @@ class NotificationController extends Controller
     }
 
     /**
-     * DELETE /api/notifications/{id}
+     * DELETE /api/notifications/{notification}
      * Delete a single notification.
      */
-    public function destroy(Notification $notification)
+    public function destroy(Notification $notification): JsonResponse
     {
-        $this->authorize('delete', $notification);
+        $user = Auth::user();
+        if (! $user || $user->id !== $notification->user_id) {
+            return response()->json(['success' => false], 403);
+        }
+
         $notification->delete();
 
         return response()->json(['success' => true]);

@@ -19,13 +19,23 @@ class FavoriteController extends Controller
     public function index(): Response
     {
         $favorites = Favorite::where('user_id', Auth::id())
-            ->with('listing:id,title,price,condition,category,image_url,featured_member_name,featured_member_team,status,user_id')
+            ->with('listing')
             ->latest()
             ->get()
             ->map(fn ($f) => [
                 'id'         => $f->id,
                 'listing_id' => $f->listing_id,
-                'listing'    => $f->listing,
+                'listing'    => $f->listing ? [
+                    'id'                   => $f->listing->id,
+                    'title'                => $f->listing->title,
+                    'price'                => $f->listing->price,
+                    'condition'            => $f->listing->condition,
+                    'category'             => $f->listing->category,
+                    'image_url'            => $f->listing->image_url,  // accessor
+                    'featured_member_name' => $f->listing->featured_member_name,
+                    'featured_member_team' => $f->listing->featured_member_team,
+                    'status'               => $f->listing->status,
+                ] : null,
                 'created_at' => $f->created_at->diffForHumans(),
             ]);
 

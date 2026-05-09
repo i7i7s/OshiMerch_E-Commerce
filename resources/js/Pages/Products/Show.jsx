@@ -117,13 +117,32 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
 
                     <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8">
                         {/* Left: Photo */}
-                        <div className="space-y-4">
+                            <div className="space-y-4">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.97 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4 }}
                                 className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-surface-100 shadow-elevated"
                             >
+                                {/* Floating action buttons on image */}
+                                {auth?.user && !isOwner && (
+                                    <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+                                        <motion.button
+                                            type="button"
+                                            onClick={toggleFavorite}
+                                            disabled={favLoading}
+                                            whileTap={{ scale: 0.85 }}
+                                            className={`w-10 h-10 rounded-full backdrop-blur-md shadow-lg flex items-center justify-center transition-all ${
+                                                favorited
+                                                    ? 'bg-rose-500 text-white'
+                                                    : 'bg-white/80 text-surface-600 hover:bg-rose-50 hover:text-rose-500'
+                                            }`}
+                                            aria-label={favorited ? 'Hapus dari Favorit' : 'Simpan ke Favorit'}
+                                        >
+                                            <IconHeart filled={favorited} />
+                                        </motion.button>
+                                    </div>
+                                )}
                                 {imgError || !listing.image_url ? (
                                     <div className="absolute inset-0 flex items-center justify-center text-surface-300">
                                         <IconPackage />
