@@ -1,131 +1,161 @@
-<h1 align="center">🎀 OshiMerch</h1>
+<div align="center">
+  <img src="public/images/heroassets/oshi-merch-logo.png" alt="OshiMerch Logo" width="200" style="border-radius:20%" />
+  
+  # OshiMerch E-Commerce
+  
+  **A secure, intuitive, and modern e-commerce platform specially designed for the JKT48 fandom.**
+  
+  [![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+  [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+  [![Inertia.js](https://img.shields.io/badge/Inertia.js-9553E9?style=for-the-badge&logo=inertia&logoColor=white)](https://inertiajs.com/)
+  [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+</div>
+
+<br/>
+
+## 📖 Overview
+
+Merchandise trading in the JKT48 fandom (photocards, lightsticks, apparel, etc.) is currently scattered across various social media platforms and general marketplaces. This fragmentation leads to risks like fraud, non-transparent pricing, difficulty in finding specific items, and the lack of an ecosystem that deeply understands the fandom culture.
+
+**OshiMerch** solves this by providing a hyper-focused platform for JKT48 fans. We adopt a **"Healthy MVP"** approach—prioritizing core product value such as a strong fandom identity (API-based Oshi profiles), seamless product listing, and dynamic discoverability. Complex features like automated payment gateways, cloud storage migration, and real-time WebSockets are planned for our Future Roadmap phase to ensure rock-solid stability in the MVP stage.
+
+---
+
+## 🚀 Key Features and Benefits
+
+### 🔸 Phase 1: Foundation & Identity
+
+- **Google Authentication:** Secure and seamless one-click login powered by Laravel Socialite.
+- **API-Driven Oshi Onboarding:** Real-time fetching of JKT48 members via external APIs to build a deep fanatic identity from Day 1.
+
+### 🔸 Phase 2: Supply & Discoverability
+
+- **Dynamic Discoverability:** Browse listings with multi-criteria filters (member, team: PASSION/LOVE/DREAM/TRAINEE, item condition, price range) synchronized directly from API architectures.
+- **Debounced Smart Search:** A hyper-optimized search mechanism across `navbar`, `/members`, and `/products` implementing localized `useDebounce` (>300ms) to ensure smooth operations and reduce server load limits.
+- **Listing Management:** Robust CRUD ops, local file uploads, description tags natively tied to the JKT48 API.
+
+### 🔸 Phase 3: Transaction & Communication
+
+- **Standardized Chats:** Built-in HTTP polling conversational UI featuring modern chat bubbles to facilitate seamless price negotiation and logistics coordination.
+- **Manual Order Tracking Pipeline:** Trust-based manual checkout mechanics tracking items from _Pending_ ➔ _Paid (Receipt Verification)_ ➔ _Shipped_ ➔ _Completed_.
+
+### 🔮 Future Roadmap
+
+- **Automated Payments:** Webhook integrations via Midtrans/Xendit.
+- **Logistics Sync:** API mapping using RajaOngkir/Biteship.
+- **Performance Scaling:** Storage and database migration targeting Supabase (PostgreSQL + S3 Storage).
+- **Real-time Operations:** Upgrading polling chat protocols to Laravel Reverb for highly-concurrent WebSocket capabilities.
+
+---
+
+## 🛠️ Technology Stack
+
+OshiMerch leverages a highly modern **VILT/VIRT Stack** modified for React, aiming for a Gen Z-friendly user experience.
+
+- **Backend:** [Laravel 13.x](https://laravel.com/) (PHP ^8.3)
+- **Frontend:** [React 19.x](https://react.dev/) + [Inertia.js v2.x](https://inertiajs.com/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/), Framer Motion, GSAP, Lenis (Smooth Scrolling)
+- **Database:** MySQL (Local setup for MVP)
+- **Authentication:** Laravel Breeze, Laravel Socialite
+- **Tooling:** Vite v6
+
+**External Data Integration:** [JKT48 Member API](https://jkt-48-member-api-i7i7.vercel.app/)
+
+---
+
+## 🚦 Getting Started
+
+Follow these steps to set up OshiMerch in your local development environment.
+
+### Prerequisites
+
+- PHP ^8.3
+- Composer
+- Node.js (v18+) & npm
+- MySQL/MariaDB
+
+### Installation Instructions
+
+1.  **Clone the Repository:**
+
+    ```bash
+    git clone https://github.com/i7i7s/OshiMerch_E-Commerce.git
+    cd OshiMerch_E-Commerce
+    ```
+
+2.  **Install PHP & Node Dependencies:**
+
+    ```bash
+    composer install
+    npm install
+    ```
+
+3.  **Environment Setup:**
+
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+
+    _Make sure to configure your database settings, and add your Google OAuth credentials for Laravel Socialite inside the `.env` file._
+
+4.  **Database Migration & Seeding:**
+
+    ```bash
+    php artisan migrate --seed
+    ```
+
+    _Note: We use gracefully tracked migrations ensuring smooth CI/CD operations._
+
+5.  **Storage Link:**
+    Create a symbolic link for local file uploads to be publicly accessible.
+
+    ```bash
+    php artisan storage:link
+    ```
+
+6.  **Run Development Servers:**
+    Run both Vite and Laravel Serve concurrently.
+
+    ```bash
+    npm run dev
+    ```
+
+    This triggers a cross-platform concurrent spin up of `php artisan serve`, `queue:listen`, and `vite`.
+
+    Visit `http://localhost:8000` to start exploring OshiMerch!
+
+---
+
+## 🎨 UI/UX and Development Guidelines
+
+To maintain our targeted "Gen-Z Vibe" standard and project scope, developers must adhere to the following when contributing:
+
+1.  **UI/UX Quality over Quantity:** Never use default/bare HTML styles. Heavily utilize Tailwind CSS, Framer Motion, and GSAP micro-interactions to create a rich client sensation.
+2.  **API Fallbacks:** Treat the JKT48 External API safely. Employ local/app caching for member names, unique codes, and teams to preserve performance metrics.
+3.  **Debounce Search Hooks:** Any new text inputs hitting endpoints **must** employ a `setTimeout/clearTimeout` logic custom-hook with a 300ms minimum threshold.
+4.  **Security Standards:** Ensure CSRF protection via Inertia, output sanitization against XSS, and proper auth middleware (`auth`, `verified`) protecting the user transaction pipelines.
+
+---
+
+## 🤝 How to Get Help & Contribute
+
+We welcome open-source contributions focusing exclusively on fulfilling our MVP specifications.
+
+- **Found a bug?** Please use the [Issue Tracker](../../issues) to report bugs, glitches, or UX problems.
+- **Want to contribute?** See our current objectives mapped out in `PRD_OSHI MERCH FIX.md`.
+    1. Fork the repo and create your feature branch (`git checkout -b feature/amazing-feature`)
+    2. Commit your changes strictly following conventional commits (`git commit -m 'feat: Add amazing feature'`)
+    3. Push to the branch (`git push origin feature/amazing-feature`)
+    4. Open a Pull Request on GitHub.
+
+### Maintaining Team
+
+Managed and curated by **[@i7i7s](https://github.com/i7i7s)** & the OshiMerch E-Commerce core maintenance team.
+
+---
+
 <p align="center">
-  <strong>Marketplace merchandise JKT48 untuk para wota</strong><br/>
-  Beli & jual photocard, lightstick, album, apparel, dan koleksi idol favoritmu dengan ekosistem yang aman, transparan, dan anti-ribet.
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React">
-  <img src="https://img.shields.io/badge/Inertia.js-2.x-7C3AED?style=flat-square" alt="Inertia">
-  <img src="https://img.shields.io/badge/Tailwind_CSS-v4-38BDF8?style=flat-square&logo=tailwindcss" alt="Tailwind">
-  <img src="https://img.shields.io/badge/Framer_Motion-11.x-0055FF?style=flat-square" alt="Framer Motion">
-</p>
-
----
-
-## 📖 Tentang Proyek
-
-**OshiMerch** lahir dari keresahan fans JKT48 yang kesulitan mencari, membeli, dan menjual *merchandise* secara aman dan terorganisir. Melalui platform C2C (Consumer-to-Consumer) ini, kami meruntuhkan batas antara fans dan koleksi impian mereka. 
-
-Sistem ini terintegrasi langsung dengan [JKT48 Member API](https://jkt-48-member-api-i7i7.vercel.app), memungkinkan pengguna untuk memilih *oshi* mereka, mendapatkan *badge* profil khusus berdasarkan tim (Tim J, KIII, T, Trainee, Virtual), dan menjelajahi *merchandise* berdasarkan idol.
-
----
-
-## 🛠 Tech Stack & Arsitektur
-
-Platform ini dibangun di atas fondasi teknologi modern untuk performa level-produksi dan *developer experience* yang maksimal:
-
-| Layer | Teknologi Utama | Deskripsi |
-| :--- | :--- | :--- |
-| **Backend** | Laravel 11 + Eloquent ORM | Menangani routing, validasi ketat, autentikasi, dan relasi database yang kompleks. |
-| **Frontend** | React 19 (JSX) via Inertia.js | SPA rendering tanpa API manual. Menjembatani Laravel controller langsung ke React props. |
-| **Styling** | Tailwind CSS v4 | Styling revolusioner menggunakan direktif `@theme` & `@source`, nol konfigurasi *file* eksternal. |
-| **Animations** | Framer Motion & GSAP | Memberikan mikro-interaksi, transisi halaman, efek *parallax*, dan UI/UX yang *anti-mainstream*. |
-| **Database** | MySQL | Skema relasional untuk Users, Products (Listings), Transactions, dan Messages. |
-| **Auth & Sec** | Laravel Breeze + Socialite | Sistem autentikasi instan melalui akun Google OAuth 2.0. |
-
----
-
-## 🚀 Fitur & Pencapaian Saat Ini
-
-### ✅ Phase 1: Fondasi Kuat & Autentikasi Modern
-- [x] Autentikasi instan via Google OAuth.
-- [x] Alur *Onboarding* gamifikasi: pengguna wajib memilih *oshi* dari database API eksternal.
-- [x] *Design System* khusus berbasis tim JKT48 (Passion Red, Love Pink, Dream Blue, Trainee Green).
-- [x] Landing Page dinamis dengan animasi Carousel, Marquee responsif, dan *Hero Banner* interaktif.
-
-### ✅ Phase 2: Marketplace Listing (Core Engine)
-- [x] Sistem CRUD penuh untuk *merchandise* dengan otorisasi ketat (hanya pemilik yang bisa mengedit).
-- [x] Halaman Eksplorasi Produk dengan *Debounced Search*, filter kompleks (Kategori, Tim, Kondisi), dan paginasi interaktif.
-- [x] Integrasi *Drag-and-Drop Image Uploader* dengan kompresi dan pengelolaan storage Laravel lokal.
-- [x] *Dashboard* penjual yang memberikan analitik statis dan daftar produk *live*.
-
-### ✅ Phase 3: UI/UX Masterclass & Pembersihan Sistem (TERBARU)
-- [x] Migrasi Skema Warna Global: Dari *Hot Pink* menjadi *Merah Menyala* (Passion) untuk identitas *brand* yang lebih berani.
-- [x] Restrukturisasi Halaman *Tentang Kami* (*About*): Menggunakan desain **Editorial Brutalist / Asimetris** murni tanpa library *icon* pihak ketiga (pure SVG).
-- [x] *Global Error Handling*: Halaman 404, 500, dan *Offline Detector* yang didesain secara kustom agar interaktif.
-- [x] Halaman Detail Member (JKT48): Dilengkapi *Parallax Hero*, *Mock Social Media Feeds*, dan GSAP *Stagger animations*.
-- [x] Halaman Pusat Bantuan (*Help Center*): Implementasi *Single Page Application* dengan navigasi *vertical tabs* yang mulus.
-
----
-
-## ⏳ NEXT PHASE: Apa yang Akan Datang? (Phase 4 & 5)
-
-Proyek ini telah memiliki basis antarmuka dan struktur data yang solid. Fase selanjutnya difokuskan pada implementasi fitur transaksi *real-world* dan interaksi *real-time*:
-
-### 🚀 Phase 4: Komunikasi & Transaksi
-- **Real-time Chatting (PRIORITAS):**
-  - Implementasi **Laravel Reverb + Laravel Echo** untuk sistem percakapan antar pembeli dan penjual tanpa perlu *refresh* halaman (WebSocket).
-  - Status *online/offline* dan indikator "sedang mengetik...".
-- **Sistem Keranjang & Checkout:**
-  - Mengubah *Cart* dari sekadar UI *placeholder* menjadi sistem penyimpanan sesi *database*.
-  - Integrasi *Payment Gateway* (seperti Midtrans atau Xendit) untuk simulasi pembayaran *escrow* (Rekber).
-- **Manajemen Order:**
-  - *State Machine* untuk status pesanan: `Pending` -> `Paid` -> `Shipped` -> `Completed`.
-
-### 🔮 Phase 5: Komunitas & Kepercayaan
-- **Sistem Ulasan & Rating:** Pembeli dapat memberikan penilaian bintang 1-5 setelah pesanan berstatus `Completed`.
-- **Notifikasi *Push* Real-time:** Notifikasi instan saat barang terjual, ada pesan baru, atau diskon.
-- **Admin *Dashboard*:** Panel moderator khusus untuk meninjau *listing* yang dilaporkan (*flagged*).
-
----
-
-## 💻 Panduan Instalasi Lokal
-
-Ingin menjalankan OshiMerch di komputermu? Ikuti langkah mudah ini:
-
-```bash
-# 1. Clone repositori & masuk ke folder
-git clone https://github.com/i7i7s/OshiMerch_E-Commerce.git
-cd OshiMerch_E-Commerce
-
-# 2. Install semua dependensi PHP & JavaScript
-composer install
-npm install
-
-# 3. Siapkan file environment
-cp .env.example .env
-php artisan key:generate
-
-# 4. Konfigurasi kredensial di .env
-# - Atur DB_DATABASE, DB_USERNAME, DB_PASSWORD
-# - Atur kredensial GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET untuk login
-
-# 5. Eksekusi migrasi database & hubungkan storage
-php artisan migrate
-php artisan storage:link
-
-# 6. Build antarmuka pengguna
-npm run build
-
-# 7. Jalankan server lokal
-php artisan serve
-```
-
----
-
-## 👥 Meet The Creators
-
-OshiMerch dibangun dengan dedikasi penuh oleh 4 pilar utama:
-1. **Muhammad Daffa Alwafi** — Lead Engineer & Visionary
-2. **Al Ilham Daffa Nurridho** — Backend Architect
-3. **Erizal Rahmad Pramudhita** — Frontend Specialist
-4. **Aidil Addzikra** — Product Strategist
-
-<p align="center">
-  <br>
-  <i>"Karena fandom yang sehat butuh ekosistem yang hebat."</i>
-  <br>
-  <b>&copy; 2026 OshiMerch Indonesia.</b>
+  Released under the <a href="https://opensource.org/licenses/MIT">MIT License</a>. <br/>
+  Powered by Community & Fandom Love.
 </p>

@@ -18,10 +18,24 @@ class TransactionPolicy
             && $transaction->payment_status === 'Pending';
     }
 
+    /**
+     * Seller confirms that the buyer's payment proof is valid.
+     * Future: when payment gateway is integrated, this step is skipped
+     *         (gateway webhook sets payment_status → 'Confirmed' directly).
+     */
+    public function confirmPayment(User $user, Transaction $transaction): bool
+    {
+        return $user->id === $transaction->seller_id
+            && $transaction->payment_status === 'Paid';
+    }
+
+    /**
+     * Seller can only input resi AFTER payment is confirmed (Opsi B).
+     */
     public function ship(User $user, Transaction $transaction): bool
     {
         return $user->id === $transaction->seller_id
-            && $transaction->payment_status === 'Paid'
+            && $transaction->payment_status === 'Confirmed'
             && $transaction->delivery_status === 'Pending';
     }
 

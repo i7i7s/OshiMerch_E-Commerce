@@ -13,6 +13,7 @@ use App\Http\Controllers\SellerProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Middleware\EnsureOnboardingCompleted;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
@@ -198,6 +199,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
         Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
         Route::post('/transactions/{transaction}/proof', [TransactionController::class, 'uploadProof'])->name('transactions.uploadProof');
+        Route::patch('/transactions/{transaction}/confirm-payment', [TransactionController::class, 'confirmPayment'])->name('transactions.confirmPayment');
         Route::patch('/transactions/{transaction}/ship', [TransactionController::class, 'ship'])->name('transactions.ship');
         Route::patch('/transactions/{transaction}/complete', [TransactionController::class, 'complete'])->name('transactions.complete');
 
@@ -206,23 +208,22 @@ Route::middleware('auth')->group(function () {
 
         // Reviews
         Route::post('/transactions/{transaction}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::get('/reviews/{user}', [ReviewController::class, 'index'])->name('reviews.index');
 
         // Chat overview
         Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
 
-        // Cart page
+        // Cart page (localStorage-backed, no server route needed for items)
         Route::get('/cart', function () {
-            return Inertia::render('Cart', [
-                'auth' => ['user' => Auth::user()],
-            ]);
+            return Inertia::render('Cart');
         })->name('cart');
 
-        // Favorites / Wishlist page
-        Route::get('/favorites', function () {
-            return Inertia::render('Favorites', [
-                'auth' => ['user' => Auth::user()],
-            ]);
-        })->name('favorites');
+        // Favorites — DB-backed
+        Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites');
+        Route::prefix('api/favorites')->name('favorites.')->group(function () {
+            Route::post('/toggle',       [FavoriteController::class, 'toggle'])->name('toggle');
+            Route::get('/status/{listing}', [FavoriteController::class, 'status'])->name('status');
+        });
 
         // Direct chat with a specific user (seller)
         Route::get('/chat/with/{user}', [ConversationController::class, 'show'])->name('chat.direct');

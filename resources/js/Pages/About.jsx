@@ -19,19 +19,19 @@ const ArrowSVG = ({ className }) => (
 
 const THE_REST = [
     {
-        name: 'Al Ilham Daffa Nurridho',
+        name: 'Aidil Addzikra',
         role: 'BACKEND ARCHITECT',
         desc: 'Membangun pondasi database dan API yang solid agar transaksi lancar tanpa hambatan.',
         color: 'bg-blue-600'
     },
     {
-        name: 'Erizal Rahmad Pramudhita',
+        name: 'Al Ilham Daffa Nurridho',
         role: 'FRONTEND SPECIALIST',
         desc: 'Menghidupkan desain menjadi interaksi yang mulus dan responsif di berbagai perangkat.',
         color: 'bg-emerald-500'
     },
     {
-        name: 'Aidil Addzikra',
+        name: 'Erizal Rahmad Pramudhita',
         role: 'PRODUCT STRATEGIST',
         desc: 'Menyelaraskan kebutuhan bisnis dan kepuasan fandom untuk fitur yang tepat sasaran.',
         color: 'bg-orange-500'

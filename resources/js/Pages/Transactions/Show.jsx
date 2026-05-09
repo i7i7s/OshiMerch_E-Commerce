@@ -1,21 +1,32 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle, Package, Send, Star, Truck, Upload, X } from 'lucide-react';
+
+// ── Raw SVG Icons (no Lucide dependency) ─────────────────────────────────────
+const IconArrowLeft  = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>;
+const IconPackage    = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>;
+const IconCheck      = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>;
+const IconTruck      = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17H7A5 5 0 0117 7h2a3 3 0 013 3v4a1 1 0 01-1 1h-1m-9 0H7m2 0a2 2 0 104 0m-4 0a2 2 0 004 0m5 0a2 2 0 104 0m-4 0a2 2 0 004 0"/></svg>;
+const IconUpload     = () => <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>;
+const IconSend       = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>;
+const IconStar       = ({ filled }) => <svg className={`w-8 h-8 transition-colors ${filled ? 'text-amber-400 fill-amber-400' : 'text-surface-200'}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>;
+const IconShieldCheck = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>;
 import Navbar from '@/Components/Navbar';
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
 const STEPS = [
-    { key: 'order',    label: 'Pesanan Dibuat',   icon: Package },
-    { key: 'paid',     label: 'Pembayaran',        icon: CheckCircle },
-    { key: 'shipped',  label: 'Dikirim',           icon: Truck },
-    { key: 'done',     label: 'Selesai',           icon: CheckCircle },
+    { key: 'order',     label: 'Dibuat',        Icon: IconPackage },
+    { key: 'paid',      label: 'Bukti Upload',  Icon: IconCheck },
+    { key: 'confirmed', label: 'Dikonfirmasi',  Icon: IconShieldCheck },
+    { key: 'shipped',   label: 'Dikirim',       Icon: IconTruck },
+    { key: 'done',      label: 'Selesai',       Icon: IconCheck },
 ];
 
 function getActiveStep(payment_status, delivery_status) {
-    if (delivery_status === 'Completed') return 3;
-    if (delivery_status === 'Shipped')   return 2;
+    if (delivery_status === 'Completed') return 4;
+    if (delivery_status === 'Shipped')   return 3;
+    if (payment_status  === 'Confirmed') return 2;
     if (payment_status  === 'Paid')      return 1;
     return 0;
 }
@@ -35,28 +46,24 @@ function StatusTracker({ payment_status, delivery_status }) {
 
     return (
         <div className="flex items-start gap-0">
-            {STEPS.map((step, i) => {
-                const Icon = step.icon;
-                const done = i < active;
+            {STEPS.map(({ key, label, Icon }, i) => {
+                const done    = i < active;
                 const current = i === active;
                 return (
-                    <div key={step.key} className="flex-1 flex flex-col items-center relative">
-                        {/* Connector line */}
+                    <div key={key} className="flex-1 flex flex-col items-center relative">
                         {i < STEPS.length - 1 && (
-                            <div className={`absolute top-5 left-1/2 w-full h-0.5 transition-colors duration-500 ${done ? 'bg-primary-500' : 'bg-surface-200'}`} />
+                            <div className={`absolute top-5 left-1/2 w-full h-0.5 transition-colors duration-500 ${done ? 'bg-gradient-to-r from-primary-500 to-purple-500' : 'bg-surface-200'}`} />
                         )}
                         <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
-                            done    ? 'bg-primary-500 border-primary-500 text-white' :
-                            current ? 'bg-white border-primary-500 text-primary-500 shadow-glow-primary' :
+                            done    ? 'bg-gradient-to-br from-primary-500 to-purple-600 border-purple-600 text-white shadow-lg shadow-purple-300' :
+                            current ? 'bg-white border-primary-500 text-primary-500 shadow-glow-primary animate-pulse' :
                                       'bg-white border-surface-200 text-surface-400'
                         }`}>
-                            <Icon className="w-4 h-4" />
+                            <Icon />
                         </div>
-                        <p className={`text-[10px] font-semibold text-center mt-1.5 max-w-[60px] leading-tight transition-colors ${
+                        <p className={`text-[10px] font-semibold text-center mt-1.5 max-w-[60px] leading-tight ${
                             done || current ? 'text-primary-600' : 'text-surface-400'
-                        }`}>
-                            {step.label}
-                        </p>
+                        }`}>{label}</p>
                     </div>
                 );
             })}
@@ -119,7 +126,7 @@ function ReviewForm({ transactionId, sellerName }) {
                         onMouseEnter={() => setHoveredStar(i)}
                         onMouseLeave={() => setHoveredStar(0)}
                         onClick={() => setData('rating', i)}>
-                        <Star className={`w-8 h-8 transition-colors ${i <= (hoveredStar || data.rating) ? 'text-amber-400 fill-amber-400' : 'text-surface-200'}`} />
+                        <IconStar filled={i <= (hoveredStar || data.rating)} />
                     </button>
                 ))}
                 <span className="text-sm text-surface-500 ml-2">{data.rating}/5</span>
@@ -186,6 +193,9 @@ export default function Show({ transaction }) {
         });
     };
 
+    // Confirm payment (seller)
+    const confirmForm = useForm({});
+
     // Complete
     const completeForm = useForm({});
     const handleComplete = () => {
@@ -205,7 +215,7 @@ export default function Show({ transaction }) {
                     {/* Back */}
                     <nav className="flex items-center gap-2 text-sm text-surface-500 mb-6">
                         <Link href={route('dashboard')} className="flex items-center gap-1.5 hover:text-surface-700 transition-colors">
-                            <ArrowLeft className="w-4 h-4" />
+                            <IconArrowLeft />
                             Dashboard
                         </Link>
                         <span>/</span>
@@ -239,7 +249,7 @@ export default function Show({ transaction }) {
                                     {transaction.listing.image_url ? (
                                         <img src={transaction.listing.image_url} alt={transaction.listing.title} className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center"><Package className="w-8 h-8 text-surface-300" /></div>
+                                        <div className="w-full h-full flex items-center justify-center text-surface-300"><IconPackage /></div>
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -318,7 +328,7 @@ export default function Show({ transaction }) {
                                                 <img src={proofPreview} alt="Preview" className="max-h-40 rounded-lg object-contain" />
                                             ) : (
                                                 <>
-                                                    <Upload className="w-8 h-8 text-amber-500" />
+                                                    <span className="text-amber-500"><IconUpload /></span>
                                                     <span className="text-sm font-medium text-amber-700">Klik untuk upload bukti transfer</span>
                                                     <span className="text-xs text-amber-600">JPG, PNG, max 4MB</span>
                                                 </>
@@ -326,11 +336,8 @@ export default function Show({ transaction }) {
                                             <input type="file" accept="image/*" onChange={handleProofChange} className="sr-only" />
                                         </label>
                                         {proofPreview && (
-                                            <button
-                                                type="submit"
-                                                disabled={proofForm.processing}
-                                                className="w-full py-3 rounded-xl gradient-primary text-white font-bold text-sm shadow-glow-primary hover:shadow-xl transition-all disabled:opacity-60"
-                                            >
+                                            <button type="submit" disabled={proofForm.processing}
+                                                className="w-full py-3 rounded-xl gradient-primary text-white font-bold text-sm shadow-glow-primary hover:shadow-xl transition-all disabled:opacity-60">
                                                 {proofForm.processing ? 'Mengupload...' : 'Upload Bukti Pembayaran'}
                                             </button>
                                         )}
@@ -338,33 +345,43 @@ export default function Show({ transaction }) {
                                 </motion.div>
                             )}
 
-                            {/* Seller: paid but not shipped */}
-                            {isSeller && transaction.payment_status === 'Paid' && transaction.delivery_status === 'Pending' && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 16 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="bg-green-50 rounded-2xl border border-green-200 p-5 space-y-3"
-                                >
-                                    <h2 className="text-sm font-bold text-green-800">Pembayaran Diterima — Input Resi</h2>
+                            {/* Seller: buyer uploaded proof → seller must CONFIRM first (Opsi B) */}
+                            {isSeller && transaction.payment_status === 'Paid' && (
+                                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                                    className="bg-amber-50 rounded-2xl border-2 border-amber-300 p-5 space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-amber-600"><IconShieldCheck /></span>
+                                        <h2 className="text-sm font-bold text-amber-800">Verifikasi Bukti Pembayaran</h2>
+                                    </div>
+                                    <p className="text-xs text-amber-700">Pembeli telah mengupload bukti transfer. Periksa foto di bawah, lalu konfirmasi jika pembayaran valid.</p>
                                     {transaction.proof_url && (
-                                        <a href={transaction.proof_url} target="_blank" rel="noopener noreferrer" className="block">
-                                            <img src={transaction.proof_url} alt="Bukti bayar" className="max-h-40 rounded-xl object-contain border border-green-200" />
+                                        <a href={transaction.proof_url} target="_blank" rel="noopener noreferrer">
+                                            <img src={transaction.proof_url} alt="Bukti bayar" className="max-h-52 rounded-xl object-contain border-2 border-amber-200 w-full" />
                                         </a>
                                     )}
+                                    <div className="flex gap-3">
+                                        <button onClick={() => confirmForm.patch(route('transactions.confirmPayment', transaction.id))}
+                                            disabled={confirmForm.processing}
+                                            className="flex-1 py-3 rounded-xl bg-green-600 text-white font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-60">
+                                            {confirmForm.processing ? 'Mengkonfirmasi...' : '✅ Konfirmasi Pembayaran Valid'}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* Seller: payment confirmed → input resi */}
+                            {isSeller && transaction.payment_status === 'Confirmed' && transaction.delivery_status === 'Pending' && (
+                                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                                    className="bg-green-50 rounded-2xl border border-green-200 p-5 space-y-3">
+                                    <h2 className="text-sm font-bold text-green-800">✅ Pembayaran Dikonfirmasi — Input Resi Pengiriman</h2>
                                     <form onSubmit={submitShip} className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={shipForm.data.shipping_resi}
+                                        <input type="text" value={shipForm.data.shipping_resi}
                                             onChange={e => shipForm.setData('shipping_resi', e.target.value)}
                                             placeholder="Nomor resi pengiriman"
                                             className="flex-1 px-4 py-2.5 rounded-xl border border-surface-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-                                            required
-                                        />
-                                        <button
-                                            type="submit"
-                                            disabled={shipForm.processing}
-                                            className="px-5 py-2.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary disabled:opacity-60"
-                                        >
+                                            required />
+                                        <button type="submit" disabled={shipForm.processing}
+                                            className="px-5 py-2.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary disabled:opacity-60">
                                             Input Resi
                                         </button>
                                     </form>
@@ -468,12 +485,10 @@ export default function Show({ transaction }) {
                                     rows={1}
                                     className="flex-1 resize-none rounded-xl border border-surface-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 max-h-28"
                                 />
-                                <button
-                                    type="submit"
+                                <button type="submit"
                                     disabled={chatForm.processing || !chatForm.data.content.trim()}
-                                    className="p-2.5 rounded-xl gradient-primary text-white shadow-glow-primary hover:shadow-xl transition-all disabled:opacity-40"
-                                >
-                                    <Send className="w-4 h-4" />
+                                    className="p-2.5 rounded-xl gradient-primary text-white shadow-glow-primary hover:shadow-xl transition-all disabled:opacity-40">
+                                    <IconSend />
                                 </button>
                             </form>
                         </motion.div>
