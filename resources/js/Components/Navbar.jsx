@@ -209,28 +209,47 @@ export default function Navbar() {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
+    // CSRF helper — reads from meta tag (guaranteed present in app.blade.php)
+    const getCsrf = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+
+    const apiFetch = (url, method = 'POST') =>
+        fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrf(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+        });
+
     const handleMarkAllRead = async () => {
+        // Optimistic update
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+        setUnreadCount(0);
         try {
-            await fetch('/api/notifications/read-all', {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content, 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin',
-            });
-            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-            setUnreadCount(0);
-        } catch {}
+            const res = await apiFetch('/api/notifications/read-all');
+            if (!res.ok) {
+                // Revert on failure by re-fetching real state
+                fetchNotifications();
+            }
+        } catch {
+            fetchNotifications(); // Revert
+        }
     };
 
     const handleMarkRead = async (id) => {
+        // Optimistic update
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+        setUnreadCount(prev => Math.max(0, prev - 1));
         try {
-            await fetch(`/api/notifications/${id}/read`, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content, 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin',
-            });
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
-            setUnreadCount(prev => Math.max(0, prev - 1));
-        } catch {}
+            const res = await apiFetch(`/api/notifications/${id}/read`);
+            if (!res.ok) {
+                fetchNotifications(); // Revert on failure
+            }
+        } catch {
+            fetchNotifications();
+        }
     };
 
     // ─── Scroll ───────────────────────────────────────────────────────────────
