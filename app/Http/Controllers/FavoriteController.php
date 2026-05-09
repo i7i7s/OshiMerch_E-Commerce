@@ -35,10 +35,11 @@ class FavoriteController extends Controller
     }
 
     /**
-     * POST /favorites/toggle — add or remove a listing from favorites.
-     * Returns JSON (used via fetch from product pages).
+     * POST /api/favorites/toggle
+     * Add or remove a listing from favorites.
+     * Returns redirect()->back() so Inertia router.post() works correctly.
      */
-    public function toggle(Request $request): JsonResponse
+    public function toggle(Request $request): RedirectResponse
     {
         $request->validate(['listing_id' => 'required|exists:listings,id']);
 
@@ -48,15 +49,14 @@ class FavoriteController extends Controller
 
         if ($existing) {
             $existing->delete();
-            return response()->json(['favorited' => false]);
+        } else {
+            Favorite::create([
+                'user_id'    => Auth::id(),
+                'listing_id' => $request->listing_id,
+            ]);
         }
 
-        Favorite::create([
-            'user_id'    => Auth::id(),
-            'listing_id' => $request->listing_id,
-        ]);
-
-        return response()->json(['favorited' => true]);
+        return back();
     }
 
     /**

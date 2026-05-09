@@ -310,7 +310,7 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
 
                             {/* Safe trade notice */}
                             <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
-                                <MapPin className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                <IconMapPin />
                                 <div>
                                     <p className="text-xs font-bold text-amber-800">Tips Transaksi Aman</p>
                                     <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
@@ -371,7 +371,7 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                                     <p className="text-xs text-surface-500 truncate max-w-[220px]">{listing.title}</p>
                                 </div>
                                 <button onClick={() => setShowCheckout(false)} className="p-2 rounded-xl hover:bg-surface-100 transition-colors text-surface-500">
-                                    <X className="w-5 h-5" />
+                                    <IconClose />
                                 </button>
                             </div>
 

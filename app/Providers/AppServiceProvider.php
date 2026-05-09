@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Listing;
+use App\Models\Notification;
 use App\Models\Transaction;
 use App\Policies\ListingPolicy;
+use App\Policies\NotificationPolicy;
 use App\Policies\TransactionPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
@@ -28,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
         Gate::policy(Listing::class, ListingPolicy::class);
         Gate::policy(Transaction::class, TransactionPolicy::class);
+        Gate::policy(Notification::class, NotificationPolicy::class);
     }
 }
