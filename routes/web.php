@@ -12,6 +12,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SellerProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Middleware\EnsureOnboardingCompleted;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
@@ -226,6 +227,14 @@ Route::middleware('auth')->group(function () {
         // Direct chat with a specific user (seller)
         Route::get('/chat/with/{user}', [ConversationController::class, 'show'])->name('chat.direct');
         Route::post('/chat/conversations/{conversation}/messages', [ConversationController::class, 'sendMessage'])->name('chat.sendDirect');
+
+        // ─── Notifications API (Phase 4.7 — polling, Reverb-ready) ────────────────
+        Route::prefix('api/notifications')->name('notifications.')->group(function () {
+            Route::get('/',           [NotificationController::class, 'index'])->name('index');
+            Route::post('/read-all',  [NotificationController::class, 'markAllRead'])->name('read-all');
+            Route::post('/{notification}/read', [NotificationController::class, 'markRead'])->name('read');
+            Route::delete('/{notification}',    [NotificationController::class, 'destroy'])->name('destroy');
+        });
     });
 });
 

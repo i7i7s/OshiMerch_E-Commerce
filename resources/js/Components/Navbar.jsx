@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,6 +7,8 @@ const NAV_LINKS = [
     { label: 'Tentang Kami', href: '/about' },
     { label: 'Member',   href: '/members' },
 ];
+
+// ─── SVG Icons ────────────────────────────────────────────────────────────────
 
 const SearchIcon = () => (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -40,22 +42,198 @@ const WishlistIcon = ({ count = 0 }) => (
     </div>
 );
 
-const BellIcon = ({ hasNew = false }) => (
+const BellIcon = ({ unreadCount = 0 }) => (
     <div className="relative">
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
         </svg>
-        {hasNew && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-white" />}
+        {unreadCount > 0 && (
+            <motion.span
+                key={unreadCount}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] rounded-full bg-gradient-to-r from-primary-500 to-purple-600 text-white text-[10px] font-bold flex items-center justify-center shadow-sm"
+            >
+                {unreadCount > 9 ? '9+' : unreadCount}
+            </motion.span>
+        )}
     </div>
 );
 
+// ─── Notification type icons ───────────────────────────────────────────────────
+const NotifIcon = ({ type }) => {
+    const icons = {
+        transaction_paid:      { emoji: '💰', bg: 'bg-green-100' },
+        item_shipped:          { emoji: '📦', bg: 'bg-blue-100' },
+        transaction_completed: { emoji: '✅', bg: 'bg-emerald-100' },
+        new_message:           { emoji: '💬', bg: 'bg-purple-100' },
+        new_listing:           { emoji: '🌟', bg: 'bg-amber-100' },
+    };
+    const cfg = icons[type] || { emoji: '🔔', bg: 'bg-surface-100' };
+    return (
+        <div className={`w-10 h-10 rounded-2xl ${cfg.bg} flex items-center justify-center text-xl flex-shrink-0`}>
+            {cfg.emoji}
+        </div>
+    );
+};
+
+// ─── Notification Dropdown ────────────────────────────────────────────────────
+function NotificationDropdown({ notifications, unreadCount, onMarkAllRead, onMarkRead, onClose }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -8 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            className="absolute right-0 top-full mt-3 w-[380px] z-50 rounded-2xl bg-white border border-surface-200 shadow-2xl overflow-hidden"
+        >
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-surface-100 flex items-center justify-between">
+                <div>
+                    <h3 className="font-bold text-surface-900 text-base">Notifikasi</h3>
+                    {unreadCount > 0 && (
+                        <p className="text-xs text-surface-500 mt-0.5">{unreadCount} belum dibaca</p>
+                    )}
+                </div>
+                {unreadCount > 0 && (
+                    <button
+                        onClick={onMarkAllRead}
+                        className="text-xs font-semibold text-purple-600 hover:text-purple-800 transition-colors"
+                    >
+                        Tandai Semua Dibaca
+                    </button>
+                )}
+            </div>
+
+            {/* List */}
+            <div className="max-h-[420px] overflow-y-auto divide-y divide-surface-50">
+                {notifications.length === 0 ? (
+                    <div className="py-16 text-center px-6">
+                        <div className="text-5xl mb-3">🔕</div>
+                        <p className="font-bold text-surface-800 mb-1">Belum ada notifikasi</p>
+                        <p className="text-sm text-surface-500">Notifikasi transaksi dan pesanmu akan muncul di sini.</p>
+                    </div>
+                ) : (
+                    notifications.map((notif) => (
+                        <motion.div
+                            key={notif.id}
+                            layout
+                            className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors hover:bg-surface-50 ${!notif.is_read ? 'bg-purple-50/50' : ''}`}
+                            onClick={() => {
+                                if (!notif.is_read) onMarkRead(notif.id);
+                                if (notif.url) window.location.href = notif.url;
+                                onClose();
+                            }}
+                        >
+                            <NotifIcon type={notif.type} />
+                            <div className="flex-1 min-w-0">
+                                <p className={`text-sm font-bold leading-tight ${notif.is_read ? 'text-surface-700' : 'text-surface-900'}`}>
+                                    {notif.title}
+                                </p>
+                                <p className="text-xs text-surface-500 mt-1 leading-relaxed line-clamp-2">
+                                    {notif.body}
+                                </p>
+                                <p className="text-[11px] text-surface-400 mt-2 font-medium">
+                                    {notif.created_at}
+                                </p>
+                            </div>
+                            {/* Unread dot */}
+                            {!notif.is_read && (
+                                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-primary-500 to-purple-600 flex-shrink-0 mt-1.5" />
+                            )}
+                        </motion.div>
+                    ))
+                )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-3 border-t border-surface-100 bg-surface-50/50">
+                <Link
+                    href="/dashboard"
+                    className="text-xs font-semibold text-surface-500 hover:text-surface-800 transition-colors"
+                    onClick={onClose}
+                >
+                    Lihat semua di Dashboard →
+                </Link>
+            </div>
+        </motion.div>
+    );
+}
+
+// ─── Main Navbar ──────────────────────────────────────────────────────────────
 export default function Navbar() {
     const { auth } = usePage().props;
     const user = auth?.user;
     const [scrolled, setScrolled] = useState(false);
     const [searchFocused, setSearchFocused] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [showNotif, setShowNotif] = useState(false);
 
+    // ─── Notification state ───────────────────────────────────────────────────
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const notifRef = useRef(null);
+
+    // Fetch notifications (polling every 30s, Reverb-ready)
+    const fetchNotifications = useCallback(async () => {
+        if (!user) return;
+        try {
+            const res = await fetch('/api/notifications', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            setNotifications(data.notifications || []);
+            setUnreadCount(data.unread_count || 0);
+        } catch {
+            // Silent fail — polling will retry
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (!user) return;
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 30_000); // Poll every 30s
+        return () => clearInterval(interval);
+    }, [user, fetchNotifications]);
+
+    // Close notif dropdown on outside click
+    useEffect(() => {
+        const handler = (e) => {
+            if (notifRef.current && !notifRef.current.contains(e.target)) {
+                setShowNotif(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const handleMarkAllRead = async () => {
+        try {
+            await fetch('/api/notifications/read-all', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content, 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            });
+            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+            setUnreadCount(0);
+        } catch {}
+    };
+
+    const handleMarkRead = async (id) => {
+        try {
+            await fetch(`/api/notifications/${id}/read`, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content, 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            });
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+            setUnreadCount(prev => Math.max(0, prev - 1));
+        } catch {}
+    };
+
+    // ─── Scroll ───────────────────────────────────────────────────────────────
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll, { passive: true });
@@ -119,20 +297,46 @@ export default function Navbar() {
                     <div className="flex items-center gap-1 sm:gap-2">
                         {user ? (
                             <>
-                                <button className="p-2 rounded-xl text-surface-500 hover:text-surface-700 hover:bg-surface-100 transition-all hidden sm:flex" aria-label="Notifications"><BellIcon hasNew={true} /></button>
+                                {/* ─── Notification Bell ───────────────────────────── */}
+                                <div className="relative hidden sm:block" ref={notifRef}>
+                                    <button
+                                        onClick={() => setShowNotif(!showNotif)}
+                                        className={`p-2 rounded-xl transition-all ${showNotif ? 'bg-purple-50 text-purple-600' : 'text-surface-500 hover:text-surface-700 hover:bg-surface-100'}`}
+                                        aria-label="Notifikasi"
+                                    >
+                                        <BellIcon unreadCount={unreadCount} />
+                                    </button>
+                                    <AnimatePresence>
+                                        {showNotif && (
+                                            <NotificationDropdown
+                                                notifications={notifications}
+                                                unreadCount={unreadCount}
+                                                onMarkAllRead={handleMarkAllRead}
+                                                onMarkRead={handleMarkRead}
+                                                onClose={() => setShowNotif(false)}
+                                            />
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+
+                                {/* Chat */}
                                 <Link href={route('chat.index')} className="p-2 rounded-xl text-surface-500 hover:text-primary-500 hover:bg-primary-50 transition-all flex items-center" aria-label="Chat">
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                                     </svg>
                                 </Link>
-                                {/* Favorites / Wishlist — now links to /favorites */}
+
+                                {/* Favorites */}
                                 <Link href={route('favorites')} className="p-2 rounded-xl text-surface-500 hover:text-primary-500 hover:bg-primary-50 transition-all" aria-label="Favorit">
                                     <WishlistIcon count={0} />
                                 </Link>
-                                {/* Cart — now links to /cart */}
+
+                                {/* Cart */}
                                 <Link href={route('cart')} className="p-2 rounded-xl text-surface-500 hover:text-primary-500 hover:bg-primary-50 transition-all" aria-label="Keranjang">
                                     <CartIcon count={0} />
                                 </Link>
+
+                                {/* Avatar + Dropdown */}
                                 <div className="relative ml-1">
                                     <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center p-1 rounded-xl hover:bg-surface-100 transition-all">
                                         <img src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${user.name}&background=FF1100&color=fff`} alt={user.name} className="w-8 h-8 rounded-lg border border-surface-200" />
