@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
 
@@ -34,10 +34,11 @@ const HeartIcon = ({ filled }) => (
     </svg>
 );
 
-export default function ListingCard({ listing }) {
+export default function ListingCard({ listing, auth, isFavorited = false }) {
     const [imgLoaded, setImgLoaded] = useState(false);
     const [imgError, setImgError] = useState(false);
-    const [wishlisted, setWishlisted] = useState(false);
+    const [wishlisted, setWishlisted] = useState(isFavorited);
+    const [favLoading, setFavLoading] = useState(false);
 
     const teamStyle = TEAM_BADGE[listing.featured_member_team] || null;
     const condStyle = CONDITION_BADGE[listing.condition] || CONDITION_BADGE.Used;
@@ -97,11 +98,26 @@ export default function ListingCard({ listing }) {
                         type="button"
                         onClick={(e) => {
                             e.preventDefault();
-                            setWishlisted((w) => !w);
+                            e.stopPropagation();
+                            if (!auth?.user) {
+                                window.location.href = route('google.redirect');
+                                return;
+                            }
+                            if (favLoading) return;
+                            const next = !wishlisted;
+                            setWishlisted(next); // optimistic
+                            setFavLoading(true);
+                            router.post(route('favorites.toggle'), { listing_id: listing.id }, {
+                                preserveState: true,
+                                preserveScroll: true,
+                                onSuccess: () => setFavLoading(false),
+                                onError: () => { setWishlisted(!next); setFavLoading(false); },
+                            });
                         }}
-                        className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-200 ${
+                        disabled={favLoading}
+                        className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-200 disabled:opacity-70 ${
                             wishlisted
-                                ? 'bg-primary-500 text-white'
+                                ? 'bg-primary-500 text-white scale-110'
                                 : 'bg-white/90 text-surface-500 hover:bg-white hover:text-primary-500'
                         }`}
                         aria-label={wishlisted ? 'Hapus dari wishlist' : 'Tambah ke wishlist'}

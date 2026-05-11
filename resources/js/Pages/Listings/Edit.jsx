@@ -12,7 +12,7 @@ const CATEGORIES = [
     { id: 'album', name: 'Album & CD' },
     { id: 'keychain', name: 'Keychain' },
     { id: 'towel', name: 'Towel' },
-    { id: 'penlight', name: 'Penlight' },
+    { id: 'other', name: 'Other' },
 ];
 
 const CONDITIONS = [

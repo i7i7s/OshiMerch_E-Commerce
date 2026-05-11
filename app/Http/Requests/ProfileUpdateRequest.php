@@ -24,6 +24,7 @@ class ProfileUpdateRequest extends FormRequest
             ],
             'bio'        => ['sometimes', 'nullable', 'string', 'max:500'],
             'phone'      => ['sometimes', 'nullable', 'string', 'max:30'],
+            'profile_picture' => ['sometimes', 'nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'addresses'  => ['sometimes', 'nullable', 'array'],
             'addresses.*.label'        => ['nullable', 'string', 'max:50'],
             'addresses.*.recipient'    => ['nullable', 'string', 'max:255'],

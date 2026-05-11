@@ -5,7 +5,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { useState, useEffect } from 'react';
-import ErrorPage from './Pages/Error';
+import OfflineFallback from './Components/OfflineFallback';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -29,7 +29,7 @@ function NetworkWrapper({ children }) {
         <>
             {!isOnline && (
                 <div className="fixed inset-0 z-[9999] bg-[#0a0a0a] overflow-auto flex flex-col justify-center items-center">
-                    <ErrorPage status="offline" standalone={true} />
+                    <OfflineFallback />
                 </div>
             )}
             {children}

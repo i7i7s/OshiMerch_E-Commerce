@@ -20,7 +20,7 @@ const CATEGORIES = [
     { id: 'album', name: 'ALBUM & CD' },
     { id: 'keychain', name: 'KEYCHAIN' },
     { id: 'towel', name: 'TOWEL' },
-    { id: 'penlight', name: 'PENLIGHT' },
+    { id: 'other', name: 'OTHER' },
 ];
 
 const TEAMS = [
@@ -552,7 +552,7 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                                                 exit={{ opacity: 0, scale: 0.9 }}
                                                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                                             >
-                                                <ListingCard listing={listing} />
+                                                <ListingCard listing={listing} auth={auth} />
                                             </motion.div>
                                         ))}
                                     </AnimatePresence>

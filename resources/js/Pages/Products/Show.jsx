@@ -1,5 +1,5 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
@@ -51,7 +51,7 @@ const CATEGORY_LABEL = {
     album: 'ALBUM & CD',
     keychain: 'KEYCHAIN',
     towel: 'TOWEL',
-    penlight: 'PENLIGHT',
+    other: 'OTHER',
 };
 
 export default function Show({ listing, related, auth, is_favorited = false }) {
@@ -59,6 +59,27 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
     const [showCheckout, setShowCheckout] = useState(false);
     const [favorited, setFavorited]       = useState(is_favorited);
     const [favLoading, setFavLoading]     = useState(false);
+    const [cartAdded, setCartAdded]       = useState(false);
+    const [cartLoading, setCartLoading]   = useState(false);
+
+    const addToCart = useCallback(() => {
+        if (!auth?.user) {
+            window.location.href = route('google.redirect');
+            return;
+        }
+        if (cartLoading || cartAdded) return;
+        setCartLoading(true);
+        router.post(route('cart.add'), { listing_id: listing.id }, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                setCartAdded(true);
+                setCartLoading(false);
+                setTimeout(() => setCartAdded(false), 3000);
+            },
+            onError: () => setCartLoading(false),
+        });
+    }, [listing, auth, cartLoading, cartAdded]);
 
     const toggleFavorite = () => {
         if (!auth?.user) { window.location.href = route('login'); return; }
@@ -69,7 +90,7 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => setFavLoading(false),
-            onError:   () => { setFavorited(!next); setFavLoading(false); }, // revert
+            onError:   () => { setFavorited(!next); setFavLoading(false); }, 
         });
     };
 
@@ -259,6 +280,19 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                                                             className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-surface-950 text-white font-black text-sm uppercase tracking-widest shadow-[4px_4px_0_rgba(244,63,94,0.5)] hover:-translate-y-1 hover:shadow-[6px_6px_0_rgba(244,63,94,0.5)] transition-all bg-gradient-to-r from-primary-600 to-purple-600"
                                                         >
                                                             <IconCart /> BELI LANGSUNG
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={addToCart}
+                                                            disabled={cartLoading || cartAdded}
+                                                            className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl border-4 font-black text-sm uppercase tracking-widest transition-all shadow-[4px_4px_0_#0f172a] hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none ${
+                                                                cartAdded
+                                                                    ? 'border-green-500 bg-green-50 text-green-700 shadow-[4px_4px_0_#22c55e]'
+                                                                    : 'border-surface-900 bg-white text-surface-950 hover:bg-surface-100'
+                                                            }`}
+                                                        >
+                                                            <IconCart />
+                                                            {cartLoading ? 'MENAMBAHKAN...' : cartAdded ? '✓ ADA DI KERANJANG' : 'KERANJANG'}
                                                         </button>
                                                         <Link
                                                             href={route('chat.index')}

@@ -31,6 +31,11 @@ class ProfileController extends Controller
     {
         $validated = $request->validated();
 
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profiles', 'public');
+            $validated['profile_picture_url'] = '/storage/' . $path;
+        }
+
         $request->user()->fill($validated);
 
         if ($request->user()->isDirty('email')) {
@@ -39,7 +44,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit');
+        return Redirect::route('profile.edit')->with('success', 'Profil berhasil diperbarui!');
     }
 
     /**

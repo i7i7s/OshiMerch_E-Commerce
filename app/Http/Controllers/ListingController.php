@@ -142,7 +142,7 @@ class ListingController extends Controller
         $validated = $request->validate([
             'title'                => 'required|string|max:255',
             'description'          => 'nullable|string|max:2000',
-            'category'             => 'required|in:photocard,lightstick,apparel,poster,album,keychain,towel,penlight',
+            'category'             => 'required|in:photocard,lightstick,apparel,poster,album,keychain,towel,other',
             'price'                => 'required|integer|min:1000|max:99999999',
             'condition'            => 'required|in:New,Used,Mint',
             'image'                => 'required|image|mimes:jpeg,jpg,png,webp|max:4096',
@@ -204,7 +204,7 @@ class ListingController extends Controller
         $validated = $request->validate([
             'title'                => 'required|string|max:255',
             'description'          => 'nullable|string|max:2000',
-            'category'             => 'required|in:photocard,lightstick,apparel,poster,album,keychain,towel,penlight',
+            'category'             => 'required|in:photocard,lightstick,apparel,poster,album,keychain,towel,other',
             'price'                => 'required|integer|min:1000|max:99999999',
             'condition'            => 'required|in:New,Used,Mint',
             'image'                => 'nullable|image|mimes:jpeg,jpg,png,webp|max:4096',

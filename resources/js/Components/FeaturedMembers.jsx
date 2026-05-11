@@ -14,7 +14,6 @@ const proxyPhoto = (url) => {
 const avatarFallback = (name, teamColor) =>
     `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'M')}&background=${(teamColor?.bg || '#FF1100').replace('#', '')}&color=fff&bold=true&size=256`;
 
-// Fuzzy match: "Muthe" from DB vs "Mutiara Azzahra" from API — match on first token or nickname
 function findApiMember(apiMembers, dbName) {
     if (!dbName || !apiMembers?.length) return null;
     const lower = dbName.toLowerCase();

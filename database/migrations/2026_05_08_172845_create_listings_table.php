@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('category'); // photocard, lightstick, apparel, poster, album, keychain, towel, penlight
+            $table->string('category'); // photocard, lightstick, apparel, poster, album, keychain, towel, other
             $table->unsignedInteger('price');
             $table->string('condition')->default('Used'); // New, Used, Mint
             $table->string('status')->default('Available'); // Available, Reserved, Sold

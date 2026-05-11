@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\TwitterAuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\ListingController;
@@ -29,7 +30,7 @@ use Inertia\Inertia;
 // Public: Landing Page
 Route::get('/', function () {
     $listings = \App\Models\Listing::available()
-        ->with('user:id,name,oshi_member_name')
+        ->with('user:id,name,profile_picture_url,oshi_member_name')
         ->latest()
         ->take(8)
         ->get()
@@ -42,7 +43,12 @@ Route::get('/', function () {
             'image_url' => $l->image_url,
             'featured_member_name' => $l->featured_member_name,
             'featured_member_team' => $l->featured_member_team,
-            'seller_name' => $l->user?->name,
+            'created_at' => $l->created_at->diffForHumans(),
+            'seller'    => $l->user ? [
+                'id'     => $l->user->id,
+                'name'   => $l->user->name,
+                'avatar' => $l->user->profile_picture_url,
+            ] : null,
         ]);
 
     // Real stats from DB
@@ -213,10 +219,11 @@ Route::middleware('auth')->group(function () {
         // Chat overview
         Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
 
-        // Cart page (localStorage-backed, no server route needed for items)
-        Route::get('/cart', function () {
-            return Inertia::render('Cart');
-        })->name('cart');
+        // Cart — DB-backed (per user, persists across devices)
+        Route::get('/cart',               [CartController::class, 'index'])->name('cart');
+        Route::post('/cart/add',          [CartController::class, 'add'])->name('cart.add');
+        Route::delete('/cart/clear',      [CartController::class, 'clear'])->name('cart.clear');
+        Route::delete('/cart/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 
         // Favorites — DB-backed
         Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites');

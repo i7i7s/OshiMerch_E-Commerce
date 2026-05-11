@@ -1,352 +1,250 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage, Link, router } from '@inertiajs/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Head, Link } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { ShoppingBag, Package, Heart, Sparkles, ChevronRight, Edit3, Trash2, AlertCircle } from 'lucide-react';
+import Navbar from '@/Components/Navbar';
+import Footer from '@/Components/Footer';
+import { formatPrice } from '@/data/products';
 
-// ── Count-up with random scramble animation ────────────────────────────────────
-function useCountUp(target, duration = 1400) {
+// ── Slot-machine Counter (sama persis seperti di landing page) ─────────────────
+function Counter({ value, duration = 1400 }) {
     const [display, setDisplay] = useState(0);
-    const [done, setDone]       = useState(false);
+    const [done, setDone] = useState(false);
+    const ref = useRef(null);
     const frameRef = useRef(null);
+    const inView = useInView(ref, { once: true });
 
     useEffect(() => {
+        if (!inView || value === 0) { setDisplay(0); setDone(true); return; }
+
         setDisplay(0);
         setDone(false);
-        const start     = performance.now();
-        // how long to scramble vs settle
+
+        const startTime = performance.now();
         const scrambleMs = duration * 0.65;
         const settleMs   = duration * 0.35;
+        const scrambleMax = Math.max(value, 50);
 
         const tick = (now) => {
-            const elapsed = now - start;
-
+            const elapsed = now - startTime;
             if (elapsed < scrambleMs) {
-                // random scramble phase – show numbers up to ~9999
-                const maxRandom = Math.max(target, 1000);
-                setDisplay(Math.floor(Math.random() * maxRandom));
+                setDisplay(Math.floor(Math.random() * scrambleMax));
                 frameRef.current = requestAnimationFrame(tick);
             } else if (elapsed < scrambleMs + settleMs) {
-                // ease-out settle phase
-                const t   = (elapsed - scrambleMs) / settleMs;
-                const ease = 1 - Math.pow(1 - t, 3); // cubic ease-out
-                setDisplay(Math.round(ease * target));
+                const t = (elapsed - scrambleMs) / settleMs;
+                const ease = 1 - Math.pow(1 - t, 3);
+                setDisplay(Math.round(ease * value));
                 frameRef.current = requestAnimationFrame(tick);
             } else {
-                setDisplay(target);
+                setDisplay(value);
                 setDone(true);
             }
         };
 
         frameRef.current = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(frameRef.current);
-    }, [target, duration]);
+    }, [inView, value, duration]);
 
-    return { display, done };
-}
-import { Plus, Package, Edit3, Trash2, ShoppingBag, MessageSquare, ShoppingCart, Store } from 'lucide-react';
-
-const TEAM_COLORS = {
-    PASSION:       { bg: 'bg-team-passion',  label: 'PASSION' },
-    LOVE:          { bg: 'bg-team-love',     label: 'LOVE'    },
-    DREAM:         { bg: 'bg-team-dream',    label: 'DREAM'   },
-    TRAINEE:       { bg: 'bg-team-trainee',  label: 'TRAINEE' },
-    JKT48_VIRTUAL: { bg: 'bg-team-virtual',  label: 'VIRTUAL' },
-    VIRTUAL:       { bg: 'bg-team-virtual',  label: 'JKT48V'  },
-};
-
-const STATUS_STYLE = {
-    Available: 'bg-green-100 text-green-700',
-    Reserved:  'bg-amber-100 text-amber-700',
-    Sold:      'bg-surface-100 text-surface-500',
-};
-
-const TRANSACTION_STATUS = {
-    Pending:   { label: 'Menunggu Bayar', style: 'bg-amber-100 text-amber-700' },
-    Paid:      { label: 'Lunas',          style: 'bg-green-100 text-green-700' },
-    Failed:    { label: 'Gagal',          style: 'bg-red-100 text-red-700'    },
-    Shipped:   { label: 'Dikirim',        style: 'bg-blue-100 text-blue-700'  },
-    Completed: { label: 'Selesai',        style: 'bg-surface-100 text-surface-500' },
-};
-
-// ── Stat Card with count-up animation ─────────────────────────────────────────
-
-function StatCard({ stat, delay = 0 }) {
-    const { display, done } = useCountUp(stat.value, 1400);
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay }}
-            className="p-5 rounded-2xl bg-white border border-surface-200"
+        <motion.span
+            ref={ref}
+            key={done ? 'done' : 'counting'}
+            animate={done ? { scale: [1, 1.15, 1] } : {}}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            style={{ display: 'inline-block' }}
+            className="tabular-nums"
         >
-            <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+            {display.toLocaleString('id-ID')}
+        </motion.span>
+    );
+}
+
+// ── Compact Stat Card ──────────────────────────────────────────────────────────
+function CompactStatCard({ title, value, icon: Icon, colorClass, delay = 0 }) {
+    return (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.4 }}
+            className="bg-white rounded-2xl border-2 border-surface-100 p-5 flex items-center justify-between hover:border-surface-200 transition-colors">
+            <div>
+                <p className="text-sm font-bold text-surface-500 mb-1">{title}</p>
+                <div className="text-2xl font-black font-display text-surface-900 tracking-tight">
+                    <Counter value={value} />
+                </div>
             </div>
-            <motion.p
-                key={done ? 'done' : 'counting'}
-                animate={done ? { scale: [1, 1.18, 1] } : {}}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-                className={`text-2xl font-bold font-display transition-colors ${
-                    done ? 'text-surface-900' : 'text-surface-400'
-                }`}
-            >
-                {display}
-            </motion.p>
-            <p className="text-sm text-surface-500 mt-0.5">{stat.label}</p>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClass}`}>
+                <Icon className="w-6 h-6" />
+            </div>
         </motion.div>
     );
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-
-function MyListingRow({ listing, onDelete }) {
-    const teamInfo = TEAM_COLORS[listing.featured_member_team];
+// ── Compact List Item ────────────────────────────────────────────────────────
+function CompactListItem({ item, type }) {
     return (
-        <motion.div
-            layout
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97 }}
-            className="flex items-center gap-4 p-4 rounded-xl bg-white border border-surface-200 hover:border-primary-200 hover:shadow-sm transition-all"
-        >
-            <Link href={route('products.show', listing.id)} className="shrink-0">
-                <div className="w-14 h-14 rounded-xl overflow-hidden bg-surface-100">
-                    {listing.image_url ? (
-                        <img src={listing.image_url} alt={listing.title} className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-6 h-6 text-surface-300" /></div>
-                    )}
-                </div>
-            </Link>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-surface-100 hover:border-surface-300 hover:shadow-sm transition-all group">
+            
+            <div className="w-16 h-16 rounded-lg bg-surface-100 overflow-hidden shrink-0 border border-surface-100">
+                <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            </div>
+            
             <div className="flex-1 min-w-0">
-                <Link href={route('products.show', listing.id)} className="font-semibold text-surface-800 text-sm leading-snug line-clamp-1 hover:text-primary-600 transition-colors">
-                    {listing.title}
-                </Link>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    {teamInfo && <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold text-white ${teamInfo.bg}`}>{teamInfo.label}</span>}
-                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold ${STATUS_STYLE[listing.status] || STATUS_STYLE.Available}`}>{listing.status}</span>
-                    <span className="text-xs text-surface-400">{listing.created_at}</span>
+                <h4 className="text-sm font-bold text-surface-900 truncate mb-1">{item.title}</h4>
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                    <span className="text-primary-600">{formatPrice(item.price)}</span>
+                    <span className="text-surface-300">•</span>
+                    <span className={`px-2 py-0.5 rounded-md ${item.status === 'Available' ? 'bg-green-100 text-green-700' : 'bg-surface-100 text-surface-600'}`}>
+                        {item.status}
+                    </span>
                 </div>
             </div>
-            <div className="text-right shrink-0 hidden sm:block">
-                <p className="font-bold text-surface-900 text-sm">Rp{listing.price.toLocaleString('id-ID')}</p>
-                <p className="text-xs text-surface-400">{listing.condition}</p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-                <Link href={route('listings.edit', listing.id)} className="w-9 h-9 rounded-xl flex items-center justify-center border border-surface-200 text-surface-600 hover:bg-surface-100 hover:text-primary-600 transition-all" aria-label="Edit">
-                    <Edit3 className="w-4 h-4" />
-                </Link>
-                <button type="button" onClick={() => onDelete(listing.id)} className="w-9 h-9 rounded-xl flex items-center justify-center border border-surface-200 text-surface-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-all" aria-label="Hapus">
-                    <Trash2 className="w-4 h-4" />
-                </button>
+
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                {type === 'listings' ? (
+                    <>
+                        <Link href={route('listings.edit', item.id)} className="w-8 h-8 rounded-lg bg-surface-50 flex items-center justify-center text-surface-500 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+                            <Edit3 className="w-4 h-4" />
+                        </Link>
+                        <button className="w-8 h-8 rounded-lg bg-surface-50 flex items-center justify-center text-surface-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </>
+                ) : (
+                    <Link href={route('products.show', item.id)} className="w-8 h-8 rounded-lg bg-surface-50 flex items-center justify-center text-surface-500 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+                        <ChevronRight className="w-4 h-4" />
+                    </Link>
+                )}
             </div>
         </motion.div>
     );
 }
 
-function TransactionRow({ trx, index }) {
-    const status = trx.delivery_status === 'Completed' ? TRANSACTION_STATUS.Completed
-                 : trx.delivery_status === 'Shipped'   ? TRANSACTION_STATUS.Shipped
-                 : TRANSACTION_STATUS[trx.payment_status] || TRANSACTION_STATUS.Pending;
-    const partnerAvatar = trx.partner_avatar
-        || `https://ui-avatars.com/api/?name=${encodeURIComponent(trx.partner_name || '?')}&background=FF1100&color=fff&size=40`;
-    return (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
-            <Link href={route('transactions.show', trx.id)} className="flex items-center gap-3 p-4 rounded-xl bg-white border border-surface-200 hover:border-primary-200 hover:shadow-sm transition-all">
-                <div className="w-12 h-[64px] rounded-lg overflow-hidden bg-surface-100 shrink-0">
-                    {trx.listing.image_url ? (
-                        <img src={trx.listing.image_url} alt={trx.listing.title} className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-5 h-5 text-surface-300" /></div>
-                    )}
-                </div>
-                <img src={partnerAvatar} alt={trx.partner_name} className="w-8 h-8 rounded-full object-cover shrink-0" />
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-surface-800 truncate">{trx.listing.title}</p>
-                    <p className="text-xs text-surface-500">{trx.partner_name} · {trx.created_at}</p>
-                </div>
-                <div className="text-right shrink-0">
-                    <p className="font-bold text-surface-900 text-sm">Rp{trx.item_price.toLocaleString('id-ID')}</p>
-                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${status.style}`}>{status.label}</span>
-                </div>
-            </Link>
-        </motion.div>
-    );
-}
-
-function EmptyState({ icon: Icon, title, desc, action, actionLabel }) {
-    return (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="py-16 rounded-2xl bg-white border border-dashed border-surface-300 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-surface-100 flex items-center justify-center mx-auto mb-4">
-                <Icon className="w-8 h-8 text-surface-300" />
-            </div>
-            <h3 className="text-base font-bold text-surface-700 mb-1.5">{title}</h3>
-            <p className="text-sm text-surface-500 mb-5">{desc}</p>
-            {action && (
-                <Link href={action} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary hover:shadow-xl hover:scale-[1.02] transition-all">
-                    {actionLabel}
-                </Link>
-            )}
-        </motion.div>
-    );
-}
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
-
-const TABS = [
-    { key: 'listings',  label: 'Listing Saya',  icon: Store        },
-    { key: 'purchases', label: 'Pembelian',      icon: ShoppingCart },
-    { key: 'sales',     label: 'Penjualan',      icon: Package      },
-];
-
-export default function Dashboard({ listings = [], purchases = [], sales = [] }) {
-    const { auth, flash } = usePage().props;
+// ── Main Dashboard ─────────────────────────────────────────────────────────────
+export default function Dashboard({ auth, listings = [], purchases = [], sales = [] }) {
     const user = auth.user;
     const [activeTab, setActiveTab] = useState('listings');
 
-    const handleDelete = (id) => {
-        if (!confirm('Yakin ingin menghapus listing ini?')) return;
-        router.delete(route('listings.destroy', id), { preserveScroll: true });
+
+    const stats = {
+        active_listings: listings.filter(l => l.status === 'Available').length,
+        total_purchases: purchases.length,
+        total_sales: sales.length,
+        wishlist_count: 0,
     };
 
-    const activeCount = listings.filter((l) => l.status === 'Available').length;
+    const tabs = [
+        { id: 'listings', label: 'Listing Saya', count: stats.active_listings, icon: Package },
+        { id: 'purchases', label: 'Pembelian', count: stats.total_purchases, icon: ShoppingBag },
+        { id: 'sales', label: 'Penjualan', count: stats.total_sales, icon: Sparkles },
+        { id: 'wishlists', label: 'Wishlist', count: stats.wishlist_count, icon: Heart },
+    ];
+
+    const getActiveData = () => {
+        switch (activeTab) {
+            case 'listings': return listings;
+            case 'purchases': return purchases;
+            case 'sales': return sales;
+            case 'wishlists': return [];
+            default: return [];
+        }
+    };
+
+    const activeData = getActiveData();
 
     return (
-        <AuthenticatedLayout showFooter>
-            <Head title="Dashboard" />
+        <>
+            <Head title="Dashboard — OshiMerch" />
+            <div className="min-h-dvh bg-surface-50 flex flex-col">
+                <Navbar />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Flash */}
-                {flash?.success && (
-                    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm">
-                        {flash.success}
-                    </motion.div>
-                )}
+                <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 pt-[104px]">
+                    
+                    {/* Compact Welcome Banner */}
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} 
+                        className="bg-white rounded-3xl border-2 border-surface-100 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 shadow-sm relative overflow-hidden">
+                        
+                        {/* Decorative subtle background */}
+                        <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary-50/50 to-transparent pointer-events-none" />
 
-                {/* Welcome Card */}
-                <div className="relative overflow-hidden rounded-2xl gradient-primary p-8 sm:p-10 mb-8">
-                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full" />
-                    <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/10 rounded-full" />
-                    <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                        <img
-                            src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF1100&color=fff&size=80`}
-                            alt={user.name}
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 border-white/30 shadow-lg"
-                        />
-                        <div className="flex-1 min-w-0">
-                            <p className="text-white/70 text-sm font-medium mb-1">Selamat datang kembali,</p>
-                            <h1 className="text-2xl sm:text-3xl font-bold font-display text-white tracking-tight">{user.name}</h1>
-                            {user.oshi_member_name && (
-                                <p className="text-white/80 text-sm mt-1">Oshi: <span className="font-semibold text-white">{user.oshi_member_name}</span></p>
-                            )}
-                        </div>
-                        <Link href={route('listings.create')} className="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-primary-600 font-bold text-sm hover:bg-surface-50 transition-all shadow-elevated hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]">
-                            <Plus className="w-4 h-4" />
-                            Jual Sekarang
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                    {[
-                        { label: 'Total Listing',  value: listings.length,  icon: Store,         color: 'text-primary-500', bg: 'bg-primary-50' },
-                        { label: 'Listing Aktif',  value: activeCount,       icon: ShoppingBag,   color: 'text-green-500',   bg: 'bg-green-50'   },
-                        { label: 'Pembelian',       value: purchases.length,  icon: ShoppingCart,  color: 'text-secondary-500', bg: 'bg-secondary-50' },
-                        { label: 'Penjualan',       value: sales.length,      icon: Package,       color: 'text-amber-500',   bg: 'bg-amber-50'   },
-                    ].map((stat, i) => (
-                        <StatCard key={i} stat={stat} delay={i * 0.06} />
-                    ))}
-                </div>
-
-                {/* Tabs */}
-                <div className="flex gap-1 p-1 bg-surface-100 rounded-2xl mb-6 w-fit">
-                    {TABS.map(tab => (
-                        <button
-                            key={tab.key}
-                            onClick={() => setActiveTab(tab.key)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                                activeTab === tab.key
-                                    ? 'bg-white text-primary-600 shadow-sm'
-                                    : 'text-surface-500 hover:text-surface-700'
-                            }`}
-                        >
-                            <tab.icon className="w-4 h-4" />
-                            {tab.label}
-                            {tab.key === 'listings'  && listings.length  > 0 && <span className="w-5 h-5 rounded-full bg-primary-100 text-primary-700 text-[10px] font-bold flex items-center justify-center">{listings.length}</span>}
-                            {tab.key === 'purchases' && purchases.length > 0 && <span className="w-5 h-5 rounded-full bg-secondary-100 text-secondary-700 text-[10px] font-bold flex items-center justify-center">{purchases.length}</span>}
-                            {tab.key === 'sales'     && sales.length     > 0 && <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold flex items-center justify-center">{sales.length}</span>}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Tab content */}
-                <AnimatePresence mode="wait">
-                    {activeTab === 'listings' && (
-                        <motion.div key="listings" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-bold font-display text-surface-900">Listing Saya</h2>
-                                {listings.length > 0 && (
-                                    <Link href={route('listings.create')} className="inline-flex items-center gap-1.5 text-sm text-primary-600 font-semibold hover:text-primary-700 transition-colors">
-                                        <Plus className="w-4 h-4" />Tambah Baru
-                                    </Link>
-                                )}
+                        <div className="flex items-center gap-5 relative z-10 w-full md:w-auto">
+                            <img 
+                                src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF1100&color=fff`} 
+                                alt={user.name} 
+                                className="w-16 h-16 rounded-2xl object-cover border-2 border-surface-200"
+                            />
+                            <div>
+                                <h1 className="text-2xl font-black font-display text-surface-900 tracking-tight mb-1">
+                                    Halo, {user.name}!
+                                </h1>
+                                <p className="text-sm font-bold text-surface-500 flex items-center gap-1.5">
+                                    {user.oshi_member_name ? (
+                                        <>Oshi: <span className="text-primary-600">{user.oshi_member_name}</span></>
+                                    ) : (
+                                        <>Yuk lengkapi profil dan pilih oshi kamu!</>
+                                    )}
+                                </p>
                             </div>
-                            {listings.length === 0 ? (
-                                <EmptyState
-                                    icon={Package}
-                                    title="Belum ada listing"
-                                    desc="Mulai jual merchandise JKT48 kamu sekarang!"
-                                    action={route('listings.create')}
-                                    actionLabel={<><Plus className="w-4 h-4" />Buat Listing Pertama</>}
-                                />
-                            ) : (
-                                <div className="space-y-3">
-                                    {listings.map(listing => <MyListingRow key={listing.id} listing={listing} onDelete={handleDelete} />)}
-                                </div>
-                            )}
-                        </motion.div>
-                    )}
+                        </div>
+                    </motion.div>
 
-                    {activeTab === 'purchases' && (
-                        <motion.div key="purchases" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-                            <h2 className="text-lg font-bold font-display text-surface-900 mb-4">Riwayat Pembelian</h2>
-                            {purchases.length === 0 ? (
-                                <EmptyState
-                                    icon={ShoppingCart}
-                                    title="Belum ada pembelian"
-                                    desc="Temukan merchandise JKT48 favoritmu di marketplace."
-                                    action={route('products.index')}
-                                    actionLabel="Jelajahi Produk"
-                                />
-                            ) : (
-                                <div className="space-y-3">
-                                    {purchases.map((trx, i) => <TransactionRow key={trx.id} trx={trx} index={i} />)}
-                                </div>
-                            )}
-                        </motion.div>
-                    )}
+                    {/* Compact Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <CompactStatCard delay={0.1} title="Listing Aktif" value={stats.active_listings} icon={Package} colorClass="bg-blue-50 text-blue-600" />
+                        <CompactStatCard delay={0.2} title="Total Penjualan" value={stats.total_sales} icon={Sparkles} colorClass="bg-primary-50 text-primary-600" />
+                        <CompactStatCard delay={0.3} title="Total Pembelian" value={stats.total_purchases} icon={ShoppingBag} colorClass="bg-green-50 text-green-600" />
+                        <CompactStatCard delay={0.4} title="Wishlist" value={stats.wishlist_count} icon={Heart} colorClass="bg-red-50 text-red-600" />
+                    </div>
 
-                    {activeTab === 'sales' && (
-                        <motion.div key="sales" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-                            <h2 className="text-lg font-bold font-display text-surface-900 mb-4">Riwayat Penjualan</h2>
-                            {sales.length === 0 ? (
-                                <EmptyState
-                                    icon={Store}
-                                    title="Belum ada penjualan"
-                                    desc="Listing yang sudah terjual akan muncul di sini."
-                                    action={route('listings.create')}
-                                    actionLabel={<><Plus className="w-4 h-4" />Buat Listing</>}
-                                />
-                            ) : (
-                                <div className="space-y-3">
-                                    {sales.map((trx, i) => <TransactionRow key={trx.id} trx={trx} index={i} />)}
-                                </div>
-                            )}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                    {/* Content Section */}
+                    <div className="bg-white rounded-3xl border-2 border-surface-100 p-6 shadow-sm">
+                        
+                        {/* Minimalist Tabs */}
+                        <div className="flex items-center gap-6 border-b-2 border-surface-100 mb-6 overflow-x-auto hide-scrollbar">
+                            {tabs.map(tab => (
+                                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap ${
+                                        activeTab === tab.id 
+                                        ? 'border-primary-500 text-primary-600' 
+                                        : 'border-transparent text-surface-400 hover:text-surface-700'
+                                    }`}>
+                                    <span className="font-bold text-sm">{tab.label}</span>
+                                    <span className={`px-2 py-0.5 rounded text-xs font-black ${
+                                        activeTab === tab.id ? 'bg-primary-50 text-primary-600' : 'bg-surface-100 text-surface-500'
+                                    }`}>
+                                        {tab.count}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* List Area */}
+                        <div className="min-h-[300px]">
+                            <AnimatePresence mode="wait">
+                                {activeData.length === 0 ? (
+                                    <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                        className="h-full flex flex-col items-center justify-center py-16 text-center">
+                                        <div className="w-16 h-16 rounded-2xl bg-surface-50 flex items-center justify-center mb-4">
+                                            <AlertCircle className="w-8 h-8 text-surface-300" />
+                                        </div>
+                                        <h3 className="text-base font-bold text-surface-900 mb-1">Belum Ada Data</h3>
+                                        <p className="text-sm font-medium text-surface-500">
+                                            Data untuk bagian ini masih kosong.
+                                        </p>
+                                    </motion.div>
+                                ) : (
+                                    <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {activeData.map((item, idx) => (
+                                            <CompactListItem key={item.id} item={item} type={activeTab} />
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+
+                </main>
+                <Footer />
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 }
