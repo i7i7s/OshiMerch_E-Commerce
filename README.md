@@ -15,6 +15,7 @@
 - [Instalasi](#-instalasi)
 - [Setup Development](#-setup-development)
 - [Menjalankan Project](#-menjalankan-project)
+- [Dokumentasi Lengkap](#-dokumentasi-lengkap)
 - [Dokumentasi Teknologi](#-dokumentasi-teknologi)
 - [Struktur Project](#-struktur-project)
 - [Database](#-database)
@@ -25,15 +26,36 @@
 
 ## ✨ Fitur Utama
 
+### **User Features**
+
 - ✅ **Sistem Autentikasi Aman** - Login, register dengan validasi berlapis
 - ✅ **Marketplace Listing** - User dapat membuat dan mengelola listing produk
 - ✅ **Direct Messaging** - Chat real-time antar user
-- ✅ **Transaksi & Payment** - Sistem pembayaran terintegrasi
+- ✅ **Transaksi & Payment** - Sistem pembayaran terintegrasi dengan multiple gateway
 - ✅ **Review & Rating** - User dapat memberikan review untuk produk
 - ✅ **Favorites** - User dapat menyimpan listing favorit
 - ✅ **Notifications** - Notifikasi real-time untuk aktivitas penting
 - ✅ **Responsive UI** - Interface yang responsif di desktop, tablet, dan mobile
-- ✅ **Smooth Animations** - Animasi halus menggunakan GSAP
+- ✅ **Smooth Animations** - Animasi halus menggunakan GSAP & Framer Motion
+- ✅ **WebSocket Real-time** - Chat & notifikasi real-time dengan Laravel Reverb
+
+### **Admin Features (OshiMin Panel)**
+
+- ✅ **Admin Dashboard** - `/oshimin` - monitoring keseluruhan marketplace
+- ✅ **Listing Management** - Kelola semua listing, hide/restore/delete
+- ✅ **Transaction Monitoring** - Pantau transaksi, lihat bukti bayar, override status
+- ✅ **User Management** - Kelola user, ban/unban, lihat listing user
+- ✅ **Review Moderation** - Kelola review dan rating
+- ✅ **Reports** - Analytics per kategori, transaksi, dan revenue per provinsi
+- ✅ **OshiGo Shipping** - Kelola tarif ongkir per 34 provinsi Indonesia
+- ✅ **Payment Settings** - Kelola nomor rekening bank dan e-wallet
+
+### **Shipping System (OshiGo)**
+
+- ✅ **Dynamic Shipping Rates** - Tarif ongkir flat per provinsi, bisa diubah admin
+- ✅ **Tracking Numbers** - Auto-generate nomor tracking OshiGo saat packing
+- ✅ **Status Tracking** - Buyer dapat tracking status pengiriman real-time
+- ✅ **34 Provinces Coverage** - Support pengiriman ke seluruh Indonesia
 
 ---
 
@@ -43,23 +65,26 @@
 
 | Teknologi             | Versi | Deskripsi                               |
 | --------------------- | ----- | --------------------------------------- |
-| **Laravel**           | 13.7  | Web framework PHP modern untuk backend  |
+| **Laravel**           | 13.x  | Web framework PHP modern untuk backend  |
 | **PHP**               | 8.3+  | Bahasa pemrograman server-side          |
 | **Laravel Sanctum**   | 4.0   | API authentication dan token management |
 | **Laravel Socialite** | 5.27  | Social login integration                |
+| **Laravel Reverb**    | 1.10  | WebSocket server untuk real-time chat   |
 | **Inertia Laravel**   | 2.0   | Server-side adapter untuk Inertia.js    |
+| **Filament**          | 4.11  | Admin panel builder Laravel modern      |
 
 ### **Frontend**
 
 | Teknologi         | Versi | Deskripsi                                   |
 | ----------------- | ----- | ------------------------------------------- |
-| **React**         | 19.0  | Library UI components yang deklaratif       |
+| **React**         | 19.x  | Library UI components yang deklaratif       |
 | **Inertia.js**    | 2.0   | Full-stack framework untuk SPA tanpa API    |
-| **Vite**          | 6.0   | Build tool & dev server yang lightning-fast |
+| **Vite**          | 6.x   | Build tool & dev server yang lightning-fast |
 | **Tailwind CSS**  | 4.0   | Utility-first CSS framework                 |
 | **GSAP**          | 3.15  | Animation library professional-grade        |
 | **Framer Motion** | 12.38 | Animation library untuk React               |
 | **Lenis**         | 1.3   | Smooth scroll library                       |
+| **Laravel Echo**  | 1.x   | WebSocket client untuk real-time features   |
 
 ### **Tools & Utilities**
 
@@ -71,6 +96,7 @@
 | **Lucide React**             | 1.14  | Icon library untuk React             |
 | **Axios**                    | 1.16  | HTTP client untuk request            |
 | **Tailwind Merge**           | 3.5   | Utility untuk merge Tailwind classes |
+| **Pusher.js**                | 8.x   | WebSocket transport layer untuk Echo |
 
 ### **Database**
 
@@ -248,8 +274,34 @@ php artisan db:seed
 - `notifications` - Notifikasi user
 - `favorites` - Produk favorit user
 - `direct_messages` - Direct message antar user
+- `admins` - Admin panel users
+- `settings` - Configuration key-value store
 
-### **Step 6: Setup Virtual Host (Optional)**
+### **Step 6: Setup Admin Panel (OshiMin)**
+
+Admin panel sudah terintegrasi dengan Filament v4 di path `/oshimin`:
+
+```bash
+# Admin credentials sudah di-seed
+Email: admin@oshimerch.com
+Password: oshimin123
+
+# Akses admin panel:
+# http://localhost:8000/oshimin
+```
+
+**Fitur OshiMin Admin Panel:**
+
+- Dashboard dengan statistik (total users, listings, transactions, revenue)
+- Listing Management - hide, restore, delete listings
+- Transaction Monitoring - lihat bukti pembayaran, override status pengiriman
+- User Management - ban/unban users, lihat listing user
+- Review Moderation - kelola review dan rating
+- Reports - analytics per kategori, transaksi, dan revenue per provinsi
+- OshiGo Shipping Settings - kelola tarif ongkir 34 provinsi
+- Payment Gateway Settings - kelola nomor rekening bank dan e-wallet
+
+### **Step 7: Setup Virtual Host (Optional)**
 
 Jika menggunakan Laragon:
 
@@ -296,9 +348,24 @@ DB_PASSWORD=
 SESSION_DRIVER=database
 SESSION_LIFETIME=120
 
+# Broadcast & WebSocket (Laravel Reverb)
+BROADCAST_CONNECTION=reverb
+REVERB_APP_ID=oshimerch
+REVERB_APP_KEY=oshimerch-key
+REVERB_APP_SECRET=oshimerch-secret
+REVERB_HOST=localhost
+REVERB_PORT=8080
+REVERB_SCHEME=http
+
+# Frontend WebSocket Config (Vite)
+VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
+VITE_REVERB_HOST="${REVERB_HOST}"
+VITE_REVERB_PORT="${REVERB_PORT}"
+VITE_REVERB_SCHEME="${REVERB_SCHEME}"
+
 # Cache & Queue
 CACHE_STORE=database
-QUEUE_CONNECTION=database
+QUEUE_CONNECTION=sync
 
 # Mail (untuk development)
 MAIL_MAILER=log
@@ -353,9 +420,15 @@ tl.to("#element1", { duration: 1, x: 100 })
 
 ## ▶️ Menjalankan Project
 
-### **Development Mode (All-in-One)**
+### **Development Mode (All-in-One) — Recommended**
 
-Jalankan semua services sekaligus menggunakan script:
+Jalankan semua services sekaligus menggunakan composer script:
+
+```bash
+composer dev
+```
+
+Atau dengan npm (jika prefer):
 
 ```bash
 npm run dev
@@ -365,21 +438,27 @@ Ini akan menjalankan:
 
 - 🖥️ Laravel development server (port 8000)
 - 🚀 Vite dev server (port 5173)
+- 📡 Laravel Reverb WebSocket server (port 8080)
 - 📨 Queue listener
 - 📝 Log streaming
 
 **Akses aplikasi:**
 
-- Web: `http://localhost:8000` atau `http://oshimerch.test`
+- Main App: `http://localhost:8000` atau `http://oshimerch.test`
+- Admin Panel: `http://localhost:8000/oshimin`
 - Vite HMR: `http://localhost:5173`
+- WebSocket: `ws://localhost:8080`
 
 ### **Frontend Development Only**
 
 ```bash
-# Terminal 1: Start Laravel server
+# Terminal 1: Start Laravel server (including Reverb)
 php artisan serve
 
-# Terminal 2: Start Vite dev server
+# Terminal 2: Start Reverb WebSocket server
+php artisan reverb:start
+
+# Terminal 3: Start Vite dev server
 npm run dev
 ```
 
@@ -393,6 +472,7 @@ npm run build
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan optimize
 
 # Serve dengan production settings
 php artisan serve --env=production
@@ -401,10 +481,10 @@ php artisan serve --env=production
 ### **Database Commands**
 
 ```bash
-# Create & migrate
+# Create & migrate fresh
 php artisan migrate:fresh
 
-# Seed dengan dummy data
+# Seed dengan dummy data dan admin user
 php artisan db:seed
 
 # Revert migrations
@@ -424,9 +504,57 @@ php artisan queue:listen
 php artisan queue:work --once
 ```
 
+### **Useful Artisan Commands**
+
+```bash
+# Generate app key
+php artisan key:generate
+
+# Cache config
+php artisan config:cache
+
+# Clear all caches
+php artisan cache:clear
+
+# Tinker REPL
+php artisan tinker
+
+# Run tests
+php artisan test
+```
+
 ---
 
-## 📚 Dokumentasi Teknologi
+## � Dokumentasi Lengkap
+
+Dokumentasi komprehensif tersedia di folder `/dokumentasi`:
+
+### **📋 File Dokumentasi**
+
+| File                                                                       | Deskripsi                                                           |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **[dokumentasi_sesi.md](./dokumentasi/dokumentasi_sesi.md)**               | Dokumentasi lengkap stack, fitur, arsitektur, dan checklist testing |
+| **[laravel_reverb_features.md](./dokumentasi/laravel_reverb_features.md)** | Setup dan penggunaan WebSocket dengan Laravel Reverb                |
+| **[walkthrough.md](./dokumentasi/walkthrough.md)**                         | Step-by-step tutorial menggunakan aplikasi                          |
+| **[PRD_OSHI MERCH FIX.md](./dokumentasi/PRD_OSHI%20MERCH%20FIX.md)**       | Product requirements document                                       |
+
+### **🔑 Key Topics di Dokumentasi**
+
+- **Architecture & Tech Stack** — Complete breakdown of all technologies
+- **Database Schema** — Detailed ERD dan relationships
+- **API Endpoints** — Complete list dengan request/response examples
+- **WebSocket Channels** — Real-time communication architecture
+- **Admin Panel (OshiMin)** — Features, resources, dan setup
+- **OshiGo Shipping System** — 34 provinces, rate configuration
+- **Admin Features (Planned)** — Features yang akan dikerjakan next session
+
+### **💾 Database Documentation**
+
+Lihat bagian [Database](#-database) untuk info schema lengkap dan relationships.
+
+---
+
+## �📚 Dokumentasi Teknologi
 
 ### **📖 Laravel 13.x**
 
@@ -956,5 +1084,5 @@ Terima kasih kepada semua contributors dan framework yang digunakan:
 
 **Selamat coding! 🚀**
 
-_Last Updated: May 10, 2026_
-_Version: 1.0.0_
+_Last Updated: May 12, 2026_
+_Version: 1.1.0 (OshiMin Admin Panel + OshiGo Shipping System)_
