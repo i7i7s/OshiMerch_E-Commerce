@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DirectMessageSent;
 use App\Models\Conversation;
 use App\Models\DirectMessage;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,12 +75,36 @@ class ConversationController extends Controller
 
         $request->validate(['content' => 'required|string|max:2000']);
 
-        DirectMessage::create([
+        $message = DirectMessage::create([
             'conversation_id' => $conversation->id,
             'sender_id'       => $user->id,
             'content'         => $request->content,
         ]);
 
+        // Broadcast to the other participant via WebSocket
+        broadcast(new DirectMessageSent($message, $conversation->id))->toOthers();
+
+        // Notify the other user
+        $otherId = $conversation->user1_id === $user->id
+            ? $conversation->user2_id
+            : $conversation->user1_id;
+        Notification::newMessage($otherId, $user->name, $conversation->id, $user->id);
+
+        // AJAX (fetch from React) → return JSON with message data
+        if ($request->expectsJson()) {
+            $message->load('sender:id,name,profile_picture_url');
+            return response()->json([
+                'message' => [
+                    'id'               => $message->id,
+                    'content'          => $message->content,
+                    'sender_id'        => $message->sender_id,
+                    'sender'           => $message->sender?->only(['id', 'name', 'profile_picture_url']),
+                    'created_at_human' => $message->created_at->diffForHumans(),
+                ],
+            ]);
+        }
+
+        // Inertia fallback
         return back()->with('success', 'Pesan terkirim.');
     }
 }

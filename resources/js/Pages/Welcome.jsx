@@ -52,7 +52,7 @@ function CTABanner() {
 
                     <div className="relative">
                         <h2 className="text-3xl sm:text-4xl font-bold font-display text-white tracking-tight mb-3">
-                            Punya Merch yang Mau Dijual? 🎁
+                            Punya Merch yang Mau Dijual?
                         </h2>
                         <p className="text-white/80 text-lg max-w-xl mx-auto mb-8">
                             Daftar sekarang dan mulai jual merchandise JKT48 kamu ke ribuan fans yang aktif mencari.

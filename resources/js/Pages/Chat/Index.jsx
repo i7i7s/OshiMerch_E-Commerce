@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Package, ShoppingBag } from 'lucide-react';
+import { MessageSquare, Package, ShoppingBag, MessageCircle } from 'lucide-react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 
@@ -12,7 +12,7 @@ const STATUS_BADGE = {
     Completed: { label: 'Selesai',        style: 'bg-surface-100 text-surface-600 border-surface-200' },
 };
 
-function ConversationItem({ convo, index }) {
+function TransactionConvoItem({ convo, index }) {
     const status = convo.delivery_status === 'Completed' ? STATUS_BADGE.Completed
                  : convo.delivery_status === 'Shipped'   ? STATUS_BADGE.Shipped
                  : STATUS_BADGE[convo.payment_status]    || STATUS_BADGE.Pending;
@@ -69,6 +69,54 @@ function ConversationItem({ convo, index }) {
     );
 }
 
+function DirectConvoItem({ convo, index }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.06 }}
+        >
+            <Link
+                href={route('chat.direct', convo.partner?.id)}
+                className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-surface-200 hover:border-primary-200 hover:shadow-card-hover transition-all group"
+            >
+                {/* Direct chat icon placeholder */}
+                <div className="w-14 h-[75px] rounded-xl overflow-hidden bg-surface-100 shrink-0 flex items-center justify-center">
+                    <MessageCircle className="w-6 h-6 text-surface-300" />
+                </div>
+
+                {/* Partner avatar */}
+                <img
+                    src={convo.partner?.profile_picture_url ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(convo.partner?.name || '?')}&background=FF1100&color=fff&size=40`}
+                    alt={convo.partner?.name}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-surface-100 shrink-0"
+                />
+
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                        <p className="font-bold text-surface-900 text-sm truncate">{convo.partner?.name}</p>
+                        <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold border bg-purple-50 text-purple-700 border-purple-200">
+                            Pesan Langsung
+                        </span>
+                    </div>
+                    {convo.last_message && (
+                        <p className="text-xs text-surface-400 truncate mt-1">
+                            <span className="font-medium">{convo.last_message.sender}:</span> {convo.last_message.content}
+                        </p>
+                    )}
+                </div>
+
+                {/* Time */}
+                {convo.last_message && (
+                    <p className="text-[10px] text-surface-400 shrink-0">{convo.last_message.created_at_human}</p>
+                )}
+            </Link>
+        </motion.div>
+    );
+}
+
 export default function Index({ conversations }) {
     return (
         <>
@@ -83,7 +131,7 @@ export default function Index({ conversations }) {
                         </div>
                         <div>
                             <h1 className="text-xl font-bold font-display text-surface-900">Chat</h1>
-                            <p className="text-xs text-surface-500">Semua percakapan transaksimu</p>
+                            <p className="text-xs text-surface-500">Semua percakapanmu</p>
                         </div>
                     </div>
 
@@ -107,9 +155,11 @@ export default function Index({ conversations }) {
                         </motion.div>
                     ) : (
                         <div className="space-y-3">
-                            {conversations.map((convo, i) => (
-                                <ConversationItem key={convo.id} convo={convo} index={i} />
-                            ))}
+                            {conversations.map((convo, i) =>
+                                convo.type === 'direct'
+                                    ? <DirectConvoItem key={`direct-${convo.id}`} convo={convo} index={i} />
+                                    : <TransactionConvoItem key={`txn-${convo.id}`} convo={convo} index={i} />
+                            )}
                         </div>
                     )}
                 </main>

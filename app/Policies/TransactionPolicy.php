@@ -32,16 +32,28 @@ class TransactionPolicy
     /**
      * Seller can only input resi AFTER payment is confirmed (Opsi B).
      */
-    public function ship(User $user, Transaction $transaction): bool
+    public function pack(User $user, Transaction $transaction): bool
     {
         return $user->id === $transaction->seller_id
             && $transaction->payment_status === 'Confirmed'
             && $transaction->delivery_status === 'Pending';
     }
 
+    public function ship(User $user, Transaction $transaction): bool
+    {
+        return $user->id === $transaction->seller_id
+            && $transaction->delivery_status === 'Packed';
+    }
+
+    public function outForDelivery(User $user, Transaction $transaction): bool
+    {
+        return $user->id === $transaction->seller_id
+            && $transaction->delivery_status === 'Shipped';
+    }
+
     public function complete(User $user, Transaction $transaction): bool
     {
         return $user->id === $transaction->buyer_id
-            && $transaction->delivery_status === 'Shipped';
+            && $transaction->delivery_status === 'OutForDelivery';
     }
 }

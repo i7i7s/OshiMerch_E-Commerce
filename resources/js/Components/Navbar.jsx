@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Toast from '@/Components/Toast';
 
 const NAV_LINKS = [
     { label: 'Products', href: '/products' },
@@ -68,6 +69,7 @@ const NotifIcon = ({ type }) => {
         transaction_completed: { emoji: '✅', bg: 'bg-emerald-100' },
         new_message:           { emoji: '💬', bg: 'bg-purple-100' },
         new_listing:           { emoji: '🌟', bg: 'bg-amber-100' },
+        review_received:       { emoji: '⭐', bg: 'bg-yellow-100' },
     };
     const cfg = icons[type] || { emoji: '🔔', bg: 'bg-surface-100' };
     return (
@@ -121,7 +123,7 @@ function NotificationDropdown({ notifications, unreadCount, onMarkAllRead, onMar
                             className={`flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors hover:bg-surface-50 ${!notif.is_read ? 'bg-purple-50/50' : ''}`}
                             onClick={() => {
                                 if (!notif.is_read) onMarkRead(notif.id);
-                                if (notif.url) window.location.href = notif.url;
+                                if (notif.url) router.visit(notif.url);
                                 onClose();
                             }}
                         >
@@ -174,7 +176,7 @@ export default function Navbar() {
     const [unreadCount, setUnreadCount] = useState(0);
     const notifRef = useRef(null);
 
-    // Fetch notifications (polling every 30s, Reverb-ready)
+    // Fetch notifications (initial load only — real-time via Echo/Reverb)
     const fetchNotifications = useCallback(async () => {
         if (!user) return;
         try {
@@ -187,15 +189,26 @@ export default function Navbar() {
             setNotifications(data.notifications || []);
             setUnreadCount(data.unread_count || 0);
         } catch {
-            // Silent fail — polling will retry
+            // Silent fail
         }
     }, [user]);
 
     useEffect(() => {
         if (!user) return;
-        fetchNotifications();
-        const interval = setInterval(fetchNotifications, 30_000); // Poll every 30s
-        return () => clearInterval(interval);
+        fetchNotifications(); // Fetch existing on mount
+
+        // ─── Real-time: listen for new notifications via Echo/Reverb ─────
+        if (window.Echo) {
+            const channel = window.Echo.private(`notifications.${user.id}`);
+            channel.listen('NewNotification', (e) => {
+                setNotifications(prev => [e, ...prev].slice(0, 20));
+                setUnreadCount(prev => prev + 1);
+            });
+
+            return () => {
+                window.Echo.leave(`notifications.${user.id}`);
+            };
+        }
     }, [user, fetchNotifications]);
 
     // Close notif dropdown on outside click
@@ -268,6 +281,7 @@ export default function Navbar() {
     }, []);
 
     return (
+        <>
         <motion.nav
             initial={{ y: -100 }}
             animate={{ y: 0 }}
@@ -401,5 +415,7 @@ export default function Navbar() {
                 </div>
             </div>
         </motion.nav>
+        <Toast />
+        </>
     );
 }

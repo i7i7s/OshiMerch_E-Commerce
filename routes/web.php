@@ -206,7 +206,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
         Route::post('/transactions/{transaction}/proof', [TransactionController::class, 'uploadProof'])->name('transactions.uploadProof');
         Route::patch('/transactions/{transaction}/confirm-payment', [TransactionController::class, 'confirmPayment'])->name('transactions.confirmPayment');
+        Route::patch('/transactions/{transaction}/pack', [TransactionController::class, 'pack'])->name('transactions.pack');
         Route::patch('/transactions/{transaction}/ship', [TransactionController::class, 'ship'])->name('transactions.ship');
+        Route::patch('/transactions/{transaction}/out-for-delivery', [TransactionController::class, 'outForDelivery'])->name('transactions.outForDelivery');
         Route::patch('/transactions/{transaction}/complete', [TransactionController::class, 'complete'])->name('transactions.complete');
 
         // Messages (per transaction)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Review;
+use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -82,6 +83,8 @@ class ReviewController extends Controller
             'rating'         => $validated['rating'],
             'comment'        => $validated['comment'] ?? null,
         ]);
+
+        Notification::reviewReceived($transaction->seller_id, $transaction->id, $user->name);
 
         return back()->with('success', 'Ulasan berhasil dikirim! ⭐');
     }

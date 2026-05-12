@@ -245,3 +245,286 @@ Pilihan teknologi dioptimalkan untuk kecepatan pengembangan MVP, kemudahan debug
 2. **KISS (Keep It Simple, Stupid):** Jangan menyentuh `broadcasting`, `webhook payment`, `cloud SDK`, atau migrasi database sebelum fitur upload barang, filter member, dan checkout manual berjalan 100% tanpa bug.
 3. **Fandom & Data Centric:** Pastikan atribut member JKT48 (Oshi, Tim, Generasi) yang diambil dari API muncul sebagai elemen filter utama dan identitas visual di setiap halaman. Data member adalah fondasi discoverability.
 4. **Healthy MVP Scope:** Fitur Supabase, Payment Gateway, dan Real-time Chat resmi berada di _Future Roadmap_. Fokus 100% pada validasi alur jual-beli manual dan kualitas antarmuka sebelum melakukan scaling infrastruktur.
+
+---
+
+# 9. Admin Dashboard & OshiGo System
+
+## 🔹 Admin Dashboard (MVP)
+
+Untuk mendukung moderasi platform dan pengelolaan transaksi secara sederhana, OshiMerch memiliki Admin Dashboard khusus dengan fokus pada kebutuhan MVP tanpa kompleksitas berlebihan.
+
+### Sidebar Navigation
+
+```txt
+Dashboard
+Products
+Orders
+OshiGo
+Users
+Categories
+Reports
+Settings
+```
+
+---
+
+## 🔹 Dashboard Module
+
+Menampilkan ringkasan aktivitas platform:
+
+- Total Users
+- Total Products
+- Total Orders
+- Total Revenue
+- Recent Orders
+- Recent Reports
+
+---
+
+## 🔹 Products Management
+
+Admin dapat melakukan moderasi produk secara manual.
+
+### Features
+
+- Create Product
+- Edit Product
+- Delete Product
+- Hide Product
+- Update Stock
+- Manage Categories
+
+### Product Moderation
+
+Admin dapat:
+
+- Menghapus produk melanggar aturan
+- Menyembunyikan listing spam/fake
+- Suspend produk seller tertentu
+
+### Product Status
+
+```txt
+active
+hidden
+banned
+draft
+```
+
+---
+
+## 🔹 Orders Management
+
+Admin dapat mengelola seluruh transaksi pada platform.
+
+### Features
+
+- View Orders
+- Update Order Status
+- View Payment Proof
+- Input Shipping Tracking Number
+- Update Delivery Status
+
+### Order Status
+
+```txt
+pending
+paid
+packed
+shipped
+completed
+cancelled
+```
+
+---
+
+## 🔹 OshiGo Shipping System
+
+OshiGo adalah sistem pengiriman internal sederhana milik OshiMerch untuk memberikan pengalaman transaksi yang lebih profesional dan immersive pada fase MVP.
+
+Sistem ini tidak menggunakan tracking realtime atau integrasi kurir eksternal pada tahap awal.
+
+### Features
+
+- Generate tracking number otomatis
+- Manual shipment tracking
+- Shipment status management
+- Shipment history
+
+### Tracking Number Format
+
+```txt
+OSG-YYYYMMDD-XXXX
+```
+
+Example:
+
+```txt
+OSG-20260511-0001
+```
+
+### Shipment Status
+
+```txt
+confirmed
+packed
+shipped
+out_for_delivery
+delivered
+```
+
+### Workflow
+
+```txt
+Order Paid
+↓
+Admin Create Shipment
+↓
+Tracking Number Generated
+↓
+Status Updated
+↓
+Customer Can Track Shipment
+```
+
+### Notes
+
+- Semua update tracking dilakukan manual oleh admin/seller
+- Tidak ada realtime GPS tracking pada fase MVP
+- OshiGo berfungsi sebagai internal branded shipping system
+
+---
+
+## 🔹 Users Management
+
+Admin dapat mengelola akun pengguna.
+
+### Features
+
+- View Users
+- Ban User
+- Suspend User
+- View Seller Listings
+- View User Orders
+
+### User Roles
+
+```txt
+customer
+seller
+admin
+super_admin
+```
+
+---
+
+## 🔹 Categories Management
+
+Admin dapat mengatur kategori merchandise.
+
+### Example Categories
+
+```txt
+Photocard
+Lightstick
+Apparel
+Birthday Merch
+Accessories
+```
+
+---
+
+## 🔹 Reports Management
+
+Sistem laporan sederhana untuk moderasi platform.
+
+### Report Types
+
+```txt
+spam
+fake_product
+scam
+inappropriate
+```
+
+### Admin Actions
+
+- Hide Product
+- Delete Listing
+- Warn Seller
+- Suspend User
+
+---
+
+## 🔹 Settings Module
+
+Konfigurasi dasar platform.
+
+### Features
+
+- Store Name
+- Logo Upload
+- Homepage Banner
+- Payment Settings
+- Shipping Settings
+- Social Links
+
+---
+
+## 🔹 Shipping Fee System (MVP)
+
+Untuk menjaga sistem tetap sederhana namun lebih realistis dibanding flat shipping, OshiMerch menggunakan sistem ongkir berdasarkan provinsi/pulau pada fase MVP.
+
+Sistem belum menggunakan API logistik eksternal seperti RajaOngkir atau Biteship.
+
+### Features
+
+- Shipping fee berdasarkan provinsi
+- Manual province selection saat checkout
+- Fixed price mapping per region
+- Integrated dengan OshiGo shipment system
+
+### Example Shipping Rules
+
+```txt
+Jawa Barat     = Rp10.000
+DKI Jakarta    = Rp12.000
+Banten         = Rp12.000
+Jawa Tengah    = Rp14.000
+Jawa Timur     = Rp15.000
+Sumatera       = Rp18.000
+Kalimantan     = Rp22.000
+Sulawesi       = Rp25.000
+Papua          = Rp30.000
+```
+
+### Checkout Flow
+
+```txt
+User Select Province
+↓
+System Calculate Shipping Fee
+↓
+Shipping Added to Total Payment
+↓
+Order Created
+```
+
+### Notes
+
+- Tidak menggunakan realtime distance calculation
+- Tidak memerlukan Google Maps API
+- Tidak memerlukan integrasi logistik eksternal
+- Sistem dibuat ringan untuk menjaga performa dan kesederhanaan MVP
+- Shipping rules dapat diubah langsung melalui admin dashboard
+
+### Future Roadmap
+
+Fitur berikut akan dipertimbangkan pada fase scaling:
+
+- Automatic courier integration
+- Realtime shipping calculation
+- RajaOngkir/Biteship integration
+- Weight-based shipping fee
+- Live shipment tracking

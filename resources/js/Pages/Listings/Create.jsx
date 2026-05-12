@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, X, Search, Check, ChevronDown, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import { Upload, X, Search, Check, ChevronDown, Loader2, Sparkles, AlertCircle, Trash2 } from 'lucide-react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -178,7 +178,8 @@ function MemberCombobox({ apiUrl, value, onChange }) {
     const displayName = selected ? (selected.nickname || selected.name) : 'Cari Member (Opsional)';
 
     const select = (member) => {
-        onChange({ code: member.code, name: member.name, team: (member.type || '').toUpperCase() });
+        const team = (member.type || '').toUpperCase().replace('JKT48_VIRTUAL', 'VIRTUAL');
+        onChange({ code: member.code, name: member.name, team });
         setOpen(false);
         setQuery('');
     };

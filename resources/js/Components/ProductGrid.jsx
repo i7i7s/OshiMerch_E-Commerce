@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import ProductCard from '@/Components/ProductCard';
+import ListingCard from '@/Components/ListingCard';
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -53,7 +53,7 @@ export default function ProductGrid({ products, title, subtitle, viewAllHref, co
                 className={`grid ${gridCols[columns] || gridCols[4]} gap-4 sm:gap-5`}
             >
                 {products.map((product, index) => (
-                    <ProductCard key={product.id} product={product} index={index} />
+                    <ListingCard key={product.id} listing={product} index={index} />
                 ))}
             </motion.div>
         </section>

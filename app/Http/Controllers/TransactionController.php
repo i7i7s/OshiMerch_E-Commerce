@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TransactionStatusUpdated;
 use App\Models\Listing;
 use App\Models\Notification;
 use App\Models\Transaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -18,14 +20,17 @@ class TransactionController extends Controller
     /**
      * Create a new transaction (buyer initiates purchase).
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): HttpResponse|RedirectResponse
     {
+        $validProvinces = implode(',', array_keys(config('shipping.provinces', [])));
+
         $request->validate([
-            'listing_id'      => 'required|exists:listings,id',
-            'payment_method'  => 'required|in:BCA,Dana,GoPay,ShopeePay,OVO',
-            'shipping_address'=> 'required|string|max:500',
-            'recipient_name'  => 'required|string|max:150',
-            'recipient_phone' => 'nullable|string|max:20',
+            'listing_id'        => 'required|exists:listings,id',
+            'payment_method'    => 'required|in:BCA,Dana,GoPay,ShopeePay,OVO',
+            'shipping_address'  => 'required|string|max:500',
+            'shipping_province' => 'required|string|in:' . $validProvinces,
+            'recipient_name'    => 'required|string|max:150',
+            'recipient_phone'   => 'nullable|string|max:20',
         ]);
 
         $listing = Listing::findOrFail($request->listing_id);
@@ -38,22 +43,27 @@ class TransactionController extends Controller
             return back()->withErrors(['listing_id' => 'Listing ini sudah tidak tersedia.']);
         }
 
+        $shippingFee = config('shipping.provinces.' . $request->shipping_province, 0);
+
         $transaction = Transaction::create([
-            'buyer_id'         => Auth::id(),
-            'seller_id'        => $listing->user_id,
-            'listing_id'       => $listing->id,
-            'item_price'       => $listing->price,
-            'payment_method'   => $request->payment_method,
-            'shipping_address' => $request->shipping_address,
-            'recipient_name'   => $request->recipient_name,
-            'recipient_phone'  => $request->recipient_phone,
-            'payment_status'   => 'Pending',
-            'delivery_status'  => 'Pending',
+            'buyer_id'          => Auth::id(),
+            'seller_id'         => $listing->user_id,
+            'listing_id'        => $listing->id,
+            'item_price'        => $listing->price,
+            'payment_method'    => $request->payment_method,
+            'shipping_address'  => $request->shipping_address,
+            'shipping_province' => $request->shipping_province,
+            'shipping_fee'      => $shippingFee,
+            'recipient_name'    => $request->recipient_name,
+            'recipient_phone'   => $request->recipient_phone,
+            'payment_status'    => 'Pending',
+            'delivery_status'   => 'Pending',
         ]);
 
         $listing->update(['status' => 'Reserved']);
 
-        return redirect()->route('transactions.show', $transaction->id);
+        // Inertia-compatible redirect (avoids blank white screen on SPA)
+        return Inertia::location(route('transactions.show', $transaction->id));
     }
 
     /**
@@ -72,13 +82,17 @@ class TransactionController extends Controller
 
         return Inertia::render('Transactions/Show', [
             'transaction' => [
-                'id'               => $transaction->id,
-                'item_price'       => $transaction->item_price,
-                'payment_method'   => $transaction->payment_method,
-                'shipping_address' => $transaction->shipping_address,
-                'recipient_name'   => $transaction->recipient_name,
-                'recipient_phone'  => $transaction->recipient_phone,
-                'shipping_resi'    => $transaction->shipping_resi,
+                'id'                     => $transaction->id,
+                'item_price'             => $transaction->item_price,
+                'shipping_fee'           => $transaction->shipping_fee ?? 0,
+                'shipping_province'      => $transaction->shipping_province,
+                'total_price'            => $transaction->item_price + ($transaction->shipping_fee ?? 0),
+                'payment_method'         => $transaction->payment_method,
+                'shipping_address'       => $transaction->shipping_address,
+                'recipient_name'         => $transaction->recipient_name,
+                'recipient_phone'        => $transaction->recipient_phone,
+                'shipping_resi'          => $transaction->shipping_resi,
+                'oshigo_tracking_number' => $transaction->oshigo_tracking_number,
                 'payment_status'   => $transaction->payment_status,
                 'delivery_status'  => $transaction->delivery_status,
                 'proof_url'        => $transaction->proof_url,
@@ -130,6 +144,9 @@ class TransactionController extends Controller
             'payment_status'         => 'Paid',
         ]);
 
+        // Broadcast status change to both parties
+        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+
         // Notify seller
         Notification::transactionPaid(
             $transaction->seller_id,
@@ -153,6 +170,9 @@ class TransactionController extends Controller
 
         $transaction->update(['payment_status' => 'Confirmed']);
 
+        // Broadcast status change to both parties
+        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+
         // Notify buyer that seller confirmed
         Notification::create([
             'user_id' => $transaction->buyer_id,
@@ -167,40 +187,88 @@ class TransactionController extends Controller
     }
 
     /**
-     * Seller inputs shipping resi → delivery_status: Shipped.
+     * Seller packs the item → generates OshiGo tracking number, delivery_status: Packed.
      */
-    public function ship(Request $request, Transaction $transaction): RedirectResponse
+    public function pack(Transaction $transaction): RedirectResponse
     {
-        Gate::authorize('ship', $transaction);
+        Gate::authorize('pack', $transaction);
 
-        $request->validate(['shipping_resi' => 'required|string|max:100']);
+        $tracking = 'OSG-' . now()->format('Ymd') . '-' . str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
 
         $transaction->update([
-            'shipping_resi'   => $request->shipping_resi,
-            'delivery_status' => 'Shipped',
+            'oshigo_tracking_number' => $tracking,
+            'delivery_status'        => 'Packed',
         ]);
 
-        // Notify buyer
-        Notification::itemShipped(
-            $transaction->buyer_id,
-            $transaction->id,
-            $request->shipping_resi
-        );
+        broadcast(new TransactionStatusUpdated($transaction->fresh()));
 
-        return back()->with('success', 'Resi pengiriman berhasil diinput.');
+        Notification::create([
+            'user_id' => $transaction->buyer_id,
+            'type'    => 'item_packed',
+            'title'   => '📦 Pesananmu Sedang Dipacking!',
+            'body'    => "Penjual sedang menyiapkan barangmu. Tracking OshiGo: {$tracking}",
+            'url'     => "/transactions/{$transaction->id}",
+            'data'    => ['transaction_id' => $transaction->id, 'tracking' => $tracking],
+        ]);
+
+        return back()->with('success', "Barang dipacking! Nomor tracking OshiGo: {$tracking}");
     }
 
     /**
-     * Buyer confirms receipt → delivery_status: Completed.
+     * Seller marks as shipped → delivery_status: Shipped.
+     */
+    public function ship(Transaction $transaction): RedirectResponse
+    {
+        Gate::authorize('ship', $transaction);
+
+        $transaction->update(['delivery_status' => 'Shipped']);
+
+        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+
+        Notification::itemShipped(
+            $transaction->buyer_id,
+            $transaction->id,
+            $transaction->oshigo_tracking_number
+        );
+
+        return back()->with('success', 'Status diupdate: Dikirim!');
+    }
+
+    /**
+     * Seller marks as out for delivery → delivery_status: OutForDelivery.
+     */
+    public function outForDelivery(Transaction $transaction): RedirectResponse
+    {
+        Gate::authorize('outForDelivery', $transaction);
+
+        $transaction->update(['delivery_status' => 'OutForDelivery']);
+
+        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+
+        Notification::create([
+            'user_id' => $transaction->buyer_id,
+            'type'    => 'out_for_delivery',
+            'title'   => '🚚 Barangmu Sedang Dalam Perjalanan!',
+            'body'    => "Paketmu ({$transaction->oshigo_tracking_number}) sedang dalam perjalanan menuju alamatmu.",
+            'url'     => "/transactions/{$transaction->id}",
+            'data'    => ['transaction_id' => $transaction->id],
+        ]);
+
+        return back()->with('success', 'Status diupdate: Dalam Perjalanan!');
+    }
+
+    /**
+     * Buyer confirms receipt → delivery_status: Delivered.
      */
     public function complete(Transaction $transaction): RedirectResponse
     {
         Gate::authorize('complete', $transaction);
 
-        $transaction->update(['delivery_status' => 'Completed']);
+        $transaction->update(['delivery_status' => 'Delivered']);
         $transaction->listing->update(['status' => 'Sold']);
 
-        // Notify seller that transaction is complete
+        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+
         Notification::transactionCompleted($transaction->seller_id, $transaction->id);
 
         return back()->with('success', 'Transaksi selesai! Terima kasih.');

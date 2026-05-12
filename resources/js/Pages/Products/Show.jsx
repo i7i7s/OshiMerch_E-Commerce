@@ -1,9 +1,10 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import ListingCard from '@/Components/ListingCard';
+import { PROVINCES, getShippingFee } from '@/data/shipping';
 
 // ── Raw SVG Icons ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 const IconArrowLeft    = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>;
@@ -95,12 +96,16 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
     };
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        listing_id:      listing.id,
-        payment_method:  'BCA',
-        recipient_name:  auth?.user?.name || '',
-        recipient_phone: '',
-        shipping_address: '',
+        listing_id:         listing.id,
+        payment_method:     'BCA',
+        recipient_name:     auth?.user?.name || '',
+        recipient_phone:    '',
+        shipping_address:   '',
+        shipping_province:  '',
     });
+
+    const shippingFee = useMemo(() => getShippingFee(data.shipping_province), [data.shipping_province]);
+    const totalPrice  = listing.price + shippingFee;
 
     const handleBuy = (e) => {
         e.preventDefault();
@@ -406,11 +411,27 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
 
                             <form onSubmit={handleBuy} className="overflow-y-auto flex-1 p-8 space-y-8 bg-white">
                                 {/* Price summary */}
-                                <div className="rounded-2xl bg-gradient-to-r from-primary-600 to-purple-600 border-4 border-surface-900 p-6 text-white shadow-[4px_4px_0_#0f172a]">
-                                    <p className="text-xs font-black uppercase tracking-widest opacity-80 mb-1">TOTAL PEMBAYARAN</p>
-                                    <p className="text-4xl font-black font-display tracking-tight">
-                                        Rp{listing.price.toLocaleString('id-ID')}
-                                    </p>
+                                <div className="rounded-2xl bg-gradient-to-r from-primary-600 to-purple-600 border-4 border-surface-900 p-6 text-white shadow-[4px_4px_0_#0f172a] space-y-2">
+                                    <div className="flex justify-between items-center text-sm font-bold opacity-80">
+                                        <span>HARGA BARANG</span>
+                                        <span>Rp{listing.price.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm font-bold opacity-80">
+                                        <span>ONGKOS KIRIM</span>
+                                        <span>
+                                            {data.shipping_province
+                                                ? `Rp${shippingFee.toLocaleString('id-ID')}`
+                                                : '— pilih provinsi'}
+                                        </span>
+                                    </div>
+                                    <div className="border-t-2 border-white/30 pt-2 mt-1 flex justify-between items-baseline">
+                                        <p className="text-xs font-black uppercase tracking-widest opacity-80">TOTAL BAYAR</p>
+                                        <p className="text-4xl font-black font-display tracking-tight">
+                                            {data.shipping_province
+                                                ? `Rp${totalPrice.toLocaleString('id-ID')}`
+                                                : `Rp${listing.price.toLocaleString('id-ID')}+`}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 {/* Recipient */}
@@ -449,6 +470,23 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                                             required
                                         />
                                         {errors.shipping_address && <p className="text-xs font-bold text-red-500 mt-2">{errors.shipping_address}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-surface-600 mb-2 uppercase tracking-wide">Provinsi Tujuan *</label>
+                                        <select
+                                            value={data.shipping_province}
+                                            onChange={e => setData('shipping_province', e.target.value)}
+                                            className="w-full px-5 py-4 rounded-xl border-2 border-surface-200 font-bold focus:outline-none focus:border-primary-500 focus:shadow-[4px_4px_0_rgba(244,63,94,0.2)] transition-all bg-white appearance-none"
+                                            required
+                                        >
+                                            <option value="">-- Pilih Provinsi --</option>
+                                            {PROVINCES.map(prov => (
+                                                <option key={prov} value={prov}>
+                                                    {prov} — Rp{getShippingFee(prov).toLocaleString('id-ID')}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errors.shipping_province && <p className="text-xs font-bold text-red-500 mt-2">{errors.shipping_province}</p>}
                                     </div>
                                 </div>
 

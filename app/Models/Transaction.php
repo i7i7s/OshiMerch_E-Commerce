@@ -16,10 +16,13 @@ class Transaction extends Model
         'item_price',
         'payment_method',
         'shipping_address',
+        'shipping_province',
+        'shipping_fee',
         'recipient_name',
         'recipient_phone',
         'proof_of_transfer_path',
         'shipping_resi',
+        'oshigo_tracking_number',
         'payment_status',
         'delivery_status',
     ];

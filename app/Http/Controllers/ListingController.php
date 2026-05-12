@@ -6,6 +6,7 @@ use App\Models\Favorite;
 use App\Models\Listing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -137,7 +138,7 @@ class ListingController extends Controller
     /**
      * Store a new listing.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): HttpResponse|RedirectResponse
     {
         $validated = $request->validate([
             'title'                => 'required|string|max:255',
@@ -166,8 +167,7 @@ class ListingController extends Controller
             'status'               => 'Available',
         ]);
 
-        return redirect()->route('products.show', $listing)
-            ->with('success', 'Listing berhasil dipublikasikan! 🎉');
+        return Inertia::location(route('products.show', $listing));
     }
 
     /**
@@ -197,7 +197,7 @@ class ListingController extends Controller
     /**
      * Update an existing listing.
      */
-    public function update(Request $request, Listing $listing): RedirectResponse
+    public function update(Request $request, Listing $listing): HttpResponse|RedirectResponse
     {
         Gate::authorize('update', $listing);
 
@@ -233,8 +233,7 @@ class ListingController extends Controller
             'featured_member_team' => $validated['featured_member_team'] ?? null,
         ]);
 
-        return redirect()->route('products.show', $listing)
-            ->with('success', 'Listing berhasil diperbarui!');
+        return Inertia::location(route('products.show', $listing));
     }
 
     /**

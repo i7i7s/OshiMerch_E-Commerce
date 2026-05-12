@@ -134,7 +134,8 @@ function MemberCombobox({ apiUrl, value, onChange }) {
     const selected = value.code ? members.find((m) => m.code === value.code) : null;
 
     const select = (member) => {
-        onChange({ code: member.code, name: member.name, team: (member.type || '').toUpperCase() });
+        const team = (member.type || '').toUpperCase().replace('JKT48_VIRTUAL', 'VIRTUAL');
+        onChange({ code: member.code, name: member.name, team });
         setOpen(false);
         setQuery('');
     };

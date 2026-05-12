@@ -10,24 +10,30 @@ const IconTruck      = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 2
 const IconUpload     = () => <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>;
 const IconSend       = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>;
 const IconStar       = ({ filled }) => <svg className={`w-8 h-8 transition-colors ${filled ? 'text-amber-400 fill-amber-400' : 'text-surface-200'}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>;
-const IconShieldCheck = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>;
+const IconShieldCheck = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>;
+const IconBox        = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>;
+const IconMapPin     = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>;
 import Navbar from '@/Components/Navbar';
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
 const STEPS = [
-    { key: 'order',     label: 'Dibuat',        Icon: IconPackage },
-    { key: 'paid',      label: 'Bukti Upload',  Icon: IconCheck },
-    { key: 'confirmed', label: 'Dikonfirmasi',  Icon: IconShieldCheck },
-    { key: 'shipped',   label: 'Dikirim',       Icon: IconTruck },
-    { key: 'done',      label: 'Selesai',       Icon: IconCheck },
+    { key: 'order',            label: 'Dibuat',       Icon: IconPackage },
+    { key: 'paid',             label: 'Dibayar',      Icon: IconCheck },
+    { key: 'confirmed',        label: 'Konfirmasi',   Icon: IconShieldCheck },
+    { key: 'packed',           label: 'Packing',      Icon: IconBox },
+    { key: 'shipped',          label: 'Dikirim',      Icon: IconTruck },
+    { key: 'out_for_delivery', label: 'Di Jalan',     Icon: IconMapPin },
+    { key: 'delivered',        label: 'Diterima',     Icon: IconCheck },
 ];
 
 function getActiveStep(payment_status, delivery_status) {
-    if (delivery_status === 'Completed') return 4;
-    if (delivery_status === 'Shipped')   return 3;
-    if (payment_status  === 'Confirmed') return 2;
-    if (payment_status  === 'Paid')      return 1;
+    if (delivery_status === 'Delivered')       return 6;
+    if (delivery_status === 'OutForDelivery')  return 5;
+    if (delivery_status === 'Shipped')         return 4;
+    if (delivery_status === 'Packed')          return 3;
+    if (payment_status  === 'Confirmed')       return 2;
+    if (payment_status  === 'Paid')            return 1;
     return 0;
 }
 
@@ -145,26 +151,98 @@ function ReviewForm({ transactionId, sellerName }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
-export default function Show({ transaction }) {
+export default function Show({ transaction: initialTransaction }) {
     const { auth } = usePage().props;
     const user = auth?.user;
-    const isBuyer  = user?.id === transaction.buyer.id;
-    const isSeller = user?.id === transaction.seller.id;
+
+    // ─── Local state for real-time updates ────────────────────────────────
+    const [txn, setTxn] = useState(initialTransaction);
+    const [messages, setMessages] = useState(initialTransaction.messages);
+
+    // Sync when Inertia re-renders with fresh data
+    useEffect(() => {
+        setTxn(initialTransaction);
+        setMessages(initialTransaction.messages);
+    }, [initialTransaction]);
+
+    const isBuyer  = user?.id === txn.buyer.id;
+    const isSeller = user?.id === txn.seller.id;
+
+    // ─── Echo: listen for real-time status + message updates ─────────────
+    useEffect(() => {
+        if (!window.Echo) return;
+
+        const channel = window.Echo.private(`transaction.${txn.id}`);
+
+        channel.listen('TransactionStatusUpdated', (e) => {
+            setTxn(prev => ({ ...prev, ...e }));
+        });
+
+        channel.listen('TransactionMessageSent', (e) => {
+            setMessages(prev => {
+                if (prev.some(m => m.id === e.id)) return prev;
+                return [...prev, e];
+            });
+        });
+
+        return () => {
+            window.Echo.leave(`transaction.${txn.id}`);
+        };
+    }, [txn.id]);
 
     // Chat form
-    const chatForm = useForm({ content: '' });
+    const [chatContent, setChatContent] = useState('');
+    const [chatSending, setChatSending] = useState(false);
     const chatEndRef = useRef(null);
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [transaction.messages]);
+    }, [messages]);
 
-    const sendMessage = (e) => {
+    const sendMessage = async (e) => {
         e.preventDefault();
-        if (!chatForm.data.content.trim()) return;
-        chatForm.post(route('messages.store', transaction.id), {
-            onSuccess: () => chatForm.reset('content'),
-            preserveScroll: true,
-        });
+        const content = chatContent.trim();
+        if (!content || chatSending) return;
+
+        // Optimistic UI — add temp message immediately
+        const tempId = `temp-${Date.now()}`;
+        const optimistic = {
+            id: tempId,
+            content,
+            sender_id: user.id,
+            sender: { id: user.id, name: user.name, profile_picture_url: user.profile_picture_url },
+            created_at: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, optimistic]);
+        setChatContent('');
+
+        try {
+            setChatSending(true);
+            const res = await fetch(route('messages.store', txn.id), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                },
+                body: JSON.stringify({ content }),
+            });
+
+            if (!res.ok) throw new Error('Request failed');
+
+            const saved = await res.json();
+            // Replace temp with real message (dedup with Echo)
+            setMessages((prev) => {
+                const withoutTemp = prev.filter((m) => m.id !== tempId);
+                if (withoutTemp.some((m) => m.id === saved.id)) return withoutTemp;
+                return [...withoutTemp, saved];
+            });
+        } catch {
+            // Rollback optimistic message on error
+            setMessages((prev) => prev.filter((m) => m.id !== tempId));
+            setChatContent(content);
+        } finally {
+            setChatSending(false);
+        }
     };
 
     // Upload proof form
@@ -178,20 +256,16 @@ export default function Show({ transaction }) {
     };
     const submitProof = (e) => {
         e.preventDefault();
-        proofForm.post(route('transactions.uploadProof', transaction.id), {
+        proofForm.post(route('transactions.uploadProof', txn.id), {
             forceFormData: true,
             onSuccess: () => { setProofPreview(null); proofForm.reset(); },
         });
     };
 
-    // Ship form
-    const shipForm = useForm({ shipping_resi: '' });
-    const submitShip = (e) => {
-        e.preventDefault();
-        shipForm.patch(route('transactions.ship', transaction.id), {
-            onSuccess: () => shipForm.reset(),
-        });
-    };
+    // OshiGo action forms (seller)
+    const packForm          = useForm({});
+    const shipForm          = useForm({});
+    const outForDeliveryForm = useForm({});
 
     // Confirm payment (seller)
     const confirmForm = useForm({});
@@ -200,14 +274,14 @@ export default function Show({ transaction }) {
     const completeForm = useForm({});
     const handleComplete = () => {
         if (!confirm('Konfirmasi barang sudah diterima?')) return;
-        completeForm.patch(route('transactions.complete', transaction.id));
+        completeForm.patch(route('transactions.complete', txn.id));
     };
 
-    const bank = BANK_INFO[transaction.payment_method] || BANK_INFO.BCA;
+    const bank = BANK_INFO[txn.payment_method] || BANK_INFO.BCA;
 
     return (
         <>
-            <Head title={`Transaksi #${transaction.id} — OshiMerch`} />
+            <Head title={`Transaksi #${txn.id} — OshiMerch`} />
             <div className="min-h-dvh bg-surface-50 flex flex-col">
                 <Navbar />
 
@@ -219,7 +293,7 @@ export default function Show({ transaction }) {
                             Dashboard
                         </Link>
                         <span>/</span>
-                        <span className="text-surface-700 font-medium">Transaksi #{transaction.id}</span>
+                        <span className="text-surface-700 font-medium">Transaksi #{txn.id}</span>
                     </nav>
 
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
@@ -233,8 +307,8 @@ export default function Show({ transaction }) {
                             >
                                 <h2 className="text-sm font-bold text-surface-700 mb-5">Status Pesanan</h2>
                                 <StatusTracker
-                                    payment_status={transaction.payment_status}
-                                    delivery_status={transaction.delivery_status}
+                                    payment_status={txn.payment_status}
+                                    delivery_status={txn.delivery_status}
                                 />
                             </motion.div>
 
@@ -246,22 +320,22 @@ export default function Show({ transaction }) {
                                 className="bg-white rounded-2xl border border-surface-200 p-5 shadow-card flex gap-4"
                             >
                                 <div className="w-20 h-[107px] rounded-xl overflow-hidden bg-surface-100 shrink-0">
-                                    {transaction.listing.image_url ? (
-                                        <img src={transaction.listing.image_url} alt={transaction.listing.title} className="w-full h-full object-cover" />
+                                    {txn.listing.image_url ? (
+                                        <img src={txn.listing.image_url} alt={txn.listing.title} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-surface-300"><IconPackage /></div>
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs text-primary-500 font-semibold">{transaction.listing.featured_member_name}</p>
-                                    <h3 className="font-bold text-surface-900 leading-snug mt-0.5 line-clamp-2">{transaction.listing.title}</h3>
+                                    <p className="text-xs text-primary-500 font-semibold">{txn.listing.featured_member_name}</p>
+                                    <h3 className="font-bold text-surface-900 leading-snug mt-0.5 line-clamp-2">{txn.listing.title}</h3>
                                     <div className="flex flex-wrap gap-2 mt-2">
-                                        <span className="px-2 py-0.5 rounded-md bg-surface-100 text-surface-600 text-[11px] font-semibold">{transaction.listing.condition}</span>
-                                        {transaction.listing.featured_member_team && (
-                                            <span className="px-2 py-0.5 rounded-md bg-primary-50 text-primary-600 text-[11px] font-semibold">{transaction.listing.featured_member_team}</span>
+                                        <span className="px-2 py-0.5 rounded-md bg-surface-100 text-surface-600 text-[11px] font-semibold">{txn.listing.condition}</span>
+                                        {txn.listing.featured_member_team && (
+                                            <span className="px-2 py-0.5 rounded-md bg-primary-50 text-primary-600 text-[11px] font-semibold">{txn.listing.featured_member_team}</span>
                                         )}
                                     </div>
-                                    <p className="text-lg font-bold text-surface-900 mt-3">Rp{transaction.item_price.toLocaleString('id-ID')}</p>
+                                    <p className="text-lg font-bold text-surface-900 mt-3">Rp{txn.item_price.toLocaleString('id-ID')}</p>
                                 </div>
                             </motion.div>
 
@@ -276,8 +350,8 @@ export default function Show({ transaction }) {
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
                                         <p className="text-xs text-surface-500 mb-0.5">Penerima</p>
-                                        <p className="font-semibold text-surface-800">{transaction.recipient_name}</p>
-                                        {transaction.recipient_phone && <p className="text-surface-500 text-xs">{transaction.recipient_phone}</p>}
+                                        <p className="font-semibold text-surface-800">{txn.recipient_name}</p>
+                                        {txn.recipient_phone && <p className="text-surface-500 text-xs">{txn.recipient_phone}</p>}
                                     </div>
                                     <div>
                                         <p className="text-xs text-surface-500 mb-0.5">Metode Bayar</p>
@@ -285,19 +359,67 @@ export default function Show({ transaction }) {
                                     </div>
                                     <div className="col-span-2">
                                         <p className="text-xs text-surface-500 mb-0.5">Alamat</p>
-                                        <p className="text-surface-700 leading-relaxed">{transaction.shipping_address}</p>
+                                        <p className="text-surface-700 leading-relaxed">{txn.shipping_address}</p>
                                     </div>
-                                    {transaction.shipping_resi && (
+                                    {txn.shipping_province && (
+                                        <div>
+                                            <p className="text-xs text-surface-500 mb-0.5">Provinsi</p>
+                                            <p className="font-semibold text-surface-800">{txn.shipping_province}</p>
+                                        </div>
+                                    )}
+                                    {txn.shipping_fee > 0 && (
+                                        <div>
+                                            <p className="text-xs text-surface-500 mb-0.5">Ongkos Kirim</p>
+                                            <p className="font-semibold text-surface-800">Rp{txn.shipping_fee.toLocaleString('id-ID')}</p>
+                                        </div>
+                                    )}
+                                    {txn.shipping_resi && (
                                         <div className="col-span-2">
                                             <p className="text-xs text-surface-500 mb-0.5">Nomor Resi</p>
-                                            <p className="font-bold text-primary-600">{transaction.shipping_resi}</p>
+                                            <p className="font-bold text-primary-600">{txn.shipping_resi}</p>
                                         </div>
                                     )}
                                 </div>
                             </motion.div>
 
+                            {/* OshiGo tracking card — visible to both parties once packed */}
+                            {txn.oshigo_tracking_number && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 16 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.12 }}
+                                    className="bg-white rounded-2xl border-2 border-blue-200 p-5 shadow-card"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <img src="/images/oshigo_logo.png" alt="OshiGo" className="h-10 object-contain shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs text-blue-500 font-bold uppercase tracking-widest mb-0.5">Nomor Tracking OshiGo</p>
+                                            <p className="font-mono font-black text-xl text-blue-900 tracking-widest">{txn.oshigo_tracking_number}</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 grid grid-cols-5 gap-1 text-[10px] text-center">
+                                        {['Packing','Dikirim','Di Jalan','Diterima'].map((label, i) => {
+                                            const statuses = ['Packed','Shipped','OutForDelivery','Delivered'];
+                                            const idx = statuses.indexOf(txn.delivery_status);
+                                            const done    = i < idx;
+                                            const current = i === idx;
+                                            return (
+                                                <div key={label} className="flex flex-col items-center gap-1 col-span-1">
+                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-all ${
+                                                        done    ? 'bg-blue-500 border-blue-500 text-white' :
+                                                        current ? 'bg-white border-blue-500 text-blue-600 ring-2 ring-blue-200' :
+                                                                  'bg-white border-surface-200 text-surface-300'
+                                                    }`}>{done ? '✓' : i + 1}</div>
+                                                    <span className={`leading-tight font-semibold ${done || current ? 'text-blue-600' : 'text-surface-400'}`}>{label}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </motion.div>
+                            )}
+
                             {/* Payment instruction (buyer, pending) */}
-                            {isBuyer && transaction.payment_status === 'Pending' && (
+                            {isBuyer && txn.payment_status === 'Pending' && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 16 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -315,8 +437,20 @@ export default function Show({ transaction }) {
                                     </div>
                                     <div className="flex items-center justify-between bg-white border border-amber-200 rounded-xl px-4 py-3">
                                         <span className="text-sm text-surface-600">Jumlah Transfer</span>
-                                        <span className="font-bold text-primary-600 text-lg">Rp{transaction.item_price.toLocaleString('id-ID')}</span>
+                                        <span className="font-bold text-primary-600 text-lg">Rp{txn.total_price.toLocaleString('id-ID')}</span>
                                     </div>
+                                    {txn.shipping_fee > 0 && (
+                                        <div className="flex flex-col gap-1 bg-white border border-amber-200 rounded-xl px-4 py-3 text-sm">
+                                            <div className="flex justify-between text-surface-500">
+                                                <span>Harga Barang</span>
+                                                <span>Rp{txn.item_price.toLocaleString('id-ID')}</span>
+                                            </div>
+                                            <div className="flex justify-between text-surface-500">
+                                                <span>Ongkos Kirim ({txn.shipping_province})</span>
+                                                <span>Rp{txn.shipping_fee.toLocaleString('id-ID')}</span>
+                                            </div>
+                                        </div>
+                                    )}
                                     <p className="text-xs text-amber-700 leading-relaxed">
                                         Transfer tepat sesuai nominal di atas, lalu upload bukti transfer di bawah ini.
                                     </p>
@@ -346,7 +480,7 @@ export default function Show({ transaction }) {
                             )}
 
                             {/* Seller: buyer uploaded proof → seller must CONFIRM first (Opsi B) */}
-                            {isSeller && transaction.payment_status === 'Paid' && (
+                            {isSeller && txn.payment_status === 'Paid' && (
                                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                                     className="bg-amber-50 rounded-2xl border-2 border-amber-300 p-5 space-y-4">
                                     <div className="flex items-center gap-2">
@@ -354,13 +488,13 @@ export default function Show({ transaction }) {
                                         <h2 className="text-sm font-bold text-amber-800">Verifikasi Bukti Pembayaran</h2>
                                     </div>
                                     <p className="text-xs text-amber-700">Pembeli telah mengupload bukti transfer. Periksa foto di bawah, lalu konfirmasi jika pembayaran valid.</p>
-                                    {transaction.proof_url && (
-                                        <a href={transaction.proof_url} target="_blank" rel="noopener noreferrer">
-                                            <img src={transaction.proof_url} alt="Bukti bayar" className="max-h-52 rounded-xl object-contain border-2 border-amber-200 w-full" />
+                                    {txn.proof_url && (
+                                        <a href={txn.proof_url} target="_blank" rel="noopener noreferrer">
+                                            <img src={txn.proof_url} alt="Bukti bayar" className="max-h-52 rounded-xl object-contain border-2 border-amber-200 w-full" />
                                         </a>
                                     )}
                                     <div className="flex gap-3">
-                                        <button onClick={() => confirmForm.patch(route('transactions.confirmPayment', transaction.id))}
+                                        <button onClick={() => confirmForm.patch(route('transactions.confirmPayment', txn.id))}
                                             disabled={confirmForm.processing}
                                             className="flex-1 py-3 rounded-xl bg-green-600 text-white font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-60">
                                             {confirmForm.processing ? 'Mengkonfirmasi...' : '✅ Konfirmasi Pembayaran Valid'}
@@ -369,50 +503,88 @@ export default function Show({ transaction }) {
                                 </motion.div>
                             )}
 
-                            {/* Seller: payment confirmed → input resi */}
-                            {isSeller && transaction.payment_status === 'Confirmed' && transaction.delivery_status === 'Pending' && (
+                            {/* Seller: payment confirmed → Pack & generate tracking */}
+                            {isSeller && txn.payment_status === 'Confirmed' && txn.delivery_status === 'Pending' && (
                                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                                     className="bg-green-50 rounded-2xl border border-green-200 p-5 space-y-3">
-                                    <h2 className="text-sm font-bold text-green-800">✅ Pembayaran Dikonfirmasi — Input Resi Pengiriman</h2>
-                                    <form onSubmit={submitShip} className="flex gap-2">
-                                        <input type="text" value={shipForm.data.shipping_resi}
-                                            onChange={e => shipForm.setData('shipping_resi', e.target.value)}
-                                            placeholder="Nomor resi pengiriman"
-                                            className="flex-1 px-4 py-2.5 rounded-xl border border-surface-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-                                            required />
-                                        <button type="submit" disabled={shipForm.processing}
-                                            className="px-5 py-2.5 rounded-xl gradient-primary text-white font-semibold text-sm shadow-glow-primary disabled:opacity-60">
-                                            Input Resi
-                                        </button>
-                                    </form>
+                                    <h2 className="text-sm font-bold text-green-800">✅ Pembayaran Dikonfirmasi — Siapkan Pesanan</h2>
+                                    <p className="text-xs text-green-700">Klik tombol di bawah untuk generate nomor tracking OshiGo dan mulai packing barang.</p>
+                                    <button
+                                        onClick={() => packForm.patch(route('transactions.pack', txn.id))}
+                                        disabled={packForm.processing}
+                                        className="w-full py-3 rounded-xl bg-green-600 text-white font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                                        {packForm.processing ? 'Memproses...' : '📦 Pack & Generate Tracking OshiGo'}
+                                    </button>
                                 </motion.div>
                             )}
 
-                            {/* Buyer: shipped — confirm received */}
-                            {isBuyer && transaction.delivery_status === 'Shipped' && (
+                            {/* Seller: packed → mark shipped */}
+                            {isSeller && txn.delivery_status === 'Packed' && (
+                                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                                    className="bg-blue-50 rounded-2xl border border-blue-200 p-5 space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <img src="/images/oshigo_logo.png" alt="OshiGo" className="h-7 object-contain" />
+                                        <div>
+                                            <p className="text-xs text-blue-500 font-semibold">Nomor Tracking</p>
+                                            <p className="font-mono font-bold text-blue-900 text-base">{txn.oshigo_tracking_number}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-blue-700">Barang sudah dipacking? Klik di bawah setelah diserahkan ke kurir OshiGo.</p>
+                                    <button
+                                        onClick={() => shipForm.patch(route('transactions.ship', txn.id))}
+                                        disabled={shipForm.processing}
+                                        className="w-full py-3 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-60">
+                                        {shipForm.processing ? 'Memproses...' : '🚚 Tandai Sudah Dikirim'}
+                                    </button>
+                                </motion.div>
+                            )}
+
+                            {/* Seller: shipped → mark out for delivery */}
+                            {isSeller && txn.delivery_status === 'Shipped' && (
+                                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                                    className="bg-purple-50 rounded-2xl border border-purple-200 p-5 space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <img src="/images/oshigo_logo.png" alt="OshiGo" className="h-7 object-contain" />
+                                        <div>
+                                            <p className="text-xs text-purple-500 font-semibold">Tracking</p>
+                                            <p className="font-mono font-bold text-purple-900 text-sm">{txn.oshigo_tracking_number}</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => outForDeliveryForm.patch(route('transactions.outForDelivery', txn.id))}
+                                        disabled={outForDeliveryForm.processing}
+                                        className="w-full py-3 rounded-xl bg-purple-600 text-white font-bold text-sm hover:bg-purple-700 transition-colors disabled:opacity-60">
+                                        {outForDeliveryForm.processing ? 'Memproses...' : '📍 Tandai Dalam Perjalanan'}
+                                    </button>
+                                </motion.div>
+                            )}
+
+                            {/* Buyer: out for delivery — confirm received */}
+                            {isBuyer && txn.delivery_status === 'OutForDelivery' && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 16 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className="bg-blue-50 rounded-2xl border border-blue-200 p-5 flex items-center justify-between gap-4"
                                 >
                                     <div>
-                                        <p className="font-bold text-blue-800 text-sm">Barang Sedang Dikirim</p>
-                                        {transaction.shipping_resi && (
-                                            <p className="text-xs text-blue-600 mt-0.5">Resi: <span className="font-bold">{transaction.shipping_resi}</span></p>
+                                        <p className="font-bold text-blue-800 text-sm">🚚 Barang Sedang Dalam Perjalanan</p>
+                                        {txn.oshigo_tracking_number && (
+                                            <p className="text-xs text-blue-600 mt-0.5 font-mono">Tracking: <span className="font-bold">{txn.oshigo_tracking_number}</span></p>
                                         )}
+                                        <p className="text-xs text-blue-500 mt-1">Sudah terima barang? Konfirmasi di sini.</p>
                                     </div>
                                     <button
                                         onClick={handleComplete}
                                         disabled={completeForm.processing}
                                         className="shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors disabled:opacity-60"
                                     >
-                                        Barang Diterima ✓
+                                        Diterima ✓
                                     </button>
                                 </motion.div>
                             )}
 
-                            {/* Completed */}
-                            {transaction.delivery_status === 'Completed' && (
+                            {/* Delivered */}
+                            {txn.delivery_status === 'Delivered' && (
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.97 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -424,9 +596,9 @@ export default function Show({ transaction }) {
                                 </motion.div>
                             )}
 
-                            {/* Review Form — buyer only, transaction completed, not yet reviewed */}
-                            {isBuyer && transaction.delivery_status === 'Completed' && !transaction.has_review && (
-                                <ReviewForm transactionId={transaction.id} sellerId={transaction.seller.id} sellerName={transaction.seller.name} />
+                            {/* Review Form — buyer only, transaction delivered, not yet reviewed */}
+                            {isBuyer && txn.delivery_status === 'Delivered' && !txn.has_review && (
+                                <ReviewForm transactionId={txn.id} sellerId={txn.seller.id} sellerName={txn.seller.name} />
                             )}
                         </div>
 
@@ -440,7 +612,7 @@ export default function Show({ transaction }) {
                             {/* Chat header */}
                             <div className="flex items-center gap-3 px-4 py-3.5 border-b border-surface-100">
                                 <div className="flex -space-x-2">
-                                    {[transaction.buyer, transaction.seller].map((u, i) => (
+                                    {[txn.buyer, txn.seller].map((u, i) => (
                                         <img
                                             key={i}
                                             src={u.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=FF1100&color=fff&size=40`}
@@ -451,7 +623,7 @@ export default function Show({ transaction }) {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-sm font-bold text-surface-900">
-                                        {isBuyer ? transaction.seller.name : transaction.buyer.name}
+                                        {isBuyer ? txn.seller.name : txn.buyer.name}
                                     </p>
                                     <p className="text-[10px] text-surface-500">
                                         {isBuyer ? 'Penjual' : 'Pembeli'}
@@ -461,14 +633,14 @@ export default function Show({ transaction }) {
 
                             {/* Messages */}
                             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-                                {transaction.messages.length === 0 ? (
+                                {messages.length === 0 ? (
                                     <div className="h-full flex flex-col items-center justify-center text-center">
                                         <p className="text-3xl mb-2">💬</p>
                                         <p className="text-sm text-surface-500 font-medium">Belum ada pesan.</p>
                                         <p className="text-xs text-surface-400 mt-1">Mulai chat untuk negosiasi atau tanyakan detail barang.</p>
                                     </div>
                                 ) : (
-                                    transaction.messages.map(msg => (
+                                    messages.map(msg => (
                                         <ChatBubble key={msg.id} message={msg} currentUserId={user?.id} />
                                     ))
                                 )}
@@ -478,15 +650,15 @@ export default function Show({ transaction }) {
                             {/* Chat input */}
                             <form onSubmit={sendMessage} className="flex items-end gap-2 px-3 py-3 border-t border-surface-100">
                                 <textarea
-                                    value={chatForm.data.content}
-                                    onChange={e => chatForm.setData('content', e.target.value)}
+                                    value={chatContent}
+                                    onChange={e => setChatContent(e.target.value)}
                                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(e); } }}
                                     placeholder="Ketik pesan..."
                                     rows={1}
                                     className="flex-1 resize-none rounded-xl border border-surface-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 max-h-28"
                                 />
                                 <button type="submit"
-                                    disabled={chatForm.processing || !chatForm.data.content.trim()}
+                                    disabled={chatSending || !chatContent.trim()}
                                     className="p-2.5 rounded-xl gradient-primary text-white shadow-glow-primary hover:shadow-xl transition-all disabled:opacity-40">
                                     <IconSend />
                                 </button>

@@ -1,5 +1,5 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Send } from 'lucide-react';
 import Navbar from '@/Components/Navbar';
@@ -31,21 +31,91 @@ function ChatBubble({ message, currentUserId }) {
 export default function Direct({ conversation }) {
     const { auth } = usePage().props;
     const user = auth?.user;
-    const { data, setData, post, processing, reset } = useForm({ content: '' });
+    const { data, setData } = useForm({ content: '' });
     const chatEndRef = useRef(null);
     const other = conversation.other;
 
+    // ─── Local state for real-time message updates ───────────────────────────
+    const [messages, setMessages] = useState(conversation.messages);
+
+    // Sync when Inertia re-renders with fresh data (e.g., sender's own message)
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        setMessages(conversation.messages);
     }, [conversation.messages]);
 
-    const sendMessage = (e) => {
-        e.preventDefault();
-        if (!data.content.trim()) return;
-        post(route('chat.sendDirect', conversation.id), {
-            onSuccess: () => reset('content'),
-            preserveScroll: true,
+    // ─── Echo: Listen for real-time messages ─────────────────────────────────
+    useEffect(() => {
+        if (!window.Echo) return;
+
+        const channel = window.Echo.private(`conversation.${conversation.id}`);
+
+        channel.listen('DirectMessageSent', (e) => {
+            setMessages(prev => {
+                // Prevent duplicates (Inertia reload might already have it)
+                if (prev.some(m => m.id === e.id)) return prev;
+                return [...prev, e];
+            });
         });
+
+        return () => {
+            window.Echo.leave(`conversation.${conversation.id}`);
+        };
+    }, [conversation.id]);
+
+    // Auto-scroll when messages change
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    const [sending, setSending] = useState(false);
+
+    const sendMessage = async (e) => {
+        e.preventDefault();
+        const content = data.content.trim();
+        if (!content || sending) return;
+
+        // Optimistic: show sender's own message immediately
+        const optimistic = {
+            id: `temp-${Date.now()}`,
+            content,
+            sender_id: user.id,
+            sender: { id: user.id, name: user.name, profile_picture_url: user.profile_picture_url },
+            created_at_human: 'Baru saja',
+        };
+        setMessages(prev => [...prev, optimistic]);
+        setData('content', '');
+        setSending(true);
+
+        try {
+            const res = await fetch(route('chat.sendDirect', conversation.id), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || ''),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ content }),
+            });
+
+            if (res.ok) {
+                // Replace optimistic message with real one from server response
+                const json = await res.json().catch(() => null);
+                if (json?.message) {
+                    setMessages(prev => prev.map(m => m.id === optimistic.id ? json.message : m));
+                }
+            } else {
+                // Rollback on error
+                setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+                setData('content', content);
+            }
+        } catch {
+            setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+            setData('content', content);
+        } finally {
+            setSending(false);
+        }
     };
 
     const otherAvatar = other.avatar ||
@@ -80,7 +150,7 @@ export default function Direct({ conversation }) {
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0"
                         style={{ maxHeight: 'calc(100dvh - 72px - 64px - 72px)' }}>
-                        {conversation.messages.length === 0 ? (
+                        {messages.length === 0 ? (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                                 className="flex flex-col items-center justify-center h-full py-24 text-center">
                                 <div className="w-20 h-20 rounded-3xl bg-primary-50 flex items-center justify-center mx-auto mb-4">
@@ -93,7 +163,7 @@ export default function Direct({ conversation }) {
                                 </p>
                             </motion.div>
                         ) : (
-                            conversation.messages.map(msg => (
+                            messages.map(msg => (
                                 <ChatBubble key={msg.id} message={msg} currentUserId={user?.id} />
                             ))
                         )}
@@ -113,7 +183,7 @@ export default function Direct({ conversation }) {
                             />
                             <button
                                 type="submit"
-                                disabled={processing || !data.content.trim()}
+                                disabled={sending || !data.content.trim()}
                                 className="p-3 rounded-2xl gradient-primary text-white shadow-glow-primary hover:shadow-xl transition-all disabled:opacity-40 shrink-0"
                             >
                                 <Send className="w-4 h-4" />

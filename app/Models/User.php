@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -117,5 +118,32 @@ class User extends Authenticatable
     public function availableListings(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Listing::class)->where('status', 'Available');
+    }
+
+    /**
+     * Return the profile picture URL, supporting:
+     * - Full http/https URLs (Google OAuth avatars)
+     * - Old format with leading /storage/ prefix (legacy data)
+     * - Plain storage-relative paths (new format, e.g. profiles/xxx.jpg)
+     */
+    public function getProfilePictureUrlAttribute(?string $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        // Already a full URL (Google/Twitter avatar)
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+
+        // Legacy format stored with /storage/ prefix — strip it and serve via Storage
+        if (str_starts_with($value, '/storage/')) {
+            $path = ltrim(substr($value, strlen('/storage/')), '/');
+            return Storage::disk('public')->url($path);
+        }
+
+        // New format: plain relative path (e.g. profiles/xxx.jpg)
+        return Storage::disk('public')->url($value);
     }
 }

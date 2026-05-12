@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\NewNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -63,7 +64,7 @@ class Notification extends Model
 
     public static function transactionPaid(int $userId, int $transactionId, string $buyerName): self
     {
-        return self::create([
+        $notification = self::create([
             'user_id' => $userId,
             'type'    => 'transaction_paid',
             'title'   => '💰 Pesanan Baru Masuk!',
@@ -71,11 +72,15 @@ class Notification extends Model
             'url'     => "/dashboard",
             'data'    => ['transaction_id' => $transactionId],
         ]);
+
+        broadcast(new NewNotification($notification));
+
+        return $notification;
     }
 
     public static function itemShipped(int $userId, int $transactionId, string $trackingNumber): self
     {
-        return self::create([
+        $notification = self::create([
             'user_id' => $userId,
             'type'    => 'item_shipped',
             'title'   => '📦 Barangmu Dikirim!',
@@ -83,11 +88,15 @@ class Notification extends Model
             'url'     => "/dashboard",
             'data'    => ['transaction_id' => $transactionId, 'tracking_number' => $trackingNumber],
         ]);
+
+        broadcast(new NewNotification($notification));
+
+        return $notification;
     }
 
     public static function transactionCompleted(int $userId, int $transactionId): self
     {
-        return self::create([
+        $notification = self::create([
             'user_id' => $userId,
             'type'    => 'transaction_completed',
             'title'   => '✅ Transaksi Selesai!',
@@ -95,23 +104,31 @@ class Notification extends Model
             'url'     => "/dashboard",
             'data'    => ['transaction_id' => $transactionId],
         ]);
+
+        broadcast(new NewNotification($notification));
+
+        return $notification;
     }
 
-    public static function newMessage(int $userId, string $senderName, int $conversationId): self
+    public static function newMessage(int $userId, string $senderName, int $conversationId, int $senderId): self
     {
-        return self::create([
+        $notification = self::create([
             'user_id' => $userId,
             'type'    => 'new_message',
             'title'   => '💬 Pesan Baru',
             'body'    => "{$senderName} mengirimkan pesan kepadamu.",
-            'url'     => "/chat",
-            'data'    => ['conversation_id' => $conversationId],
+            'url'     => "/chat/with/{$senderId}",
+            'data'    => ['conversation_id' => $conversationId, 'sender_id' => $senderId],
         ]);
+
+        broadcast(new NewNotification($notification));
+
+        return $notification;
     }
 
     public static function newListing(int $userId, string $memberName): self
     {
-        return self::create([
+        $notification = self::create([
             'user_id' => $userId,
             'type'    => 'new_listing',
             'title'   => '🌟 Merch Baru Tersedia!',
@@ -119,5 +136,25 @@ class Notification extends Model
             'url'     => "/products",
             'data'    => ['member_name' => $memberName],
         ]);
+
+        broadcast(new NewNotification($notification));
+
+        return $notification;
+    }
+
+    public static function reviewReceived(int $userId, int $transactionId, string $reviewerName): self
+    {
+        $notification = self::create([
+            'user_id' => $userId,
+            'type'    => 'review_received',
+            'title'   => '⭐ Ulasan Baru Masuk!',
+            'body'    => "{$reviewerName} memberikan ulasan untuk transaksimu.",
+            'url'     => "/dashboard",
+            'data'    => ['transaction_id' => $transactionId],
+        ]);
+
+        broadcast(new NewNotification($notification));
+
+        return $notification;
     }
 }

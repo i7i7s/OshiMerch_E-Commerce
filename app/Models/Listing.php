@@ -120,6 +120,7 @@ class Listing extends Model
         return match ($sort) {
             'price_asc'  => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
+            'terlaris'   => $query->withCount('transactions')->orderByDesc('transactions_count'),
             default      => $query->orderBy('created_at', 'desc'), // 'latest'
         };
     }

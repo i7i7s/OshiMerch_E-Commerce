@@ -33,7 +33,7 @@ class ProfileController extends Controller
 
         if ($request->hasFile('profile_picture')) {
             $path = $request->file('profile_picture')->store('profiles', 'public');
-            $validated['profile_picture_url'] = '/storage/' . $path;
+            $validated['profile_picture_url'] = $path;
         }
 
         $request->user()->fill($validated);
