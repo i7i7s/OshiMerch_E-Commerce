@@ -17,6 +17,8 @@ class Transaction extends Model
         'payment_method',
         'shipping_address',
         'shipping_province',
+        'shipping_city',
+        'shipping_district',
         'shipping_fee',
         'recipient_name',
         'recipient_phone',

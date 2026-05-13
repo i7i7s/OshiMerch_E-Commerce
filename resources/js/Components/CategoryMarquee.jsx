@@ -5,15 +5,15 @@ function CategoryPill({ category }) {
     return (
         <motion.a
             href={`#${category.id}`}
-            whileHover={{ scale: 1.05, y: -2 }}
+            whileHover={{ scale: 1.05, y: -4, rotate: (Math.random() - 0.5) * 4 }}
             whileTap={{ scale: 0.97 }}
-            className="shrink-0 flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-surface-200/80 hover:border-primary-200 hover:shadow-card-hover transition-all duration-200 group cursor-pointer"
+            className="shrink-0 flex items-center gap-3 px-5 py-3 bg-[#BAE6FD] border-4 border-surface-900 hover:bg-[#FEF08A] hover:shadow-[6px_6px_0_0_#0f172a] shadow-[4px_4px_0_0_#0f172a] transition-all duration-200 group cursor-pointer"
         >
-            <span className="text-2xl group-hover:scale-110 transition-transform">{category.icon}</span>
+            <span className="text-3xl group-hover:scale-110 transition-transform drop-shadow-[2px_2px_0_#0f172a]">{category.icon}</span>
             <div>
-                <p className="text-sm font-semibold text-surface-800 group-hover:text-primary-600 transition-colors">{category.name}</p>
-                <p className="text-[11px] text-surface-400">
-                    {category.count > 0 ? `${category.count} produk` : 'Segera hadir'}
+                <p className="text-sm font-black uppercase tracking-widest text-surface-900">{category.name}</p>
+                <p className="text-[10px] font-bold text-surface-900 bg-white px-1 border-2 border-surface-900 inline-block mt-0.5 shadow-[2px_2px_0_0_#0f172a]">
+                    {category.count > 0 ? `${category.count} PRODUK` : 'SEGERA HADIR'}
                 </p>
             </div>
         </motion.a>
@@ -31,20 +31,22 @@ export default function CategoryMarquee({ categoryCounts = {} }) {
     const doubled = [...categories, ...categories];
 
     return (
-        <section className="py-12 sm:py-16 overflow-hidden">
+        <section className="py-12 sm:py-16 overflow-hidden bg-[url('/img/grid.svg')] bg-[length:24px_24px]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="flex items-end justify-between"
+                    className="flex flex-col items-start"
                 >
-                    <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold font-display text-surface-900 tracking-tight">
-                            Jelajahi Kategori 🔥
+                    <div className="bg-[#FEF08A] px-4 py-2 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] transform -rotate-1 mb-2">
+                        <h2 className="text-2xl sm:text-3xl font-black font-display text-surface-900 tracking-tight uppercase">
+                            JELAJAHI KATEGORI 🔥
                         </h2>
-                        <p className="text-surface-500 mt-1 text-sm sm:text-base">Temukan merchandise berdasarkan kategori favoritmu</p>
                     </div>
+                    <p className="text-surface-900 bg-white px-3 py-1 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] mt-1 text-sm sm:text-base font-bold uppercase transform rotate-1">
+                        TEMUKAN MERCHANDISE BERDASARKAN KATEGORI FAVORITMU
+                    </p>
                 </motion.div>
             </div>
 

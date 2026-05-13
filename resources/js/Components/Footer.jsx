@@ -19,42 +19,47 @@ const MailIcon = () => (
 
 export default function Footer() {
     return (
-        <div className="bg-surface-50 pt-10 sm:pt-20">
-            {/* The Floating Footer Container */}
-            <footer className="bg-surface-900 text-surface-300 rounded-t-[3rem] sm:rounded-t-[4rem] relative overflow-hidden shadow-2xl mt-8">
+        <div className="bg-[#FAFAFA] pt-10 sm:pt-20 border-t-4 border-surface-900 mt-16">
+            {/* The Bold Footer Container */}
+            <footer className="bg-surface-900 text-surface-100 relative overflow-hidden">
                 
-                {/* Background ambient glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-32 bg-gradient-to-r from-primary-500/20 to-purple-600/20 blur-[100px] pointer-events-none rounded-full" />
+                {/* Decorative Dots Top Border */}
+                <div className="absolute top-0 left-0 right-0 h-4 bg-[radial-gradient(#475569_2px,transparent_2px)] [background-size:10px_10px]" />
 
-                <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-20 pb-10 relative z-10">
+                <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-16 pb-10 relative z-10">
                     
                     {/* TOP SECTION: The Quote & Brand */}
-                    <div className="flex flex-col lg:flex-row justify-between items-start gap-12 border-b border-surface-800 pb-16 mb-16">
+                    <div className="flex flex-col lg:flex-row justify-between items-start gap-12 border-b-4 border-surface-800 pb-16 mb-16">
                         <div className="lg:w-1/2">
-                            <div className="flex items-center gap-3 mb-8">
-                                <img src="/images/logo.png" alt="OshiMerch" className="w-12 h-12 rounded-2xl shadow-lg shadow-purple-500/20" />
-                                <span className="text-3xl font-bold font-display text-white tracking-tight">Oshi<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-purple-500">Merch</span></span>
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="bg-primary-400 border-2 border-surface-900 p-2 rounded-2xl shadow-[4px_4px_0_0_#0f172a] -rotate-3 hover:rotate-0 transition-transform">
+                                    <img src="/images/logo.png" alt="OshiMerch" className="w-12 h-12 object-contain" />
+                                </div>
+                                <span className="text-4xl font-black font-display text-white tracking-tighter uppercase">Oshi<span className="text-primary-400">Merch</span></span>
                             </div>
                             
-                            {/* The User's Beautiful Quote */}
-                            <div className="relative">
-                                <svg className="absolute -top-4 -left-6 w-12 h-12 text-surface-800 transform -scale-x-100" fill="currentColor" viewBox="0 0 24 24">
+                            {/* The User's Beautiful Quote in Block Style */}
+                            <div className="relative bg-white text-surface-900 p-6 sm:p-8 rounded-3xl border-4 border-surface-900 shadow-[8px_8px_0_0_#475569] mt-6">
+                                <svg className="absolute -top-6 -left-4 w-12 h-12 text-[#FEF08A] drop-shadow-[2px_2px_0_rgba(15,23,42,1)] transform -scale-x-100" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                                 </svg>
-                                <p className="text-xl sm:text-2xl font-display font-medium leading-relaxed text-surface-200 relative z-10 italic">
-                                    "Dibuat dengan <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-purple-400 font-bold">passion</span>, dihadirkan dengan <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-purple-400 font-bold">cinta</span>, diwujudkan untuk <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-purple-400 font-bold">mimpimu</span>. Karena setiap pilihan yang kamu buat di sini adalah langkah menuju versi terbaik dirimu."
+                                <p className="text-lg sm:text-xl font-bold font-sans leading-relaxed relative z-10 italic">
+                                    "Dibuat dengan <span className="bg-primary-400 px-1 border border-surface-900 rounded font-black text-white transform -rotate-1 inline-block">passion</span>, dihadirkan dengan <span className="bg-[#BAE6FD] px-1 border border-surface-900 rounded font-black text-surface-900 transform rotate-1 inline-block">cinta</span>, diwujudkan untuk <span className="bg-[#FBCFE8] px-1 border border-surface-900 rounded font-black text-surface-900 inline-block">mimpimu</span>. Karena setiap pilihan yang kamu buat di sini adalah langkah menuju versi terbaik dirimu."
                                 </p>
                             </div>
                         </div>
 
-                        <div className="lg:w-1/3 w-full bg-surface-800/50 backdrop-blur-md rounded-3xl p-8 border border-surface-700/50 hover:border-purple-500/30 transition-colors">
-                            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-                                <MailIcon /> Hubungi Kami
+                        <div className="lg:w-1/3 w-full bg-[#FEF08A] text-surface-900 rounded-3xl p-8 border-4 border-surface-900 shadow-[8px_8px_0_0_#475569] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[12px_12px_0_0_#475569] transition-all">
+                            <h3 className="font-black text-2xl uppercase tracking-tight mb-4 flex items-center gap-3">
+                                <span className="bg-white p-2 rounded-xl border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">
+                                    <MailIcon />
+                                </span> 
+                                Hubungi Kami
                             </h3>
-                            <p className="text-surface-400 mb-6 text-sm leading-relaxed">
+                            <p className="font-bold mb-6 text-sm leading-relaxed text-surface-700">
                                 Punya pertanyaan atau butuh bantuan dengan pesananmu? Tim dukungan wota kami siap membantu 24/7.
                             </p>
-                            <a href="mailto:support@oshimerch.id" className="inline-flex items-center justify-center w-full bg-gradient-to-r from-primary-500 to-purple-600 hover:from-primary-400 hover:to-purple-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-purple-500/20 active:scale-95">
+                            <a href="mailto:support@oshimerch.id" className="inline-flex items-center justify-center w-full bg-surface-900 hover:bg-surface-800 text-white font-black uppercase tracking-wider py-4 px-6 rounded-xl border-2 border-transparent transition-all shadow-[4px_4px_0_0_rgba(255,255,255,0.2)] active:translate-y-1 active:translate-x-1 active:shadow-none">
                                 support@oshimerch.id
                             </a>
                         </div>
@@ -64,11 +69,11 @@ export default function Footer() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
                         {/* Kategori */}
                         <div className="col-span-1">
-                            <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Kategori</h4>
-                            <ul className="space-y-3.5">
+                            <h4 className="text-sm font-black text-white uppercase tracking-widest mb-6 border-b-2 border-surface-700 pb-2 inline-block">Kategori</h4>
+                            <ul className="space-y-4">
                                 {CATEGORIES.slice(0, 5).map((cat) => (
                                     <li key={cat.id}>
-                                        <a href="#" className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">
+                                        <a href="#" className="font-bold text-surface-300 hover:text-[#FEF08A] hover:translate-x-2 transition-transform inline-block">
                                             {cat.name}
                                         </a>
                                     </li>
@@ -78,27 +83,27 @@ export default function Footer() {
 
                         {/* Navigasi */}
                         <div className="col-span-1">
-                            <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Navigasi</h4>
-                            <ul className="space-y-3.5">
+                            <h4 className="text-sm font-black text-white uppercase tracking-widest mb-6 border-b-2 border-surface-700 pb-2 inline-block">Navigasi</h4>
+                            <ul className="space-y-4">
                                 <li>
-                                    <Link href={route('products.index')} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">Semua Produk</Link>
+                                    <Link href={route('products.index')} className="font-bold text-surface-300 hover:text-[#BAE6FD] hover:translate-x-2 transition-transform inline-block">Semua Produk</Link>
                                 </li>
                                 <li>
-                                    <Link href={route('about')} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">Tentang Kami</Link>
+                                    <Link href={route('about')} className="font-bold text-surface-300 hover:text-[#BAE6FD] hover:translate-x-2 transition-transform inline-block">Tentang Kami</Link>
                                 </li>
                                 <li>
-                                    <Link href={route('members')} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">Daftar Member</Link>
+                                    <Link href={route('members')} className="font-bold text-surface-300 hover:text-[#BAE6FD] hover:translate-x-2 transition-transform inline-block">Daftar Member</Link>
                                 </li>
                             </ul>
                         </div>
 
                         {/* Bantuan */}
                         <div className="col-span-1">
-                            <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Bantuan</h4>
-                            <ul className="space-y-3.5">
+                            <h4 className="text-sm font-black text-white uppercase tracking-widest mb-6 border-b-2 border-surface-700 pb-2 inline-block">Bantuan</h4>
+                            <ul className="space-y-4">
                                 {['Cara Beli', 'Cara Jual', 'FAQ'].map((item) => (
                                     <li key={item}>
-                                        <Link href={route('help', { tab: slugify(item) })} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">
+                                        <Link href={route('help', { tab: slugify(item) })} className="font-bold text-surface-300 hover:text-[#FBCFE8] hover:translate-x-2 transition-transform inline-block">
                                             {item}
                                         </Link>
                                     </li>
@@ -108,11 +113,11 @@ export default function Footer() {
 
                         {/* Legal */}
                         <div className="col-span-1">
-                            <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Legalitas</h4>
-                            <ul className="space-y-3.5">
+                            <h4 className="text-sm font-black text-white uppercase tracking-widest mb-6 border-b-2 border-surface-700 pb-2 inline-block">Legalitas</h4>
+                            <ul className="space-y-4">
                                 {['Privasi', 'Ketentuan', 'Refund'].map((item) => (
                                     <li key={item}>
-                                        <Link href={route('help', { tab: slugify(item) })} className="text-sm font-medium text-surface-400 hover:text-purple-400 hover:translate-x-1 transition-all inline-block">
+                                        <Link href={route('help', { tab: slugify(item) })} className="font-bold text-surface-300 hover:text-primary-400 hover:translate-x-2 transition-transform inline-block">
                                             {item}
                                         </Link>
                                     </li>
@@ -122,17 +127,17 @@ export default function Footer() {
                     </div>
 
                     {/* BOTTOM SECTION */}
-                    <div className="pt-8 border-t border-surface-800 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-4 text-xs font-medium text-surface-500">
+                    <div className="pt-8 border-t-4 border-surface-800 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-4 text-sm font-bold text-surface-400 uppercase tracking-widest">
                             <span>&copy; {new Date().getFullYear()} OshiMerch.</span>
-                            <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-surface-700"></span>
+                            <span className="hidden sm:inline-block w-2 h-2 rounded-sm bg-primary-500 transform rotate-45"></span>
                             <span>All rights reserved.</span>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             {['Instagram', 'Twitter', 'TikTok'].map((social) => (
-                                <a key={social} href="#" className="w-10 h-10 rounded-xl bg-surface-800 hover:bg-purple-600 flex items-center justify-center text-surface-400 hover:text-white transition-all text-xs font-bold shadow-sm hover:shadow-purple-500/20 hover:-translate-y-1">
-                                    {social.substring(0, 2).toUpperCase()}
+                                <a key={social} href="#" className="w-12 h-12 rounded-2xl bg-white text-surface-900 border-2 border-surface-900 flex items-center justify-center font-black text-xs uppercase shadow-[4px_4px_0_0_#475569] hover:bg-[#FEF08A] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#475569] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all">
+                                    {social.substring(0, 2)}
                                 </a>
                             ))}
                         </div>

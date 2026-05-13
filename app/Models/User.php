@@ -33,6 +33,7 @@ class User extends Authenticatable
         'default_address_index',
         'role',
         'onboarding_completed',
+        'banned_at',
     ];
 
     /**
@@ -58,6 +59,7 @@ class User extends Authenticatable
             'onboarding_completed' => 'boolean',
             'addresses'            => 'array',
             'default_address_index'=> 'integer',
+            'banned_at'            => 'datetime',
         ];
     }
 

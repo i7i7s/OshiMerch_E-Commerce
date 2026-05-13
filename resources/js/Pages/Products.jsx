@@ -56,16 +56,16 @@ function useDebounce(value, delay = 300) {
     return debounced;
 }
 
-// ─── Skeleton loader ─────────────────────────────────────────────────────────
+// ─── Skeleton loader (Brutalist) ─────────────────────────────────────────────────────────
 
 function CardSkeleton() {
     return (
-        <div className="bg-white rounded-2xl border-4 border-surface-100 overflow-hidden shadow-sm">
-            <div className="aspect-[3/4] skeleton" />
-            <div className="p-5 space-y-3">
-                <div className="h-5 w-3/4 skeleton rounded" />
-                <div className="h-4 w-1/2 skeleton rounded" />
-                <div className="h-6 w-1/3 skeleton rounded mt-4" />
+        <div className="bg-white rounded-2xl border-4 border-surface-900 overflow-hidden shadow-[4px_4px_0_0_#0f172a]">
+            <div className="aspect-[3/4] bg-surface-200 animate-pulse border-b-4 border-surface-900" />
+            <div className="p-5 space-y-4 bg-surface-50">
+                <div className="h-6 w-3/4 bg-surface-200 animate-pulse rounded border-2 border-surface-900" />
+                <div className="h-5 w-1/2 bg-surface-200 animate-pulse rounded border-2 border-surface-900" />
+                <div className="h-8 w-1/3 bg-surface-200 animate-pulse rounded mt-4 border-2 border-surface-900" />
             </div>
         </div>
     );
@@ -84,20 +84,20 @@ function FilterPanel({ filters, onChange, onClose, isMobile = false }) {
         <div className="space-y-8">
             {/* Team filter */}
             <div>
-                <h3 className="text-sm font-black font-display text-surface-900 uppercase tracking-widest mb-4">Tim JKT48</h3>
-                <div className="flex flex-wrap gap-2">
+                <h3 className="text-sm font-black font-display text-surface-900 uppercase tracking-widest mb-4 bg-[#FEF08A] inline-block px-2 border-2 border-surface-900 rounded transform -rotate-2">Tim JKT48</h3>
+                <div className="flex flex-wrap gap-3">
                     {TEAMS.map((t) => (
                         <button
                             key={t.value}
                             onClick={() => update('team', t.value)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border-2 ${
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none ${
                                 teamVal === t.value
-                                    ? 'bg-surface-900 border-surface-900 text-white shadow-md'
-                                    : 'bg-white border-surface-200 text-surface-600 hover:border-surface-400'
+                                    ? 'bg-surface-900 text-white shadow-none translate-y-1 translate-x-1'
+                                    : 'bg-white text-surface-900'
                             }`}
                         >
                             {t.color && (
-                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: t.color }} />
+                                <span className="w-3 h-3 border-2 border-surface-900 shrink-0 shadow-[1px_1px_0_0_#0f172a]" style={{ backgroundColor: t.color }} />
                             )}
                             {t.label}
                         </button>
@@ -107,16 +107,16 @@ function FilterPanel({ filters, onChange, onClose, isMobile = false }) {
 
             {/* Condition filter */}
             <div>
-                <h3 className="text-sm font-black font-display text-surface-900 uppercase tracking-widest mb-4">Kondisi</h3>
-                <div className="flex flex-col gap-2">
+                <h3 className="text-sm font-black font-display text-surface-900 uppercase tracking-widest mb-4 bg-[#A7F3D0] inline-block px-2 border-2 border-surface-900 rounded transform rotate-1">Kondisi</h3>
+                <div className="flex flex-col gap-3">
                     {CONDITIONS.map((c) => (
                         <button
                             key={c.value}
                             onClick={() => update('condition', c.value)}
-                            className={`w-full flex items-center px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border-2 ${
+                            className={`w-full flex items-center px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none ${
                                 condVal === c.value
-                                    ? 'bg-primary-50 border-primary-500 text-primary-700'
-                                    : 'bg-white border-surface-200 text-surface-600 hover:border-surface-400'
+                                    ? 'bg-[#BAE6FD] text-surface-900 shadow-none translate-y-1 translate-x-1'
+                                    : 'bg-white text-surface-900'
                             }`}
                         >
                             {c.label}
@@ -127,22 +127,22 @@ function FilterPanel({ filters, onChange, onClose, isMobile = false }) {
 
             {/* Price range */}
             <div>
-                <h3 className="text-sm font-black font-display text-surface-900 uppercase tracking-widest mb-4">Harga</h3>
+                <h3 className="text-sm font-black font-display text-surface-900 uppercase tracking-widest mb-4 bg-[#FECDD3] inline-block px-2 border-2 border-surface-900 rounded transform -rotate-1">Harga</h3>
                 <div className="flex items-center gap-3">
                     <input
                         type="number"
                         placeholder="MIN"
                         value={filters.price_min || ''}
                         onChange={(e) => onChange({ ...filters, price_min: e.target.value || undefined })}
-                        className="w-full px-4 py-3 rounded-xl border-2 border-surface-200 text-sm font-bold text-surface-900 placeholder-surface-400 focus:outline-none focus:border-primary-500 transition-colors"
+                        className="w-full px-4 py-3 rounded-xl border-4 border-surface-900 bg-surface-50 text-sm font-bold text-surface-900 placeholder-surface-400 focus:outline-none focus:bg-[#FEF08A] transition-colors"
                     />
-                    <span className="text-surface-400 font-bold">-</span>
+                    <span className="text-surface-900 font-black text-xl">-</span>
                     <input
                         type="number"
                         placeholder="MAX"
                         value={filters.price_max || ''}
                         onChange={(e) => onChange({ ...filters, price_max: e.target.value || undefined })}
-                        className="w-full px-4 py-3 rounded-xl border-2 border-surface-200 text-sm font-bold text-surface-900 placeholder-surface-400 focus:outline-none focus:border-primary-500 transition-colors"
+                        className="w-full px-4 py-3 rounded-xl border-4 border-surface-900 bg-surface-50 text-sm font-bold text-surface-900 placeholder-surface-400 focus:outline-none focus:bg-[#FEF08A] transition-colors"
                     />
                 </div>
             </div>
@@ -156,31 +156,31 @@ function FilterPanel({ filters, onChange, onClose, isMobile = false }) {
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-                className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-[2rem] shadow-2xl max-h-[90dvh] overflow-y-auto border-t-4 border-surface-900"
+                className="fixed inset-x-0 bottom-0 z-50 bg-[#FAFAFA] rounded-t-3xl shadow-[0_-8px_0_0_#0f172a] max-h-[90dvh] overflow-y-auto border-4 border-surface-900 border-b-0"
             >
-                <div className="sticky top-0 bg-white px-6 pt-6 pb-4 flex items-center justify-between border-b border-surface-100 z-10">
-                    <h2 className="font-black font-display text-2xl text-surface-900 uppercase">Filter</h2>
+                <div className="sticky top-0 bg-[#FAFAFA] px-6 pt-6 pb-4 flex items-center justify-between border-b-4 border-surface-900 z-10">
+                    <h2 className="font-black font-display text-3xl text-surface-900 uppercase tracking-tighter">FILTER</h2>
                     <button
                         onClick={onClose}
-                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-100 hover:bg-surface-200 transition-colors"
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#FECDD3] border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_#0f172a] transition-all"
                     >
-                        <X className="w-5 h-5 text-surface-900" />
+                        <X className="w-6 h-6 text-surface-900" />
                     </button>
                 </div>
                 <div className="px-6 py-6">{content}</div>
-                <div className="sticky bottom-0 bg-white px-6 py-6 border-t border-surface-100">
+                <div className="sticky bottom-0 bg-[#FAFAFA] px-6 py-6 border-t-4 border-surface-900">
                     <button
                         onClick={onClose}
-                        className="w-full py-4 rounded-xl gradient-primary text-white font-black text-sm uppercase tracking-widest"
+                        className="w-full py-4 rounded-xl bg-surface-900 text-white font-black text-lg uppercase tracking-widest shadow-[4px_4px_0_0_#0f172a] hover:bg-[#FEF08A] hover:text-surface-900 active:translate-y-1 active:translate-x-1 active:shadow-none transition-all"
                     >
-                        Terapkan Filter
+                        TERAPKAN FILTER
                     </button>
                 </div>
             </motion.div>
         );
     }
 
-    return <div className="bg-white rounded-[2rem] border-4 border-surface-100 shadow-sm p-6 lg:p-8">{content}</div>;
+    return <div className="bg-white rounded-3xl border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] p-6 lg:p-8">{content}</div>;
 }
 
 // ─── Empty state ─────────────────────────────────────────────────────────────
@@ -190,35 +190,42 @@ function EmptyState({ hasFilters, auth }) {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-[2rem] border-4 border-surface-100 shadow-sm"
+            className="flex flex-col items-center justify-center py-24 text-center bg-[#FECDD3] rounded-3xl border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] relative overflow-hidden group"
         >
-            <div className="w-24 h-24 rounded-[2rem] bg-surface-100 flex items-center justify-center mb-6">
-                <ShoppingBag className="w-10 h-10 text-surface-400" />
+            <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.2] pointer-events-none" />
+            
+            <div className="w-24 h-24 rounded-2xl bg-white border-4 border-surface-900 flex items-center justify-center mb-8 shadow-[4px_4px_0_0_#0f172a] transform -rotate-6 group-hover:rotate-0 transition-transform relative z-10">
+                <ShoppingBag className="w-12 h-12 text-surface-900" />
             </div>
-            <h3 className="text-3xl font-black font-display text-surface-900 mb-3 uppercase tracking-tight">
-                {hasFilters ? 'KOSONG.' : 'BELUM ADA LISTING.'}
+            
+            <h3 className="text-4xl sm:text-5xl font-black font-display text-surface-900 mb-4 uppercase tracking-tighter relative z-10" style={{ textShadow: '2px 2px 0px white' }}>
+                {hasFilters ? 'KOSONG MELOMPONG!' : 'BELUM ADA LISTING.'}
             </h3>
-            <p className="text-surface-500 font-medium text-lg max-w-sm mb-8">
+            
+            <p className="text-surface-900 font-bold text-lg max-w-sm mb-10 bg-white px-4 py-2 border-2 border-surface-900 rounded-xl shadow-[2px_2px_0_0_#0f172a] relative z-10">
                 {hasFilters
-                    ? 'Coba gunakan kata kunci lain atau kurangi filter.'
+                    ? 'Coba gunakan kata kunci lain atau kurangi filter yang kamu pilih.'
                     : 'Jadilah yang pertama membuka pasar merchandise JKT48!'}
             </p>
-            {auth?.user ? (
-                <Link
-                    href={route('listings.create')}
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl gradient-primary text-white font-black text-sm uppercase tracking-widest shadow-glow-primary hover:shadow-xl hover:scale-105 transition-all"
-                >
-                    <Plus className="w-5 h-5" />
-                    Jual Sekarang
-                </Link>
-            ) : (
-                <a
-                    href={route('google.redirect')}
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-surface-900 text-white font-black text-sm uppercase tracking-widest hover:bg-surface-800 hover:scale-105 transition-all"
-                >
-                    Login & Jual
-                </a>
-            )}
+            
+            <div className="relative z-10">
+                {auth?.user ? (
+                    <Link
+                        href={route('listings.create')}
+                        className="inline-flex items-center gap-3 px-8 py-5 rounded-xl bg-surface-900 text-white border-4 border-transparent font-black text-lg uppercase tracking-widest shadow-[6px_6px_0_0_rgba(15,23,42,0.2)] hover:bg-[#FEF08A] hover:text-surface-900 hover:border-surface-900 hover:shadow-[8px_8px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 transition-all active:translate-y-1 active:translate-x-1 active:shadow-none"
+                    >
+                        <Plus className="w-6 h-6" />
+                        JUAL SEKARANG
+                    </Link>
+                ) : (
+                    <a
+                        href={route('google.redirect')}
+                        className="inline-flex items-center gap-3 px-8 py-5 rounded-xl bg-[#BAE6FD] text-surface-900 border-4 border-surface-900 font-black text-lg uppercase tracking-widest shadow-[6px_6px_0_0_#0f172a] hover:bg-[#FEF08A] hover:shadow-[8px_8px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 transition-all active:translate-y-1 active:translate-x-1 active:shadow-none"
+                    >
+                        LOGIN & JUAL
+                    </a>
+                )}
+            </div>
         </motion.div>
     );
 }
@@ -240,28 +247,28 @@ function Pagination({ meta, onPage }) {
     });
 
     return (
-        <div className="flex items-center justify-center gap-2 pt-12">
+        <div className="flex items-center justify-center gap-3 pt-12">
             <button
                 onClick={() => onPage(current_page - 1)}
                 disabled={current_page === 1}
-                className="w-12 h-12 rounded-xl flex items-center justify-center border-2 border-surface-200 text-surface-900 hover:bg-surface-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="w-12 h-12 rounded-xl flex items-center justify-center border-4 border-surface-900 bg-white text-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:bg-[#FEF08A] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 transition-all"
             >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-6 h-6" />
             </button>
 
             {rendered.map((item, i) =>
                 item === '...' ? (
-                    <span key={`dots-${i}`} className="w-12 h-12 flex items-center justify-center text-surface-400 font-bold">
+                    <span key={`dots-${i}`} className="w-12 h-12 flex items-center justify-center text-surface-900 font-black text-xl bg-[#FAFAFA] border-4 border-surface-900 rounded-xl">
                         ···
                     </span>
                 ) : (
                     <button
                         key={item}
                         onClick={() => onPage(item)}
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center font-black transition-all ${
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg transition-all border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none ${
                             item === current_page
-                                ? 'gradient-primary text-white shadow-lg'
-                                : 'bg-white border-2 border-surface-200 text-surface-900 hover:border-surface-400'
+                                ? 'bg-surface-900 text-white shadow-[2px_2px_0_0_#0f172a] translate-y-0.5 translate-x-0.5'
+                                : 'bg-white text-surface-900 hover:bg-[#A7F3D0]'
                         }`}
                     >
                         {item}
@@ -272,9 +279,9 @@ function Pagination({ meta, onPage }) {
             <button
                 onClick={() => onPage(current_page + 1)}
                 disabled={current_page === last_page}
-                className="w-12 h-12 rounded-xl flex items-center justify-center border-2 border-surface-200 text-surface-900 hover:bg-surface-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="w-12 h-12 rounded-xl flex items-center justify-center border-4 border-surface-900 bg-white text-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:bg-[#FEF08A] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 transition-all"
             >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-6 h-6" />
             </button>
         </div>
     );
@@ -344,40 +351,37 @@ export default function Products({ listings, filters: serverFilters, auth }) {
     return (
         <>
             <Head title="Produk — OshiMerch" />
-            <div className="min-h-dvh bg-surface-50 flex flex-col font-sans selection:bg-primary-500 selection:text-white">
+            <div className="min-h-dvh bg-[#FAFAFA] flex flex-col font-sans selection:bg-surface-900 selection:text-[#FEF08A]">
                 <Navbar auth={auth} />
 
                 {/* Hero / Header Halaman */}
-                <div className="bg-surface-950 text-white pt-32 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+                <div className="bg-[#BAE6FD] border-b-4 border-surface-900 pt-32 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
                     {/* Animated background element */}
-                    <motion.div 
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                        className="absolute -top-[50%] -right-[10%] w-[800px] h-[800px] bg-gradient-to-br from-primary-600/20 to-purple-600/20 rounded-full blur-[80px] pointer-events-none"
-                    />
+                    <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.3]" />
 
                     <div className="max-w-7xl mx-auto relative z-10">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                             <div>
-                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
-                                    <span className="inline-block py-1 px-3 bg-white/10 text-primary-400 text-xs font-black uppercase tracking-[0.2em] rounded-full border border-white/10">
-                                        Marketplace
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+                                    <span className="inline-block py-2 px-4 bg-white border-4 border-surface-900 text-surface-900 text-xs font-black uppercase tracking-widest rounded-xl shadow-[4px_4px_0_0_#0f172a] transform -rotate-2">
+                                        MARKETPLACE
                                     </span>
                                 </motion.div>
                                 <motion.h1 
                                     initial={{ opacity: 0, y: 20 }} 
                                     animate={{ opacity: 1, y: 0 }} 
                                     transition={{ delay: 0.1 }}
-                                    className="text-6xl md:text-8xl font-black font-display uppercase tracking-tighter leading-[0.85] mb-2"
+                                    className="text-6xl md:text-[7rem] font-black font-display text-surface-900 uppercase tracking-tighter leading-[0.85] mb-4"
+                                    style={{ textShadow: '4px 4px 0px white, 6px 6px 0px #0f172a' }}
                                 >
-                                    THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-purple-600">MERCH.</span><br/>
+                                    THE MERCH.<br/>
                                     THE LEGACY.
                                 </motion.h1>
                                 <motion.p 
                                     initial={{ opacity: 0 }} 
                                     animate={{ opacity: 1 }} 
                                     transition={{ delay: 0.2 }}
-                                    className="text-surface-400 font-medium max-w-xl text-lg mt-6"
+                                    className="text-surface-900 font-bold bg-white inline-block px-4 py-2 border-2 border-surface-900 rounded-xl shadow-[2px_2px_0_0_#0f172a] text-lg mt-4 transform rotate-1"
                                 >
                                     {meta ? `Menampilkan ${meta.total.toLocaleString('id-ID')} item eksklusif dari fandom JKT48.` : 'Jelajahi koleksi merchandise incaranmu.'}
                                 </motion.p>
@@ -387,32 +391,34 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}>
                                     <Link
                                         href={route('listings.create')}
-                                        className="inline-flex items-center gap-3 px-8 py-5 rounded-full bg-white text-surface-950 font-black text-sm uppercase tracking-widest hover:scale-105 hover:bg-primary-50 hover:text-primary-600 transition-all shadow-xl"
+                                        className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl bg-surface-900 text-white font-black text-lg uppercase tracking-widest border-4 border-transparent hover:bg-[#FEF08A] hover:text-surface-900 hover:border-surface-900 transition-all shadow-[8px_8px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[12px_12px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none"
                                     >
-                                        <Plus className="w-5 h-5" />
-                                        Jual Item
+                                        <Plus className="w-6 h-6" />
+                                        JUAL ITEM
                                     </Link>
                                 </motion.div>
                             )}
                         </div>
 
                         {/* Category chips - Brutalist Scroll */}
-                        <div className="flex gap-3 mt-16 overflow-x-auto pb-4 scrollbar-hide">
+                        <div className="flex gap-4 mt-16 overflow-x-auto pb-6 pt-2 px-2 scrollbar-hide">
                             {CATEGORIES.map((cat) => (
                                 <button
                                     key={cat.id}
                                     onClick={() =>
                                         handleFilterChange({ ...filters, category: cat.id === 'ALL' ? undefined : cat.id })
                                     }
-                                    className={`shrink-0 px-6 py-3 rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 border-2 ${
+                                    className={`shrink-0 px-8 py-4 rounded-xl text-sm font-black tracking-widest uppercase transition-all duration-300 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none ${
                                         (filters.category || 'ALL') === cat.id
-                                            ? 'bg-primary-500 border-primary-500 text-white shadow-[0_4px_15px_rgba(244,63,94,0.4)]'
-                                            : 'bg-transparent border-surface-700 text-surface-300 hover:border-white hover:text-white'
+                                            ? 'bg-surface-900 text-white shadow-[2px_2px_0_0_#0f172a] translate-y-1 translate-x-1'
+                                            : 'bg-white text-surface-900'
                                     }`}
                                 >
                                     {cat.name}
                                 </button>
                             ))}
+                            {/* Spacer to prevent last item from clipping its shadow */}
+                            <div className="shrink-0 w-2 md:w-6" />
                         </div>
                     </div>
                 </div>
@@ -420,8 +426,10 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                 <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
                     <div className="flex gap-8 lg:gap-12">
                         {/* Desktop filter sidebar */}
-                        <aside className="hidden lg:block w-72 shrink-0">
-                            <FilterPanel filters={filters} onChange={handleFilterChange} />
+                        <aside className="hidden lg:block w-80 shrink-0">
+                            <div className="sticky top-28">
+                                <FilterPanel filters={filters} onChange={handleFilterChange} />
+                            </div>
                         </aside>
 
                         {/* Main content */}
@@ -430,20 +438,20 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8">
                                 {/* Search */}
                                 <div className="relative flex-1">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-400" />
+                                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-surface-900 font-black" />
                                     <input
                                         type="search"
                                         value={localSearch}
                                         onChange={(e) => setLocalSearch(e.target.value)}
-                                        placeholder="Cari item..."
-                                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-surface-200 bg-white text-surface-900 font-bold placeholder-surface-400 focus:outline-none focus:border-primary-500 transition-colors"
+                                        placeholder="CARI ITEM..."
+                                        className="w-full pl-14 pr-5 py-5 rounded-2xl border-4 border-surface-900 bg-white text-surface-900 font-black uppercase tracking-widest placeholder-surface-400 focus:outline-none focus:bg-[#FEF08A] focus:shadow-[4px_4px_0_0_#0f172a] transition-all"
                                     />
                                     {localSearch && (
                                         <button
                                             onClick={() => setLocalSearch('')}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full bg-surface-200 hover:bg-surface-300 transition-colors"
+                                            className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-xl bg-[#FECDD3] border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0_0_#0f172a] transition-all"
                                         >
-                                            <X className="w-4 h-4 text-surface-700" />
+                                            <X className="w-5 h-5 text-surface-900" />
                                         </button>
                                     )}
                                 </div>
@@ -453,26 +461,26 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                                     <select
                                         value={filters.sort || 'latest'}
                                         onChange={(e) => handleFilterChange({ ...filters, sort: e.target.value })}
-                                        className="w-full sm:w-auto pl-5 pr-10 py-4 rounded-2xl border-2 border-surface-200 bg-white text-xs font-black uppercase tracking-wider text-surface-900 focus:outline-none focus:border-primary-500 transition-colors appearance-none cursor-pointer"
+                                        className="w-full sm:w-auto pl-6 pr-12 py-5 rounded-2xl border-4 border-surface-900 bg-white text-sm font-black uppercase tracking-widest text-surface-900 focus:outline-none focus:bg-[#BAE6FD] focus:shadow-[4px_4px_0_0_#0f172a] transition-all appearance-none cursor-pointer"
                                     >
                                         {SORTS.map((s) => (
                                             <option key={s.value} value={s.value}>{s.label}</option>
                                         ))}
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-surface-500">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-surface-900">
+                                        <svg className="w-5 h-5 font-black" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
                                 </div>
 
                                 {/* Mobile filter toggle */}
                                 <button
                                     onClick={() => setShowMobileFilter(true)}
-                                    className="lg:hidden relative flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-surface-900 text-white text-xs font-black uppercase tracking-wider hover:bg-surface-800 transition-colors"
+                                    className="lg:hidden relative flex items-center justify-center gap-3 px-6 py-5 rounded-2xl bg-[#FEF08A] border-4 border-surface-900 text-surface-900 text-sm font-black uppercase tracking-widest shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] transition-all"
                                 >
-                                    <SlidersHorizontal className="w-4 h-4" />
-                                    Filter
+                                    <SlidersHorizontal className="w-5 h-5" />
+                                    FILTER
                                     {activeFilterCount > 0 && (
-                                        <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full gradient-primary text-white text-[10px] font-bold flex items-center justify-center border-2 border-white">
+                                        <span className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-surface-900 text-white text-xs font-black flex items-center justify-center border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">
                                             {activeFilterCount}
                                         </span>
                                     )}
@@ -481,30 +489,30 @@ export default function Products({ listings, filters: serverFilters, auth }) {
 
                             {/* Active filter tags */}
                             {hasFilters && (
-                                <div className="flex flex-wrap items-center gap-3 mb-8">
+                                <div className="flex flex-wrap items-center gap-4 mb-10 bg-white p-4 rounded-2xl border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a]">
                                     {debouncedSearch && (
-                                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-900 text-white text-xs font-bold uppercase tracking-wider">
-                                            <Search className="w-3.5 h-3.5" />
+                                        <span className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-[#FEF08A] border-2 border-surface-900 text-surface-900 text-sm font-black uppercase tracking-widest shadow-[2px_2px_0_0_#0f172a]">
+                                            <Search className="w-4 h-4" />
                                             "{debouncedSearch}"
-                                            <button onClick={() => setLocalSearch('')} className="hover:text-primary-400">
-                                                <X className="w-4 h-4" />
+                                            <button onClick={() => setLocalSearch('')} className="hover:text-[#f43f5e]">
+                                                <X className="w-5 h-5" />
                                             </button>
                                         </span>
                                     )}
                                     {filters.team && filters.team !== 'ALL' && (
-                                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-900 text-white text-xs font-bold uppercase tracking-wider">
-                                            <Tag className="w-3.5 h-3.5" />
+                                        <span className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-[#BAE6FD] border-2 border-surface-900 text-surface-900 text-sm font-black uppercase tracking-widest shadow-[2px_2px_0_0_#0f172a]">
+                                            <Tag className="w-4 h-4" />
                                             {TEAMS.find((t) => t.value === filters.team)?.label}
-                                            <button onClick={() => handleFilterChange({ ...filters, team: undefined })} className="hover:text-primary-400">
-                                                <X className="w-4 h-4" />
+                                            <button onClick={() => handleFilterChange({ ...filters, team: undefined })} className="hover:text-[#f43f5e]">
+                                                <X className="w-5 h-5" />
                                             </button>
                                         </span>
                                     )}
                                     {filters.condition && filters.condition !== 'ALL' && (
-                                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-900 text-white text-xs font-bold uppercase tracking-wider">
+                                        <span className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-[#A7F3D0] border-2 border-surface-900 text-surface-900 text-sm font-black uppercase tracking-widest shadow-[2px_2px_0_0_#0f172a]">
                                             {CONDITIONS.find((c) => c.value === filters.condition)?.label}
-                                            <button onClick={() => handleFilterChange({ ...filters, condition: undefined })} className="hover:text-primary-400">
-                                                <X className="w-4 h-4" />
+                                            <button onClick={() => handleFilterChange({ ...filters, condition: undefined })} className="hover:text-[#f43f5e]">
+                                                <X className="w-5 h-5" />
                                             </button>
                                         </span>
                                     )}
@@ -514,17 +522,17 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                                             setFilters({});
                                             applyFilters({});
                                         }}
-                                        className="text-xs font-black uppercase tracking-wider text-primary-600 hover:text-primary-800 underline underline-offset-4 transition-colors"
+                                        className="text-sm font-black uppercase tracking-widest text-[#f43f5e] hover:text-[#e11d48] underline underline-offset-4 ml-auto px-4"
                                     >
-                                        CLEAR ALL
+                                        RESET SEMUA
                                     </button>
                                 </div>
                             )}
 
                             {/* Product grid */}
                             {isNavigating ? (
-                                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    {Array.from({ length: 8 }).map((_, i) => (
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
+                                    {Array.from({ length: 6 }).map((_, i) => (
                                         <CardSkeleton key={i} />
                                     ))}
                                 </div>
@@ -532,7 +540,7 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                                 <EmptyState hasFilters={hasFilters} auth={auth} />
                             ) : (
                                 <motion.div
-                                    className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"
+                                    className="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8"
                                     initial="hidden"
                                     animate="show"
                                     variants={{
@@ -576,7 +584,7 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setShowMobileFilter(false)}
-                            className="fixed inset-0 bg-surface-950/60 backdrop-blur-sm z-40 lg:hidden"
+                            className="fixed inset-0 bg-surface-900/60 backdrop-blur-sm z-40 lg:hidden"
                         />
                         <FilterPanel
                             filters={filters}

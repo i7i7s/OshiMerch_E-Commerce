@@ -2,11 +2,20 @@
 
 namespace App\Policies;
 
+use App\Models\Admin;
 use App\Models\Transaction;
 use App\Models\User;
 
 class TransactionPolicy
 {
+    public function before(User|Admin $user, string $ability): bool|null
+    {
+        if ($user instanceof Admin) {
+            return true;
+        }
+        return null;
+    }
+
     public function view(User $user, Transaction $transaction): bool
     {
         return $user->id === $transaction->buyer_id || $user->id === $transaction->seller_id;
@@ -19,14 +28,12 @@ class TransactionPolicy
     }
 
     /**
-     * Seller confirms that the buyer's payment proof is valid.
-     * Future: when payment gateway is integrated, this step is skipped
-     *         (gateway webhook sets payment_status → 'Confirmed' directly).
+     * Payment confirmation is now handled exclusively by admin via the Filament panel.
+     * The web route is disabled — always return false.
      */
     public function confirmPayment(User $user, Transaction $transaction): bool
     {
-        return $user->id === $transaction->seller_id
-            && $transaction->payment_status === 'Paid';
+        return false;
     }
 
     /**

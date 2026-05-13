@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\TransactionStatusUpdated;
 use App\Models\Listing;
 use App\Models\Notification;
+use App\Models\Setting;
 use App\Models\Transaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,6 +31,8 @@ class TransactionController extends Controller
             'payment_method'    => 'required|in:BCA,Dana,GoPay,ShopeePay,OVO',
             'shipping_address'  => 'required|string|max:500',
             'shipping_province' => 'required|string|in:' . $validProvinces,
+            'shipping_city'     => 'nullable|string|max:150',
+            'shipping_district' => 'nullable|string|max:150',
             'recipient_name'    => 'required|string|max:150',
             'recipient_phone'   => 'nullable|string|max:20',
         ]);
@@ -43,7 +47,11 @@ class TransactionController extends Controller
             return back()->withErrors(['listing_id' => 'Listing ini sudah tidak tersedia.']);
         }
 
-        $shippingFee = config('shipping.provinces.' . $request->shipping_province, 0);
+        $slug        = Str::slug($request->shipping_province, '_');
+        $shippingFee = (int) Setting::get(
+            "oshigo_rate_{$slug}",
+            config('shipping.provinces.' . $request->shipping_province, 0)
+        );
 
         $transaction = Transaction::create([
             'buyer_id'          => Auth::id(),
@@ -53,6 +61,8 @@ class TransactionController extends Controller
             'payment_method'    => $request->payment_method,
             'shipping_address'  => $request->shipping_address,
             'shipping_province' => $request->shipping_province,
+            'shipping_city'     => $request->shipping_city,
+            'shipping_district' => $request->shipping_district,
             'shipping_fee'      => $shippingFee,
             'recipient_name'    => $request->recipient_name,
             'recipient_phone'   => $request->recipient_phone,
@@ -62,8 +72,7 @@ class TransactionController extends Controller
 
         $listing->update(['status' => 'Reserved']);
 
-        // Inertia-compatible redirect (avoids blank white screen on SPA)
-        return Inertia::location(route('transactions.show', $transaction->id));
+        return redirect()->route('transactions.show', $transaction->id);
     }
 
     /**

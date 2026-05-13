@@ -1,0 +1,35 @@
+[
+  {
+    "email": "user@example.com",
+    "title": "[Photocard] Erina - SSK 2024 Official",
+    "description": "Kondisi mulus, jarang dipakai. Beli langsung dari event.",
+    "category": "Photocard",
+    "price": 50000,
+    "condition": "Like New",
+    "featured_member_code": "CATHERINA_VALLENCIA",
+    "featured_member_name": "Catherina Vallencia",
+    "featured_member_team": "PASSION"
+  },
+  {
+    "email": "user2@example.com",
+    "title": "[Album] JKT48 27th Single Sealed",
+    "description": "Sealed original langsung dari toko resmi.",
+    "category": "Album",
+    "price": 120000,
+    "condition": "New",
+    "featured_member_code": "FREYA_JAYAWARDANA",
+    "featured_member_name": "Freya Jayawardana",
+    "featured_member_team": "DREAM"
+  },
+  {
+    "email": "user@example.com",
+    "title": "[Lightstick] Official JKT48 Ver. 4",
+    "description": "Bekas pakai 2x, masih menyala normal. Lengkap dengan box.",
+    "category": "Lightstick",
+    "price": 250000,
+    "condition": "Good",
+    "featured_member_code": "FIONY_ALVERIA",
+    "featured_member_name": "Fiony Alveria",
+    "featured_member_team": "LOVE"
+  }
+]

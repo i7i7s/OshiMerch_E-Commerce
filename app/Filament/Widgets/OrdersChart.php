@@ -9,6 +9,7 @@ class OrdersChart extends ChartWidget
 {
     protected ?string $heading = 'Transaksi per Bulan';
     protected static ?int $sort = 2;
+    protected static bool $isLazy = true;
 
     protected function getData(): array
     {

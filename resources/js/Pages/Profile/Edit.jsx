@@ -1,11 +1,11 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, MapPin, Plus, Pencil, Trash2, Shield, Check, X, Upload, AlertCircle } from 'lucide-react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 
-// ── Address Modal ──────────────────────────────────────────────────────────────
+// ── Address Modal (Brutalist) ──────────────────────────────────────────────────────────────
 function AddressModal({ address, onSave, onClose }) {
     const [form, setForm] = useState(address || {
         label: '', recipient: '', phone: '', full_address: '', city: '', province: '', postal_code: '', is_primary: false,
@@ -15,17 +15,19 @@ function AddressModal({ address, onSave, onClose }) {
     return (
         <AnimatePresence>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 glass-dark flex items-end sm:items-center justify-center p-4 sm:p-6"
+                className="fixed inset-0 z-50 bg-surface-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 sm:p-6"
                 onClick={onClose}>
-                <motion.div initial={{ y: 100, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 100, opacity: 0, scale: 0.95 }}
+                <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="w-full max-w-lg bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-surface-200"
+                    className="w-full max-w-lg bg-white rounded-2xl border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] overflow-hidden"
                     onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center justify-between px-8 py-5 border-b-2 border-surface-100 bg-surface-50">
-                        <h2 className="font-extrabold text-lg font-display text-surface-900">{address ? 'Edit Alamat' : 'Tambah Alamat Baru'}</h2>
-                        <button onClick={onClose} className="p-2 rounded-xl hover:bg-surface-200 text-surface-500 hover:text-surface-900 transition-colors"><X className="w-6 h-6" /></button>
+                    <div className="flex items-center justify-between px-6 py-4 border-b-4 border-surface-900 bg-[#BAE6FD]">
+                        <h2 className="font-black text-xl font-display uppercase tracking-widest text-surface-900">{address ? 'Edit Alamat' : 'Tambah Alamat Baru'}</h2>
+                        <button onClick={onClose} className="p-1.5 rounded-lg border-2 border-surface-900 bg-white shadow-[2px_2px_0_0_#0f172a] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0_0_#0f172a] hover:bg-[#FECDD3] transition-all">
+                            <X className="w-5 h-5 text-surface-900" />
+                        </button>
                     </div>
-                    <div className="p-8 space-y-5 max-h-[65vh] overflow-y-auto overscroll-contain">
+                    <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                         {[
                             { key: 'label', label: 'Label Alamat', placeholder: 'Contoh: Rumah, Kantor, Kosan' },
                             { key: 'recipient', label: 'Nama Penerima', placeholder: 'Nama lengkap penerima' },
@@ -36,29 +38,29 @@ function AddressModal({ address, onSave, onClose }) {
                             { key: 'postal_code', label: 'Kode Pos', placeholder: '12345' },
                         ].map(({ key, label, placeholder, textarea }) => (
                             <div key={key}>
-                                <label className="block text-sm font-bold text-surface-800 mb-2">{label}</label>
+                                <label className="block text-sm font-black uppercase text-surface-900 mb-2">{label}</label>
                                 {textarea ? (
                                     <textarea value={form[key]} onChange={e => set(key, e.target.value)}
                                         placeholder={placeholder} rows={3}
-                                        className="w-full px-5 py-3 rounded-2xl border-2 border-surface-200 text-sm text-surface-900 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all resize-none placeholder-surface-400 font-medium" />
+                                        className="w-full px-4 py-3 bg-surface-50 border-4 border-surface-900 text-sm text-surface-900 font-bold focus:outline-none focus:bg-[#FEF08A] focus:shadow-[4px_4px_0_0_#0f172a] transition-all resize-none placeholder-surface-400 rounded-xl" />
                                 ) : (
                                     <input type="text" value={form[key]} onChange={e => set(key, e.target.value)}
                                         placeholder={placeholder}
-                                        className="w-full px-5 py-3 rounded-2xl border-2 border-surface-200 text-sm text-surface-900 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all placeholder-surface-400 font-medium" />
+                                        className="w-full px-4 py-3 bg-surface-50 border-4 border-surface-900 text-sm text-surface-900 font-bold focus:outline-none focus:bg-[#FEF08A] focus:shadow-[4px_4px_0_0_#0f172a] transition-all placeholder-surface-400 rounded-xl" />
                                 )}
                             </div>
                         ))}
                         <label className="flex items-center gap-4 cursor-pointer pt-2 group">
                             <div onClick={() => set('is_primary', !form.is_primary)}
-                                className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${form.is_primary ? 'bg-primary-500 border-primary-500' : 'border-surface-300 group-hover:border-primary-400'}`}>
-                                {form.is_primary && <Check className="w-4 h-4 text-white" />}
+                                className={`w-8 h-8 rounded-lg border-4 flex items-center justify-center transition-all shadow-[2px_2px_0_0_#0f172a] ${form.is_primary ? 'bg-[#A7F3D0] border-surface-900' : 'bg-white border-surface-900'}`}>
+                                {form.is_primary && <Check className="w-5 h-5 text-surface-900 font-black" />}
                             </div>
-                            <span className="text-sm font-bold text-surface-700 select-none group-hover:text-surface-900 transition-colors">Jadikan alamat utama pengiriman</span>
+                            <span className="text-sm font-black uppercase tracking-wide text-surface-900 select-none">Jadikan alamat utama pengiriman</span>
                         </label>
                     </div>
-                    <div className="px-8 pb-8 pt-4 border-t-2 border-surface-100 bg-surface-50">
+                    <div className="px-6 pb-6 pt-4 border-t-4 border-surface-900 bg-surface-50">
                         <button onClick={() => onSave(form)}
-                            className="w-full py-4 rounded-2xl gradient-primary text-white font-extrabold text-base shadow-glow-primary hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                            className="w-full py-4 rounded-xl bg-surface-900 text-white font-black text-lg uppercase tracking-widest border-2 border-transparent hover:border-surface-900 hover:bg-[#FEF08A] hover:text-surface-900 transition-all shadow-[4px_4px_0_0_rgba(15,23,42,0.2)] hover:shadow-[4px_4px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none">
                             {address ? 'Simpan Perubahan' : 'Simpan Alamat Baru'}
                         </button>
                     </div>
@@ -70,9 +72,9 @@ function AddressModal({ address, onSave, onClose }) {
 
 // ── Main Profile Page ──────────────────────────────────────────────────────────
 const TABS = [
-    { id: 'Profil', icon: User },
-    { id: 'Alamat', icon: MapPin },
-    { id: 'Keamanan', icon: Shield }
+    { id: 'Profil', icon: User, color: 'bg-[#BAE6FD]' },
+    { id: 'Alamat', icon: MapPin, color: 'bg-[#A7F3D0]' },
+    { id: 'Keamanan', icon: Shield, color: 'bg-[#FECDD3]' }
 ];
 
 export default function ProfileEdit({ mustVerifyEmail, status }) {
@@ -89,6 +91,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
 
     // Profile form
     const profileForm = useForm({
+        _method: 'PATCH',
         name: user.name || '',
         email: user.email || '',
         bio: user.bio || '',
@@ -123,7 +126,6 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
     const handleProfileSubmit = (e) => {
         e.preventDefault();
         profileForm.post(route('profile.update'), {
-            _method: 'patch',
             forceFormData: true,
             preserveScroll: true,
         });
@@ -142,9 +144,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
         }
         setAddresses(updated);
         
-        // We use patch without file for addresses
-        const addressForm = useForm({ addresses: updated });
-        addressForm.patch(route('profile.update'), {
+        router.patch(route('profile.update'), { addresses: updated }, {
             preserveScroll: true,
             onSuccess: () => { setShowAddressModal(false); setEditingAddress(null); },
         });
@@ -154,73 +154,77 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
         if (!confirm('Hapus alamat ini?')) return;
         const updated = addresses.filter((_, idx) => idx !== i);
         setAddresses(updated);
-        const addressForm = useForm({ addresses: updated });
-        addressForm.patch(route('profile.update'), { preserveScroll: true });
+        router.patch(route('profile.update'), { addresses: updated }, { preserveScroll: true });
     };
 
     return (
         <>
             <Head title="Profil — OshiMerch" />
-            <div className="min-h-dvh bg-surface-50 flex flex-col">
+            <div className="min-h-dvh bg-[#FAFAFA] flex flex-col selection:bg-surface-900 selection:text-[#FEF08A]">
                 <Navbar />
 
-                <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 pt-[104px]">
-                    {/* Header card */}
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-[2rem] gradient-primary p-8 sm:p-10 mb-10 shadow-elevated">
-                        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
-                        <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-secondary-400/20 rounded-full blur-xl" />
-                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 pt-[120px]">
+                    {/* Brutalist Header card */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} 
+                        className="relative overflow-hidden rounded-2xl bg-primary-400 border-4 border-surface-900 p-8 sm:p-12 mb-10 shadow-[8px_8px_0_0_#0f172a]">
+                        <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.2]" />
+                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-8 text-center sm:text-left z-10">
                             <div className="relative shrink-0 group">
-                                <div className="absolute inset-0 bg-white/20 rounded-3xl blur-md" />
                                 <img
                                     src={photoPreview}
                                     alt={user.name}
-                                    className="relative w-28 h-28 rounded-3xl border-4 border-white/40 shadow-xl object-cover transition-all"
+                                    className="relative w-32 h-32 rounded-2xl border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] object-cover transition-transform transform -rotate-3 group-hover:rotate-0"
                                 />
                                 <button 
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl backdrop-blur-sm"
+                                    className="absolute -bottom-4 -right-4 flex flex-col items-center justify-center bg-[#FEF08A] border-4 border-surface-900 w-12 h-12 shadow-[2px_2px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0_0_#0f172a] transition-all rounded-xl"
                                 >
-                                    <Upload className="w-6 h-6 mb-1" />
-                                    <span className="text-[10px] font-bold">Ubah Foto</span>
+                                    <Upload className="w-5 h-5 text-surface-900" />
                                 </button>
                                 <input type="file" ref={fileInputRef} className="hidden" accept="image/jpeg,image/png,image/webp,image/jpg" onChange={handlePhotoChange} />
                             </div>
                             <div className="pt-2">
-                                <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white/90 text-xs font-bold tracking-wider uppercase mb-3 border border-white/20">
-                                    Profil Akun
+                                <span className="inline-block px-4 py-1 bg-white border-2 border-surface-900 text-surface-900 text-xs font-black tracking-widest uppercase mb-4 shadow-[2px_2px_0_0_#0f172a] rounded-xl">
+                                    PROFIL AKUN
                                 </span>
-                                <h1 className="text-3xl font-black font-display text-white tracking-tight mb-2">{user.name}</h1>
+                                <h1 className="text-4xl sm:text-5xl font-black font-display text-surface-900 tracking-tighter mb-3 uppercase" style={{ textShadow: '2px 2px 0px white' }}>{user.name}</h1>
                                 {user.oshi_member_name && (
-                                    <p className="text-white/80 text-base font-medium">Oshi: <span className="font-bold text-white bg-white/10 px-2 py-0.5 rounded-md">{user.oshi_member_name}</span></p>
+                                    <p className="text-surface-900 text-lg font-bold">Oshi: <span className="font-black text-surface-900 bg-white border-2 border-surface-900 px-3 py-1 rounded-lg ml-2 shadow-[2px_2px_0_0_#0f172a] uppercase">{user.oshi_member_name}</span></p>
                                 )}
                             </div>
                         </div>
                     </motion.div>
 
-                    {/* Modern Tabs */}
-                    <div className="flex flex-wrap justify-center sm:justify-start gap-2 p-1.5 bg-surface-200/50 rounded-2xl mb-8 w-fit mx-auto sm:mx-0 border border-surface-200">
-                        {TABS.map(tab => (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2.5 px-6 py-3.5 rounded-xl text-sm font-extrabold transition-all duration-300 ${activeTab === tab.id ? 'bg-white text-primary-600 shadow-sm border border-surface-200 scale-100' : 'text-surface-500 hover:text-surface-800 hover:bg-surface-200 scale-95 hover:scale-100'}`}>
-                                <tab.icon className="w-5 h-5" />
-                                {tab.id}
-                            </button>
-                        ))}
+                    {/* Brutalist Tabs */}
+                    <div className="flex flex-wrap items-center gap-4 mb-10 border-b-4 border-surface-900 pb-6">
+                        {TABS.map(tab => {
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2.5 px-6 py-3 rounded-xl border-4 border-surface-900 font-black uppercase tracking-widest transition-all ${
+                                        isActive 
+                                        ? `${tab.color} text-surface-900 shadow-[4px_4px_0_0_#0f172a] -translate-y-1 -translate-x-1` 
+                                        : 'bg-white text-surface-600 hover:bg-[#FEF08A] hover:text-surface-900 hover:shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1'
+                                    }`}>
+                                    <tab.icon className="w-5 h-5" />
+                                    {tab.id}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     <AnimatePresence mode="wait">
                         {/* ── Tab: Profil ── */}
                         {activeTab === 'Profil' && (
                             <motion.div key="profil" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                                className="bg-white rounded-[2rem] border-2 border-surface-100 p-8 sm:p-10 shadow-sm">
-                                <div className="flex items-center gap-4 mb-8 pb-6 border-b-2 border-surface-100">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center">
-                                        <User className="w-6 h-6 text-primary-500" />
+                                className="bg-white rounded-3xl border-4 border-surface-900 p-8 sm:p-12 shadow-[8px_8px_0_0_#0f172a]">
+                                <div className="flex items-center gap-4 mb-10">
+                                    <div className="w-16 h-16 rounded-2xl bg-[#BAE6FD] border-4 border-surface-900 flex items-center justify-center shadow-[4px_4px_0_0_#0f172a] transform -rotate-3">
+                                        <User className="w-8 h-8 text-surface-900" />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-extrabold font-display text-surface-900">Informasi Dasar</h2>
-                                        <p className="text-sm font-medium text-surface-500">Perbarui nama, foto profil, email, dan biodata kamu.</p>
+                                        <h2 className="text-3xl font-black font-display text-surface-900 uppercase">Informasi Dasar</h2>
+                                        <p className="text-sm font-bold text-surface-600 mt-1">Perbarui nama, foto profil, email, dan biodata kamu.</p>
                                     </div>
                                 </div>
                                 
@@ -232,37 +236,37 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                                             { key: 'phone', label: 'No. Handphone', type: 'text', placeholder: '08xx-xxxx-xxxx' },
                                         ].map(({ key, label, type, placeholder }) => (
                                             <div key={key}>
-                                                <label className="block text-sm font-bold text-surface-800 mb-2">{label}</label>
+                                                <label className="block text-sm font-black uppercase text-surface-900 mb-2">{label}</label>
                                                 <input type={type} value={profileForm.data[key]}
                                                     onChange={e => profileForm.setData(key, e.target.value)}
                                                     placeholder={placeholder}
-                                                    className="w-full px-5 py-3.5 rounded-2xl border-2 border-surface-200 text-sm font-medium text-surface-900 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all placeholder-surface-400" />
-                                                {profileForm.errors[key] && <p className="text-xs font-bold text-red-500 mt-2">{profileForm.errors[key]}</p>}
+                                                    className="w-full px-5 py-4 rounded-xl border-4 border-surface-900 bg-surface-50 text-sm font-bold text-surface-900 focus:outline-none focus:bg-[#BAE6FD] focus:shadow-[4px_4px_0_0_#0f172a] transition-all placeholder-surface-400" />
+                                                {profileForm.errors[key] && <p className="text-sm font-black text-[#f43f5e] mt-2">{profileForm.errors[key]}</p>}
                                             </div>
                                         ))}
                                         {profileForm.errors.profile_picture && (
-                                            <div className="md:col-span-2 p-3 bg-red-50 rounded-xl border border-red-200 flex items-center gap-2 text-sm font-bold text-red-600">
-                                                <AlertCircle className="w-4 h-4" /> {profileForm.errors.profile_picture}
+                                            <div className="md:col-span-2 p-4 bg-[#FECDD3] rounded-xl border-4 border-surface-900 flex items-center gap-3 text-sm font-black text-surface-900 shadow-[4px_4px_0_0_#0f172a]">
+                                                <AlertCircle className="w-6 h-6 text-[#f43f5e]" /> {profileForm.errors.profile_picture}
                                             </div>
                                         )}
                                         <div className="md:col-span-2">
-                                            <label className="block text-sm font-bold text-surface-800 mb-2">Biodata / Tentang Saya</label>
+                                            <label className="block text-sm font-black uppercase text-surface-900 mb-2">Biodata / Tentang Saya</label>
                                             <textarea value={profileForm.data.bio} onChange={e => profileForm.setData('bio', e.target.value)}
                                                 placeholder="Ceritakan sedikit tentang dirimu sebagai fans JKT48..."
                                                 rows={4}
-                                                className="w-full px-5 py-3.5 rounded-2xl border-2 border-surface-200 text-sm font-medium text-surface-900 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all resize-none placeholder-surface-400" />
+                                                className="w-full px-5 py-4 rounded-xl border-4 border-surface-900 bg-surface-50 text-sm font-bold text-surface-900 focus:outline-none focus:bg-[#BAE6FD] focus:shadow-[4px_4px_0_0_#0f172a] transition-all resize-none placeholder-surface-400" />
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 pt-4">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-8">
                                         <button type="submit" disabled={profileForm.processing}
-                                            className="px-8 py-3.5 rounded-2xl gradient-primary text-white font-extrabold text-base shadow-glow-primary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-60 disabled:hover:translate-y-0">
-                                            {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                            className="px-8 py-4 rounded-xl bg-surface-900 text-white font-black uppercase tracking-widest text-base shadow-[4px_4px_0_0_rgba(15,23,42,0.2)] hover:bg-[#BAE6FD] hover:text-surface-900 hover:shadow-[4px_4px_0_0_#0f172a] transition-all active:translate-y-1 active:translate-x-1 active:shadow-none border-2 border-transparent hover:border-surface-900 disabled:opacity-60">
+                                            {profileForm.processing ? 'MENYIMPAN...' : 'SIMPAN PERUBAHAN'}
                                         </button>
                                         <AnimatePresence>
                                             {profileForm.recentlySuccessful && (
-                                                <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                                                    className="px-4 py-2 bg-green-50 text-green-600 rounded-xl text-sm font-bold flex items-center gap-2 border border-green-200">
-                                                    <Check className="w-4 h-4" /> Tersimpan!
+                                                <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
+                                                    className="px-6 py-4 bg-[#A7F3D0] text-surface-900 rounded-xl text-sm font-black uppercase tracking-widest flex items-center gap-3 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a]">
+                                                    <Check className="w-5 h-5 font-black" /> TERSIMPAN!
                                                 </motion.span>
                                             )}
                                         </AnimatePresence>
@@ -273,72 +277,67 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
 
                         {/* ── Tab: Alamat ── */}
                         {activeTab === 'Alamat' && (
-                            // (Address code remains same as before)
-                            <motion.div key="alamat" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-                                <div className="bg-white rounded-[2rem] border-2 border-surface-100 p-8 sm:p-10 shadow-sm">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-surface-100">
+                            <motion.div key="alamat" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                                <div className="bg-white rounded-3xl border-4 border-surface-900 p-8 sm:p-12 shadow-[8px_8px_0_0_#0f172a]">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-secondary-50 flex items-center justify-center">
-                                                <MapPin className="w-6 h-6 text-secondary-500" />
+                                            <div className="w-16 h-16 rounded-2xl bg-[#A7F3D0] border-4 border-surface-900 flex items-center justify-center shadow-[4px_4px_0_0_#0f172a] transform -rotate-3">
+                                                <MapPin className="w-8 h-8 text-surface-900" />
                                             </div>
                                             <div>
-                                                <h2 className="text-xl font-extrabold font-display text-surface-900">Buku Alamat</h2>
-                                                <p className="text-sm font-medium text-surface-500">Kelola alamat pengiriman untuk transaksi.</p>
+                                                <h2 className="text-3xl font-black font-display text-surface-900 uppercase">Buku Alamat</h2>
+                                                <p className="text-sm font-bold text-surface-600 mt-1">Kelola alamat pengiriman untuk transaksi.</p>
                                             </div>
                                         </div>
                                         <button onClick={() => { setEditingAddress(null); setShowAddressModal(true); }}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-surface-900 text-white font-bold text-sm shadow-elevated hover:bg-surface-800 hover:-translate-y-1 transition-all duration-300">
-                                            <Plus className="w-5 h-5" />Tambah Alamat
+                                            className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#FEF08A] border-4 border-surface-900 text-surface-900 font-black text-sm uppercase tracking-widest shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] transition-all active:translate-y-1 active:translate-x-1 active:shadow-none">
+                                            <Plus className="w-5 h-5" /> TAMBAH ALAMAT
                                         </button>
                                     </div>
 
                                     {addresses.length === 0 ? (
-                                        <div className="rounded-3xl border-2 border-dashed border-surface-200 bg-surface-50 p-12 text-center group">
-                                            <div className="w-20 h-20 rounded-[2rem] bg-white border-2 border-surface-200 flex items-center justify-center mx-auto mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                                                <MapPin className="w-10 h-10 text-surface-300" />
+                                        <div className="rounded-3xl border-4 border-surface-900 bg-[#FAFAFA] p-12 sm:p-20 text-center shadow-[8px_8px_0_0_#0f172a] transform rotate-1">
+                                            <div className="w-24 h-24 rounded-2xl bg-white border-4 border-surface-900 flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0_0_#0f172a] -rotate-6">
+                                                <MapPin className="w-12 h-12 text-surface-900" />
                                             </div>
-                                            <p className="text-xl font-extrabold font-display text-surface-900 mb-2">Belum Ada Alamat</p>
-                                            <p className="text-sm font-medium text-surface-500 mb-8 max-w-sm mx-auto">Tambahkan alamat rumah atau kosan agar proses checkout lebih cepat.</p>
-                                            <button onClick={() => setShowAddressModal(true)}
-                                                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-secondary-600 text-white font-bold text-sm shadow-glow-secondary hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                                                <Plus className="w-5 h-5" />Tambah Alamat Pertama
-                                            </button>
+                                            <p className="text-3xl font-black font-display uppercase tracking-tight text-surface-900 mb-4">BELUM ADA ALAMAT</p>
+                                            <p className="text-base font-bold text-surface-600 mb-8 max-w-md mx-auto">Tambahkan alamat rumah atau kosan agar proses checkout lebih cepat.</p>
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                             {addresses.map((addr, i) => (
                                                 <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
-                                                    className={`relative bg-white rounded-[2rem] border-2 p-6 transition-all duration-300 hover:shadow-md group ${addr.is_primary ? 'border-primary-500 ring-4 ring-primary-50' : 'border-surface-200 hover:border-surface-300'}`}>
+                                                    className={`relative bg-white rounded-3xl border-4 border-surface-900 p-6 sm:p-8 flex flex-col hover:-translate-y-1 hover:-translate-x-1 transition-all ${addr.is_primary ? 'shadow-[8px_8px_0_0_#0f172a] bg-surface-50' : 'shadow-[4px_4px_0_0_#0f172a]'}`}>
                                                     
                                                     {addr.is_primary && (
-                                                        <div className="absolute -top-3 right-6 px-3 py-1 bg-primary-500 text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-sm">
-                                                            Utama
+                                                        <div className="absolute -top-4 -right-4 px-4 py-2 bg-[#A7F3D0] border-4 border-surface-900 text-surface-900 text-xs font-black uppercase tracking-widest rounded-xl shadow-[4px_4px_0_0_#0f172a] transform rotate-6">
+                                                            UTAMA
                                                         </div>
                                                     )}
                                                     
                                                     <div className="flex flex-col h-full">
-                                                        <div className="flex items-center gap-3 mb-4">
-                                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${addr.is_primary ? 'bg-primary-50 text-primary-600' : 'bg-surface-100 text-surface-500'}`}>
-                                                                <MapPin className="w-5 h-5" />
+                                                        <div className="flex items-center gap-4 mb-6">
+                                                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a] ${addr.is_primary ? 'bg-[#A7F3D0]' : 'bg-white'}`}>
+                                                                <MapPin className="w-6 h-6 text-surface-900" />
                                                             </div>
                                                             <div>
-                                                                <span className="font-extrabold text-surface-900 text-base">{addr.label || 'Alamat'}</span>
-                                                                <p className="text-sm font-bold text-surface-600">{addr.recipient} {addr.phone && <span className="font-medium text-surface-400 ml-1">• {addr.phone}</span>}</p>
+                                                                <span className="font-black text-surface-900 text-xl uppercase tracking-tight">{addr.label || 'Alamat'}</span>
+                                                                <p className="text-sm font-bold text-surface-600 mt-1">{addr.recipient} {addr.phone && <span className="font-black text-surface-900 ml-1">• {addr.phone}</span>}</p>
                                                             </div>
                                                         </div>
                                                         
-                                                        <p className="text-sm font-medium text-surface-600 leading-relaxed mb-6 flex-grow">
+                                                        <p className="text-sm font-bold text-surface-700 leading-relaxed mb-8 flex-grow bg-white p-4 border-2 border-surface-900 rounded-xl">
                                                             {addr.full_address}{addr.city ? `, ${addr.city}` : ''}{addr.province ? `, ${addr.province}` : ''}{addr.postal_code ? ` ${addr.postal_code}` : ''}
                                                         </p>
                                                         
-                                                        <div className="flex items-center gap-3 mt-auto border-t-2 border-surface-50 pt-4">
+                                                        <div className="flex items-center gap-4 mt-auto">
                                                             <button onClick={() => { setEditingAddress(i); setShowAddressModal(true); }}
-                                                                className="flex-1 py-2.5 rounded-xl border-2 border-surface-200 font-bold text-sm text-surface-700 hover:text-primary-600 hover:border-primary-200 hover:bg-primary-50 transition-all">
-                                                                Edit
+                                                                className="flex-1 py-3 rounded-xl bg-white border-4 border-surface-900 font-black uppercase tracking-widest text-sm text-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:bg-[#FEF08A] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_#0f172a] transition-all">
+                                                                EDIT ALAMAT
                                                             </button>
                                                             <button onClick={() => handleDeleteAddress(i)}
-                                                                className="w-11 h-11 rounded-xl border-2 border-surface-200 flex items-center justify-center text-surface-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all">
-                                                                <Trash2 className="w-5 h-5" />
+                                                                className="w-14 h-14 rounded-xl bg-[#FECDD3] border-4 border-surface-900 flex items-center justify-center text-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0_0_#0f172a] transition-all">
+                                                                <Trash2 className="w-6 h-6" />
                                                             </button>
                                                         </div>
                                                     </div>
@@ -352,16 +351,15 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
 
                         {/* ── Tab: Keamanan ── */}
                         {activeTab === 'Keamanan' && (
-                            // (Keamanan code remains same as before)
                             <motion.div key="keamanan" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                                className="bg-white rounded-[2rem] border-2 border-surface-100 p-8 sm:p-10 shadow-sm">
-                                <div className="flex items-center gap-4 mb-8 pb-6 border-b-2 border-surface-100">
-                                    <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center">
-                                        <Shield className="w-6 h-6 text-amber-500" />
+                                className="bg-white rounded-3xl border-4 border-surface-900 p-8 sm:p-12 shadow-[8px_8px_0_0_#0f172a]">
+                                <div className="flex items-center gap-4 mb-10">
+                                    <div className="w-16 h-16 rounded-2xl bg-[#FECDD3] border-4 border-surface-900 flex items-center justify-center shadow-[4px_4px_0_0_#0f172a] transform -rotate-3">
+                                        <Shield className="w-8 h-8 text-surface-900" />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-extrabold font-display text-surface-900">Keamanan & Password</h2>
-                                        <p className="text-sm font-medium text-surface-500">Jaga akun kamu tetap aman dengan password yang kuat.</p>
+                                        <h2 className="text-3xl font-black font-display text-surface-900 uppercase">Keamanan & Password</h2>
+                                        <p className="text-sm font-bold text-surface-600 mt-1">Jaga akun kamu tetap aman dengan password yang kuat.</p>
                                     </div>
                                 </div>
 
@@ -372,23 +370,23 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                                         { key: 'password_confirmation', label: 'Konfirmasi Password Baru' },
                                     ].map(({ key, label }) => (
                                         <div key={key}>
-                                            <label className="block text-sm font-bold text-surface-800 mb-2">{label}</label>
+                                            <label className="block text-sm font-black uppercase text-surface-900 mb-2">{label}</label>
                                             <input type="password" value={passwordForm.data[key]}
                                                 onChange={e => passwordForm.setData(key, e.target.value)}
-                                                className="w-full px-5 py-3.5 rounded-2xl border-2 border-surface-200 text-sm font-medium text-surface-900 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all" />
-                                            {passwordForm.errors[key] && <p className="text-xs font-bold text-red-500 mt-2">{passwordForm.errors[key]}</p>}
+                                                className="w-full px-5 py-4 rounded-xl border-4 border-surface-900 bg-surface-50 text-sm font-bold text-surface-900 focus:outline-none focus:bg-[#FECDD3] focus:shadow-[4px_4px_0_0_#0f172a] transition-all" />
+                                            {passwordForm.errors[key] && <p className="text-sm font-black text-[#f43f5e] mt-2">{passwordForm.errors[key]}</p>}
                                         </div>
                                     ))}
-                                    <div className="flex items-center gap-4 pt-4">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-8">
                                         <button type="submit" disabled={passwordForm.processing}
-                                            className="px-8 py-3.5 rounded-2xl bg-surface-900 text-white font-extrabold text-base shadow-elevated hover:shadow-xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-60 disabled:hover:translate-y-0">
-                                            {passwordForm.processing ? 'Menyimpan...' : 'Perbarui Password'}
+                                            className="px-8 py-4 rounded-xl bg-surface-900 text-white font-black uppercase tracking-widest text-base shadow-[4px_4px_0_0_rgba(15,23,42,0.2)] hover:bg-[#FECDD3] hover:text-surface-900 hover:shadow-[4px_4px_0_0_#0f172a] transition-all active:translate-y-1 active:translate-x-1 active:shadow-none border-2 border-transparent hover:border-surface-900 disabled:opacity-60">
+                                            {passwordForm.processing ? 'MENYIMPAN...' : 'PERBARUI PASSWORD'}
                                         </button>
                                         <AnimatePresence>
                                             {passwordForm.recentlySuccessful && (
-                                                <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                                                    className="px-4 py-2 bg-green-50 text-green-600 rounded-xl text-sm font-bold flex items-center gap-2 border border-green-200">
-                                                    <Check className="w-4 h-4" /> Berhasil!
+                                                <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
+                                                    className="px-6 py-4 bg-[#A7F3D0] text-surface-900 rounded-xl text-sm font-black uppercase tracking-widest flex items-center gap-3 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a]">
+                                                    <Check className="w-5 h-5 font-black" /> BERHASIL!
                                                 </motion.span>
                                             )}
                                         </AnimatePresence>
@@ -396,16 +394,16 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                                 </form>
 
                                 {/* Danger zone */}
-                                <div className="mt-12 pt-8 border-t-2 border-red-100">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 rounded-3xl bg-red-50 border-2 border-red-100">
+                                <div className="mt-16 pt-12 border-t-4 border-surface-900">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-8 rounded-3xl bg-[#FECDD3] border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] transform -rotate-1">
                                         <div>
-                                            <h3 className="text-lg font-extrabold text-red-700 mb-1">Zona Berbahaya</h3>
-                                            <p className="text-sm font-medium text-red-600/80">Menghapus akun akan menghapus semua data kamu secara permanen.</p>
+                                            <h3 className="text-3xl font-black font-display uppercase text-surface-900 mb-2">ZONA BERBAHAYA</h3>
+                                            <p className="text-base font-bold text-surface-800">Menghapus akun akan menghapus semua data kamu secara permanen.</p>
                                         </div>
                                         <button
                                             onClick={() => confirm('Yakin ingin menghapus akun? Tindakan ini tidak bisa dibatalkan.') && router.delete(route('profile.destroy'))}
-                                            className="shrink-0 px-6 py-3.5 rounded-2xl bg-red-600 text-white font-extrabold text-sm shadow-md hover:bg-red-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                                            Hapus Akun Permanen
+                                            className="shrink-0 px-8 py-4 rounded-xl bg-[#f43f5e] border-4 border-surface-900 text-white font-black uppercase tracking-widest text-base shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] hover:bg-[#e11d48] transition-all active:translate-y-1 active:translate-x-1 active:shadow-none">
+                                            HAPUS AKUN PERMANEN
                                         </button>
                                     </div>
                                 </div>

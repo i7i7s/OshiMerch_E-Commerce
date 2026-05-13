@@ -44,25 +44,25 @@ function CTABanner() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="relative overflow-hidden rounded-3xl gradient-primary p-10 sm:p-14 text-center"
+                    className="relative overflow-hidden bg-[#FEF08A] border-4 border-surface-900 shadow-[12px_12px_0_0_#0f172a] p-10 sm:p-14 text-center transform -rotate-1 hover:rotate-0 transition-transform"
                 >
                     {/* Decorative */}
-                    <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full" />
-                    <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/10 rounded-full" />
+                    <div className="absolute -top-12 -right-12 w-48 h-48 border-4 border-surface-900 bg-white/50 rounded-none transform rotate-12" />
+                    <div className="absolute -bottom-8 -left-8 w-32 h-32 border-4 border-surface-900 bg-[#BAE6FD]/50 rounded-none transform -rotate-12" />
 
                     <div className="relative">
-                        <h2 className="text-3xl sm:text-4xl font-bold font-display text-white tracking-tight mb-3">
-                            Punya Merch yang Mau Dijual?
+                        <h2 className="text-3xl sm:text-5xl font-black font-display text-surface-900 tracking-tight mb-4 uppercase" style={{ textShadow: '4px 4px 0px #fff' }}>
+                            PUNYA MERCH YANG MAU DIJUAL?
                         </h2>
-                        <p className="text-white/80 text-lg max-w-xl mx-auto mb-8">
-                            Daftar sekarang dan mulai jual merchandise JKT48 kamu ke ribuan fans yang aktif mencari.
+                        <p className="text-surface-900 font-bold text-lg max-w-xl mx-auto mb-8 bg-white px-4 py-2 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a]">
+                            DAFTAR SEKARANG DAN MULAI JUAL MERCHANDISE JKT48 KAMU KE RIBUAN FANS YANG AKTIF MENCARI.
                         </p>
                         <a
                             href={route('google.redirect')}
-                            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white text-primary-600 font-bold text-lg hover:bg-surface-50 transition-all shadow-elevated hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                            className="inline-flex items-center gap-2 px-10 py-5 bg-white text-surface-900 border-4 border-surface-900 font-black text-xl hover:bg-[#A7F3D0] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_0_#0f172a] active:translate-y-2 active:translate-x-2 active:shadow-none transition-all shadow-[6px_6px_0_0_#0f172a] uppercase tracking-widest transform rotate-1"
                         >
-                            Mulai Jualan
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            MULAI JUALAN
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>
                         </a>
@@ -78,17 +78,17 @@ function ListingsSection({ listings, title, subtitle }) {
     if (!listings || listings.length === 0) {
         return (
             <section className="py-12 sm:py-16">
-                <div className="flex items-end justify-between mb-8">
-                    <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold font-display text-surface-900 tracking-tight">{title}</h2>
-                        {subtitle && <p className="text-surface-500 mt-1 text-sm sm:text-base">{subtitle}</p>}
+                <div className="flex flex-col items-start mb-8">
+                    <div className="bg-[#BAE6FD] px-4 py-2 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] transform -rotate-1 mb-2">
+                        <h2 className="text-2xl sm:text-3xl font-black font-display text-surface-900 tracking-tight uppercase">{title}</h2>
                     </div>
+                    {subtitle && <p className="text-surface-900 bg-white px-3 py-1 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] text-sm sm:text-base font-bold uppercase transform rotate-1">{subtitle}</p>}
                 </div>
-                <div className="rounded-3xl border border-dashed border-surface-300 bg-surface-50 py-16 text-center">
-                    <p className="text-4xl mb-3">🛍️</p>
-                    <p className="text-surface-500 font-medium">Belum ada listing tersedia.</p>
-                    <Link href={route('listings.create')} className="mt-4 inline-block text-sm font-semibold text-primary-600 hover:text-primary-700">
-                        Jadilah yang pertama berjualan →
+                <div className="border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] bg-white py-16 text-center">
+                    <p className="text-5xl mb-4 transform -rotate-12 inline-block">🛍️</p>
+                    <p className="text-surface-900 font-black uppercase text-xl mb-4">BELUM ADA LISTING TERSEDIA.</p>
+                    <Link href={route('listings.create')} className="inline-block px-6 py-3 bg-[#FEF08A] border-4 border-surface-900 text-surface-900 font-black uppercase tracking-widest hover:bg-[#A7F3D0] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] shadow-[4px_4px_0_0_#0f172a] transition-all">
+                        JADILAH YANG PERTAMA BERJUALAN →
                     </Link>
                 </div>
             </section>
@@ -96,17 +96,19 @@ function ListingsSection({ listings, title, subtitle }) {
     }
     return (
         <section className="py-12 sm:py-16">
-            <div className="flex items-end justify-between mb-8">
-                <div>
-                    <h2 className="text-2xl sm:text-3xl font-bold font-display text-surface-900 tracking-tight">{title}</h2>
-                    {subtitle && <p className="text-surface-500 mt-1 text-sm sm:text-base">{subtitle}</p>}
+            <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
+                <div className="flex flex-col items-start">
+                    <div className="bg-[#BAE6FD] px-4 py-2 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] transform -rotate-1 mb-2">
+                        <h2 className="text-2xl sm:text-3xl font-black font-display text-surface-900 tracking-tight uppercase">{title}</h2>
+                    </div>
+                    {subtitle && <p className="text-surface-900 bg-white px-3 py-1 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] text-sm sm:text-base font-bold uppercase transform rotate-1">{subtitle}</p>}
                 </div>
                 <Link
                     href={route('products.index')}
-                    className="shrink-0 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1 group"
+                    className="shrink-0 px-6 py-3 bg-white border-4 border-surface-900 text-surface-900 font-black uppercase tracking-widest hover:bg-[#FEF08A] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] shadow-[4px_4px_0_0_#0f172a] transition-all flex items-center gap-2 transform -rotate-1"
                 >
-                    Lihat Semua
-                    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    LIHAT SEMUA
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
                 </Link>
@@ -116,7 +118,7 @@ function ListingsSection({ listings, title, subtitle }) {
                 whileInView="visible"
                 viewport={{ once: true, margin: '-50px' }}
                 variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.06 } } }}
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8"
             >
                 {listings.map(listing => (
                     <ListingCard key={listing.id} listing={listing} />

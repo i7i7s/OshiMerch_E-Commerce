@@ -36,6 +36,8 @@ class ProfileController extends Controller
             $validated['profile_picture_url'] = $path;
         }
 
+        unset($validated['profile_picture'], $validated['_method']);
+
         $request->user()->fill($validated);
 
         if ($request->user()->isDirty('email')) {

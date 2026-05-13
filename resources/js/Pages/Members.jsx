@@ -78,15 +78,25 @@ const TEAM_COLORS_HEX = {
     DEFAULT: '#3f3f46'
 };
 
-// ─── Member card (Editorial / Portrait)
+// ─── Member card (Neo-Brutalist)
 const MemberCard = ({ member, index, onClick }) => {
     const team = getTeam(member);
-    const gradient = TEAM_GRADIENTS[team] || TEAM_GRADIENTS.DEFAULT;
     const shadowColor = TEAM_COLORS_HEX[team] || TEAM_COLORS_HEX.DEFAULT;
     const name = member.name || member.nickname || 'Member';
     const nickname = member.nickname || name;
     const imgSrc = getPhoto(member) || avatarFallback(name);
     const teamLabel = team === 'JKT48_VIRTUAL' ? 'JKT48V' : team;
+
+    // Mapping solid background colors for teams to match the neo-brutalist theme
+    const bgColors = {
+        PASSION: 'bg-[#E11D48]', // Rose
+        LOVE: 'bg-[#F472B6]', // Pink
+        DREAM: 'bg-[#FACC15]', // Amber/Yellow
+        TRAINEE: 'bg-[#10B981]', // Emerald/Mint
+        JKT48_VIRTUAL: 'bg-[#6366F1]', // Indigo
+        DEFAULT: 'bg-surface-200'
+    };
+    const teamBg = bgColors[team] || bgColors.DEFAULT;
 
     return (
         <motion.div
@@ -94,49 +104,35 @@ const MemberCard = ({ member, index, onClick }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: Math.min(index * 0.05, 0.5), ease: "easeOut" }}
             onClick={() => onClick(member)}
-            className="group cursor-pointer relative rounded-[2rem] overflow-hidden bg-surface-100 aspect-[3/4] isolate"
+            className={`group cursor-pointer relative rounded-2xl border-4 border-surface-900 overflow-hidden shadow-[6px_6px_0_0_#0f172a] hover:translate-y-[-4px] hover:translate-x-[-4px] hover:shadow-[10px_10px_0_0_#0f172a] transition-all bg-white flex flex-col`}
         >
-            {/* Image */}
-            <img
-                src={imgSrc}
-                alt={name}
-                className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105 filter grayscale-[20%] group-hover:grayscale-0"
-                loading="lazy"
-                onError={(e) => { e.target.src = avatarFallback(name); }}
-            />
-            
-            {/* Overlay Gradient (Bottom) */}
-            <div className={`absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-90 ${gradient}`} />
-            
-            {/* Deep Dark Overlay for Text readability */}
-            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+            {/* Image Section */}
+            <div className="relative aspect-[3/4] overflow-hidden border-b-4 border-surface-900 bg-surface-100">
+                <img
+                    src={imgSrc}
+                    alt={name}
+                    className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => { e.target.src = avatarFallback(name); }}
+                />
+            </div>
 
-            {/* Hover Glow Effect */}
-            <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-                style={{ boxShadow: `inset 0 0 50px ${shadowColor}80` }}
-            />
-
-            {/* Content */}
-            <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
-                {/* Top: Team Badge */}
-                <div className="flex justify-end">
-                    <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white bg-black/40 backdrop-blur-md rounded-full border border-white/20">
-                        {teamLabel}
-                    </span>
+            {/* Info Section - Solid Block */}
+            <div className={`p-4 flex-1 flex flex-col justify-between z-10 ${teamBg}`}>
+                <div className="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 className="text-2xl font-display font-black text-surface-900 leading-none tracking-tight uppercase">
+                            {nickname}
+                        </h3>
+                        <p className="text-xs font-bold text-surface-700 truncate mt-1">
+                            {name}
+                        </p>
+                    </div>
                 </div>
-
-                {/* Bottom: Name & Info */}
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <h3 className="text-3xl font-display font-black text-white leading-none mb-1 tracking-tight">
-                        {nickname}
-                    </h3>
-                    <p className="text-sm font-medium text-white/70 truncate">
-                        {name}
-                    </p>
-                    
-                    {/* Hover indicator line */}
-                    <div className="h-1 w-0 group-hover:w-12 bg-white mt-4 transition-all duration-500 ease-out rounded-full" />
+                
+                {/* Team Badge */}
+                <div className="mt-4 inline-flex self-start px-3 py-1 text-[10px] font-black uppercase tracking-widest text-surface-900 bg-white border-2 border-surface-900 rounded-lg shadow-[2px_2px_0_0_#0f172a]">
+                    {teamLabel}
                 </div>
             </div>
         </motion.div>
@@ -145,11 +141,12 @@ const MemberCard = ({ member, index, onClick }) => {
 
 // ─── Skeleton card
 const SkeletonCard = () => (
-    <div className="rounded-[2rem] overflow-hidden bg-surface-100 aspect-[3/4] relative">
-        <div className="absolute inset-0 bg-surface-200 animate-pulse" />
-        <div className="absolute inset-0 p-6 flex flex-col justify-end">
-            <div className="h-8 w-2/3 bg-surface-300 rounded-lg animate-pulse mb-2" />
-            <div className="h-4 w-1/2 bg-surface-300 rounded-md animate-pulse" />
+    <div className="rounded-2xl overflow-hidden bg-white border-4 border-surface-200 aspect-[3/4] relative flex flex-col shadow-[6px_6px_0_0_#e2e8f0]">
+        <div className="absolute inset-0 bg-surface-100 animate-pulse" />
+        <div className="flex-1 mt-auto bg-surface-50 border-t-4 border-surface-200 p-4 relative z-10 flex flex-col justify-end">
+            <div className="h-6 w-2/3 bg-surface-300 rounded-lg animate-pulse mb-2" />
+            <div className="h-3 w-1/2 bg-surface-300 rounded-md animate-pulse mb-4" />
+            <div className="h-6 w-1/3 bg-surface-300 rounded-lg animate-pulse" />
         </div>
     </div>
 );
@@ -203,50 +200,58 @@ export default function Members({ auth }) {
         return counts;
     }, [allMembers]);
 
+    // Background colors for active tabs
+    const activeTabColors = {
+        'Semua': 'bg-white',
+        'PASSION': 'bg-[#FECDD3]',
+        'LOVE': 'bg-[#FBCFE8]',
+        'DREAM': 'bg-[#FEF08A]',
+        'TRAINEE': 'bg-[#A7F3D0]',
+        'JKT48V': 'bg-[#C7D2FE]'
+    };
+
     return (
-        <div className="min-h-screen bg-surface-50 selection:bg-purple-500 selection:text-white flex flex-col font-sans">
+        <div className="min-h-screen bg-surface-50 selection:bg-surface-900 selection:text-[#FEF08A] flex flex-col font-sans">
             <Head title="Members JKT48 — OshiMerch" />
             <Navbar auth={auth} />
 
-            {/* --- ANTI-MAINSTREAM EDITORIAL HERO --- */}
-            <div className="relative pt-32 pb-16 px-6 sm:px-12 lg:px-24 overflow-hidden border-b border-surface-200 bg-white">
-                {/* Dynamic Gradient Orbs */}
-                <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-gradient-to-bl from-purple-400/20 to-pink-400/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply" />
-                <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-gradient-to-tr from-indigo-400/20 to-cyan-400/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply" />
+            {/* --- ANTI-MAINSTREAM BRUTALIST HERO --- */}
+            <div className="relative pt-32 pb-16 px-6 sm:px-12 lg:px-24 bg-primary-400 border-b-4 border-surface-900">
+                {/* Decorative Grid Pattern */}
+                <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.2]" />
                 
                 <div className="max-w-screen-2xl mx-auto relative z-10">
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-surface-950 text-white font-bold text-xs uppercase tracking-widest mb-8"
+                        className="inline-flex items-center gap-3 px-4 py-2 bg-white border-2 border-surface-900 text-surface-900 font-black text-xs uppercase tracking-widest mb-8 shadow-[2px_2px_0_0_#0f172a] rounded-xl"
                     >
-                        <UsersSVG className="w-4 h-4 text-purple-400" />
+                        <UsersSVG className="w-4 h-4 text-surface-900" />
                         Directory JKT48
                     </motion.div>
 
-                    <div className="flex flex-col lg:flex-row gap-12 lg:items-end justify-between">
+                    <div className="flex flex-col lg:flex-row gap-8 lg:items-end justify-between">
                         <motion.h1 
                             initial={{ opacity: 0, y: 40 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.1 }}
-                            className="text-5xl sm:text-7xl md:text-[7rem] leading-[0.9] font-display font-black uppercase tracking-tighter text-surface-950"
+                            className="text-6xl sm:text-7xl md:text-[8rem] leading-[0.9] font-display font-black uppercase tracking-tighter text-white"
+                            style={{ WebkitTextStroke: '3px #0f172a', textShadow: '6px 6px 0 #0f172a' }}
                         >
                             MEET THE<br/>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500">
-                                ICONS.
-                            </span>
+                            ICONS.
                         </motion.h1>
 
-                        {/* Search Bar (Editorial Style) */}
+                        {/* Search Bar (Block Style) */}
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 1, delay: 0.4 }}
-                            className="w-full lg:w-[400px]"
+                            className="w-full lg:w-[450px]"
                         >
-                            <div className={`relative flex items-center p-2 rounded-2xl transition-all duration-300 bg-surface-50 border-2 ${searchFocused ? 'border-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.2)]' : 'border-surface-200'}`}>
-                                <div className="p-3 bg-surface-950 text-white rounded-xl">
+                            <div className={`relative flex items-center p-2 rounded-2xl bg-white border-4 border-surface-900 transition-all duration-300 ${searchFocused ? 'shadow-[8px_8px_0_0_#0f172a] -translate-y-1 -translate-x-1' : 'shadow-[4px_4px_0_0_#0f172a]'}`}>
+                                <div className="p-3 bg-[#FEF08A] border-2 border-surface-900 text-surface-900 rounded-xl shadow-[2px_2px_0_0_#0f172a]">
                                     <SearchSVG className="w-5 h-5" />
                                 </div>
                                 <input
@@ -256,11 +261,11 @@ export default function Members({ auth }) {
                                     onFocus={() => setSearchFocused(true)}
                                     onBlur={() => setSearchFocused(false)}
                                     placeholder="Cari member (cth: Zee, Freya)"
-                                    className="w-full pl-4 pr-10 py-3 bg-transparent outline-none text-surface-950 font-bold placeholder-surface-400"
+                                    className="w-full pl-4 pr-10 py-3 bg-transparent outline-none text-surface-900 font-bold placeholder-surface-400"
                                 />
                                 {query && (
-                                    <button onClick={() => setQuery('')} className="absolute right-4 text-surface-400 hover:text-surface-950 transition-colors">
-                                        <XSVG className="w-5 h-5" />
+                                    <button onClick={() => setQuery('')} className="absolute right-4 p-1 rounded-lg bg-surface-200 border-2 border-surface-900 hover:bg-[#FBCFE8] hover:shadow-[2px_2px_0_0_#0f172a] transition-all">
+                                        <XSVG className="w-4 h-4 text-surface-900" />
                                     </button>
                                 )}
                             </div>
@@ -270,27 +275,26 @@ export default function Members({ auth }) {
             </div>
 
             <main className="flex-1 w-full max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-24 py-16 relative z-20">
-                {/* --- FILTERS (Pills) --- */}
+                {/* --- FILTERS (Block Tabs) --- */}
                 <div className="flex flex-wrap items-center gap-3 mb-16">
                     {TABS.map((tab) => {
                         const isActive = activeTab === tab.value;
+                        const activeBg = activeTabColors[tab.value] || 'bg-white';
+                        
                         return (
                             <button
                                 key={tab.value}
                                 onClick={() => setActiveTab(tab.value)}
-                                className={`group relative px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest transition-all duration-300 overflow-hidden ${
+                                className={`group relative px-6 py-3 rounded-xl text-sm font-black uppercase tracking-widest border-2 border-surface-900 transition-all duration-300 ${
                                     isActive 
-                                        ? 'text-white shadow-lg shadow-purple-500/25 scale-105' 
-                                        : 'bg-white text-surface-500 border border-surface-200 hover:border-purple-300 hover:text-surface-950'
+                                        ? `${activeBg} text-surface-900 shadow-[4px_4px_0_0_#0f172a] translate-y-[-2px] translate-x-[-2px]` 
+                                        : 'bg-surface-50 text-surface-600 hover:bg-white hover:text-surface-900 hover:shadow-[4px_4px_0_0_#0f172a] hover:translate-y-[-2px] hover:translate-x-[-2px]'
                                 }`}
                             >
-                                {isActive && (
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-500 z-0" />
-                                )}
                                 <div className="relative z-10 flex items-center gap-2">
                                     {tab.label}
                                     {!loading && (
-                                        <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-white/20 text-white' : 'bg-surface-100 text-surface-400 group-hover:bg-purple-100 group-hover:text-purple-600'}`}>
+                                        <span className={`px-2 py-0.5 border-2 border-surface-900 rounded-lg text-[10px] font-black ${isActive ? 'bg-surface-900 text-white' : 'bg-surface-200 text-surface-600'}`}>
                                             {teamCount[tab.value] ?? allMembers.length}
                                         </span>
                                     )}
@@ -304,13 +308,13 @@ export default function Members({ auth }) {
                 
                 {/* Error */}
                 {error && (
-                    <div className="text-center py-32 bg-white rounded-[3rem] border border-surface-200">
-                        <div className="w-24 h-24 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-6">
+                    <div className="text-center py-32 bg-[#FECDD3] border-4 border-surface-900 rounded-3xl shadow-[8px_8px_0_0_#0f172a]">
+                        <div className="w-24 h-24 rounded-2xl bg-white border-4 border-surface-900 text-surface-900 flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0_0_#0f172a]">
                             <XSVG className="w-10 h-10" />
                         </div>
-                        <h3 className="text-3xl font-display font-black text-surface-950 mb-4">SYSTEM ERROR</h3>
-                        <p className="text-surface-500 text-lg max-w-md mx-auto mb-8">{error}</p>
-                        <button onClick={() => window.location.reload()} className="px-8 py-4 rounded-full bg-surface-950 text-white font-bold uppercase tracking-widest hover:bg-purple-600 transition-colors">
+                        <h3 className="text-4xl font-display font-black text-surface-900 mb-4 uppercase">SYSTEM ERROR</h3>
+                        <p className="text-surface-800 font-bold text-lg max-w-md mx-auto mb-8">{error}</p>
+                        <button onClick={() => window.location.reload()} className="px-8 py-4 rounded-xl bg-surface-900 text-white font-black uppercase tracking-widest hover:bg-surface-800 transition-colors shadow-[4px_4px_0_0_#f43f5e] active:translate-y-1 active:translate-x-1 active:shadow-none">
                             REBOOT SYSTEM
                         </button>
                     </div>
@@ -325,15 +329,15 @@ export default function Members({ auth }) {
 
                 {/* Empty State */}
                 {!loading && !error && filtered.length === 0 && (
-                    <div className="text-center py-32 bg-white rounded-[3rem] border border-surface-200">
-                        <div className="w-24 h-24 rounded-full bg-surface-100 text-surface-300 flex items-center justify-center mx-auto mb-6">
+                    <div className="text-center py-32 bg-white border-4 border-surface-900 rounded-3xl shadow-[8px_8px_0_0_#0f172a]">
+                        <div className="w-24 h-24 rounded-2xl bg-surface-100 border-4 border-surface-900 text-surface-900 flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0_0_#0f172a]">
                             <SearchSVG className="w-10 h-10" />
                         </div>
-                        <h3 className="text-3xl font-display font-black text-surface-950 mb-4">TARGET NOT FOUND</h3>
-                        <p className="text-surface-500 text-lg max-w-md mx-auto mb-8">
+                        <h3 className="text-4xl font-display font-black text-surface-900 mb-4 uppercase">TARGET NOT FOUND</h3>
+                        <p className="text-surface-600 font-bold text-lg max-w-md mx-auto mb-8">
                             {debouncedQuery ? `Tidak ada member dengan nama "${debouncedQuery}"` : `Tidak ada member di tim ${activeTab}`}
                         </p>
-                        <button onClick={() => { setQuery(''); setActiveTab('Semua'); }} className="px-8 py-4 rounded-full bg-surface-950 text-white font-bold uppercase tracking-widest hover:bg-purple-600 transition-colors">
+                        <button onClick={() => { setQuery(''); setActiveTab('Semua'); }} className="px-8 py-4 rounded-xl bg-surface-900 text-white font-black uppercase tracking-widest hover:bg-[#BAE6FD] hover:text-surface-900 transition-colors shadow-[4px_4px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none border-2 border-transparent hover:border-surface-900">
                             RESET FILTERS
                         </button>
                     </div>

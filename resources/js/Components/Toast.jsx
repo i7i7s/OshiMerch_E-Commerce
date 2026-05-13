@@ -1,7 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, XCircle, X } from 'lucide-react';
 
 export default function Toast() {
     const { flash } = usePage().props;
@@ -29,39 +28,35 @@ export default function Toast() {
     const dismiss = (id) => setToasts((prev) => prev.filter((t) => t.id !== id));
 
     return (
-        <div className="fixed bottom-6 right-6 z-[9998] flex flex-col gap-3 pointer-events-none">
+        <div className="fixed bottom-6 right-6 z-[9998] flex flex-col gap-4 pointer-events-none">
             <AnimatePresence>
                 {toasts.map((toast) => (
                     <motion.div
                         key={toast.id}
-                        initial={{ opacity: 0, y: 24, scale: 0.94 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 12, scale: 0.94 }}
-                        transition={{ type: 'spring', damping: 22, stiffness: 280 }}
-                        className={`pointer-events-auto flex items-start gap-3 px-5 py-4 rounded-2xl shadow-2xl border max-w-sm w-full ${
+                        initial={{ opacity: 0, y: 24, scale: 0.9, rotate: -2 }}
+                        animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+                        exit={{ opacity: 0, y: 12, scale: 0.9, rotate: 2 }}
+                        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                        className={`pointer-events-auto flex items-start gap-4 px-5 py-4 rounded-xl border-4 border-surface-900 shadow-[6px_6px_0_0_#0f172a] max-w-sm w-full ${
                             toast.type === 'success'
-                                ? 'bg-white border-emerald-200'
-                                : 'bg-white border-red-200'
+                                ? 'bg-[#A7F3D0]'
+                                : 'bg-[#FECDD3]'
                         }`}
                     >
-                        {toast.type === 'success' ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                        ) : (
-                            <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                        )}
+                        <div className="text-2xl shrink-0 mt-0.5 drop-shadow-[2px_2px_0_#0f172a]">
+                            {toast.type === 'success' ? '✅' : '❌'}
+                        </div>
                         <span
-                            className={`flex-1 text-sm font-semibold leading-snug ${
-                                toast.type === 'success' ? 'text-emerald-900' : 'text-red-900'
-                            }`}
+                            className="flex-1 text-sm font-black uppercase tracking-widest text-surface-900 leading-snug"
                         >
                             {toast.message}
                         </span>
                         <button
                             onClick={() => dismiss(toast.id)}
-                            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-surface-100 text-surface-400 hover:text-surface-700 transition-colors shrink-0"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:bg-[#FEF08A] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-[1px_1px_0_0_#0f172a] text-surface-900 font-black transition-all shrink-0 active:shadow-none active:translate-y-[2px] active:translate-x-[2px]"
                             aria-label="Tutup"
                         >
-                            <X className="w-4 h-4" />
+                            X
                         </button>
                     </motion.div>
                 ))}

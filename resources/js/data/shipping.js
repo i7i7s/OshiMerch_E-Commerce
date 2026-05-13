@@ -63,3 +63,49 @@ export const PROVINCES = Object.keys(PROVINCE_FEES).sort((a, b) => a.localeCompa
 export function getShippingFee(province) {
     return PROVINCE_FEES[province] ?? 0;
 }
+
+/**
+ * Mapping from province name → emsifa API province ID
+ * Used to fetch cities: https://emsifa.github.io/api-wilayah-indonesia/api/regencies/{id}.json
+ */
+export const PROVINCE_EMSIFA_IDS = {
+    'Aceh':                       '11',
+    'Sumatera Utara':             '12',
+    'Sumatera Barat':             '13',
+    'Riau':                       '14',
+    'Jambi':                      '15',
+    'Sumatera Selatan':           '16',
+    'Bengkulu':                   '17',
+    'Lampung':                    '18',
+    'Kepulauan Bangka Belitung':  '19',
+    'Kepulauan Riau':             '21',
+    'DKI Jakarta':                '31',
+    'Jawa Barat':                 '32',
+    'Jawa Tengah':                '33',
+    'DI Yogyakarta':              '34',
+    'Jawa Timur':                 '35',
+    'Banten':                     '36',
+    'Bali':                       '51',
+    'Nusa Tenggara Barat':        '52',
+    'Nusa Tenggara Timur':        '53',
+    'Kalimantan Barat':           '61',
+    'Kalimantan Tengah':          '62',
+    'Kalimantan Selatan':         '63',
+    'Kalimantan Timur':           '64',
+    'Kalimantan Utara':           '65',
+    'Sulawesi Utara':             '71',
+    'Sulawesi Tengah':            '72',
+    'Sulawesi Selatan':           '73',
+    'Sulawesi Tenggara':          '74',
+    'Gorontalo':                  '75',
+    'Sulawesi Barat':             '76',
+    'Maluku':                     '81',
+    'Maluku Utara':               '82',
+    'Papua Barat':                '91',
+    'Papua':                      '94',
+    // Newer DOB provinces (may not have full regency data yet)
+    'Papua Barat Daya':           '91',
+    'Papua Selatan':              '94',
+    'Papua Tengah':               '94',
+    'Papua Pegunungan':           '94',
+};

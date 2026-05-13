@@ -112,8 +112,43 @@ class TransactionResource extends Resource
                             ->when($data['from'], fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
                             ->when($data['until'], fn ($q, $v) => $q->whereDate('created_at', '<=', $v));
                     }),
+                Tables\Filters\Filter::make('oshigo_aktif')
+                    ->label('OshiGo Aktif')
+                    ->query(fn ($query) => $query->whereIn('delivery_status', ['Packed', 'Shipped', 'OutForDelivery'])),
             ])
             ->actions([
+                Action::make('confirm_payment')
+                    ->label('✅ Konfirmasi Bayar')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Pembayaran')
+                    ->modalDescription('Bukti transfer dari pembeli sudah dicek dan valid?')
+                    ->visible(fn (Transaction $r) => $r->payment_status === 'Paid')
+                    ->action(function (Transaction $record): void {
+                        $record->update(['payment_status' => 'Confirmed']);
+
+                        \App\Models\Notification::create([
+                            'user_id' => $record->buyer_id,
+                            'type'    => 'payment_confirmed',
+                            'title'   => '✅ Pembayaran Dikonfirmasi!',
+                            'body'    => 'Admin OshiMerch telah mengkonfirmasi pembayaranmu. Barang akan segera diproses penjual.',
+                            'url'     => "/transactions/{$record->id}",
+                            'data'    => ['transaction_id' => $record->id],
+                        ]);
+
+                        // Notify seller too
+                        \App\Models\Notification::create([
+                            'user_id' => $record->seller_id,
+                            'type'    => 'payment_confirmed',
+                            'title'   => '✅ Pembayaran Terverifikasi!',
+                            'body'    => 'Admin telah mengkonfirmasi pembayaran dari pembeli. Silakan proses pesanan.',
+                            'url'     => "/transactions/{$record->id}",
+                            'data'    => ['transaction_id' => $record->id],
+                        ]);
+
+                        broadcast(new \App\Events\TransactionStatusUpdated($record->fresh()));
+                    }),
                 Action::make('view_proof')
                     ->label('Lihat Bukti')
                     ->icon('heroicon-o-photo')
@@ -142,6 +177,22 @@ class TransactionResource extends Resource
                     ])
                     ->action(function (Transaction $record, array $data): void {
                         $record->update(['delivery_status' => $data['delivery_status']]);
+                    }),
+                Action::make('edit_tracking')
+                    ->label('Edit Resi')
+                    ->icon('heroicon-o-truck')
+                    ->color('info')
+                    ->form([
+                        Forms\Components\TextInput::make('oshigo_tracking_number')
+                            ->label('Nomor Resi OshiGo')
+                            ->placeholder('OGO-20260513-0001')
+                            ->maxLength(50),
+                    ])
+                    ->fillForm(fn (Transaction $record): array => [
+                        'oshigo_tracking_number' => $record->oshigo_tracking_number,
+                    ])
+                    ->action(function (Transaction $record, array $data): void {
+                        $record->update(['oshigo_tracking_number' => $data['oshigo_tracking_number']]);
                     }),
                 ViewAction::make(),
             ])

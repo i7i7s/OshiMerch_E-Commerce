@@ -9,6 +9,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class Settings extends Page
 {
@@ -27,6 +28,12 @@ class Settings extends Page
 
     public function mount(): void
     {
+        $rates = [];
+        foreach (config('shipping.provinces', []) as $province => $defaultRate) {
+            $slug          = Str::slug($province, '_');
+            $rates["oshigo_rate_{$slug}"] = (int) Setting::get("oshigo_rate_{$slug}", $defaultRate);
+        }
+
         $this->form->fill([
             'bca_account_number' => Setting::get('bca_account_number', ''),
             'bca_account_name'   => Setting::get('bca_account_name', ''),
@@ -38,6 +45,7 @@ class Settings extends Page
             'shopeepay_name'     => Setting::get('shopeepay_name', ''),
             'ovo_number'         => Setting::get('ovo_number', ''),
             'ovo_name'           => Setting::get('ovo_name', ''),
+            ...$rates,
         ]);
     }
 
@@ -75,6 +83,20 @@ class Settings extends Page
                         TextInput::make('ovo_number')->label('Nomor OVO')->required(),
                         TextInput::make('ovo_name')->label('Nama OVO')->required(),
                     ]),
+                Section::make('OshiGo — Tarif Pengiriman')
+                    ->description('Tarif flat per provinsi (IDR). Perubahan langsung berlaku untuk checkout baru.')
+                    ->columns(3)
+                    ->schema(
+                        array_map(
+                            fn ($province) => TextInput::make('oshigo_rate_' . Str::slug($province, '_'))
+                                ->label($province)
+                                ->numeric()
+                                ->prefix('Rp')
+                                ->minValue(0)
+                                ->required(),
+                            array_keys(config('shipping.provinces', []))
+                        )
+                    ),
             ])
             ->statePath('data');
     }

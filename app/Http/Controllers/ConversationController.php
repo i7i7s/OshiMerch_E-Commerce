@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\DirectMessageSent;
 use App\Models\Conversation;
 use App\Models\DirectMessage;
+use App\Models\Listing;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class ConversationController extends Controller
     /**
      * Find or create a direct conversation with a user, then render the chat.
      */
-    public function show(User $user)
+    public function show(User $user, Request $request)
     {
         $currentUser = Auth::user();
 
@@ -29,9 +30,13 @@ class ConversationController extends Controller
         $conversation = Conversation::between($currentUser->id, $user->id);
         if (!$conversation) {
             $conversation = Conversation::create([
-                'user1_id' => $currentUser->id,
-                'user2_id' => $user->id,
+                'user1_id'   => $currentUser->id,
+                'user2_id'   => $user->id,
+                'listing_id' => $request->filled('listing_id') ? (int) $request->listing_id : null,
             ]);
+        } elseif ($request->filled('listing_id') && !$conversation->listing_id) {
+            // Attach listing context to existing conversation if not yet set
+            $conversation->update(['listing_id' => (int) $request->listing_id]);
         }
 
         $conversation->load(['user1:id,name,profile_picture_url,oshi_member_name', 'user2:id,name,profile_picture_url,oshi_member_name']);
@@ -46,6 +51,27 @@ class ConversationController extends Controller
 
         $other = $conversation->otherUser($currentUser->id);
 
+        // Resolve listing context: from query param (validated) or from stored conversation
+        $listingData = null;
+        $listingId   = $request->filled('listing_id') ? (int) $request->listing_id : $conversation->listing_id;
+        if ($listingId) {
+            $listing = Listing::where('id', $listingId)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($listing) {
+                $listingData = [
+                    'id'        => $listing->id,
+                    'title'     => $listing->title,
+                    'price'     => $listing->price,
+                    'image_url' => $listing->image_url,
+                    'condition' => $listing->condition,
+                    'category'  => $listing->category,
+                    'status'    => $listing->status,
+                ];
+            }
+        }
+
         return Inertia::render('Chat/Direct', [
             'conversation' => [
                 'id'       => $conversation->id,
@@ -57,6 +83,7 @@ class ConversationController extends Controller
                 ],
                 'messages' => $messages,
             ],
+            'listing' => $listingData,
         ]);
     }
 

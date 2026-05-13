@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\TwitterAuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\ListingController;
@@ -128,7 +129,7 @@ Route::prefix('auth/twitter')->group(function () {
 });
 
 // Authenticated Routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'not.banned'])->group(function () {
     // Onboarding (before middleware check)
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
@@ -226,6 +227,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/cart/add',          [CartController::class, 'add'])->name('cart.add');
         Route::delete('/cart/clear',      [CartController::class, 'clear'])->name('cart.clear');
         Route::delete('/cart/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+
+        // Checkout page
+        Route::get('/checkout/{listing}', [CheckoutController::class, 'show'])->name('checkout.show');
 
         // Favorites — DB-backed
         Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites');

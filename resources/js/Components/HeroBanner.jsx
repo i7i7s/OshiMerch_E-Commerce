@@ -126,9 +126,9 @@ export default function HeroBanner({ canLogin, activeProductsCount = 0 }) {
                     return (
                         <motion.div
                             key={item.id}
-                            className="absolute rounded-3xl bg-white/80 backdrop-blur-md border border-white/50 shadow-2xl overflow-hidden pointer-events-auto cursor-pointer"
+                            className="absolute rounded-2xl bg-white border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] overflow-hidden pointer-events-auto cursor-pointer"
                             style={{
-                                width: 200,
+                                width: 220,
                                 top: config.top,
                                 left: config.left,
                                 right: config.right,
@@ -138,17 +138,23 @@ export default function HeroBanner({ canLogin, activeProductsCount = 0 }) {
                                 x: useTransform(smoothX, x => x * config.speed),
                                 y: useTransform(smoothY, y => y * config.speed),
                             }}
-                            whileHover={{ scale: config.scale * 1.1, rotate: 0, zIndex: 50 }}
+                            whileHover={{ scale: config.scale * 1.15, rotate: (Math.random() - 0.5) * 10, zIndex: 50 }}
                             initial={{ opacity: 0, y: 100 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ type: 'spring', delay: index * 0.1 + 0.5, bounce: 0.4 }}
                         >
-                            <div className="w-full aspect-[3/4] overflow-hidden bg-surface-100 p-2 pb-0">
-                                <img src={item.image} alt={item.title} className="w-full h-full object-cover rounded-t-2xl select-none" loading="lazy" />
-                            </div>
-                            <div className="p-4 bg-white/90">
-                                <p className="text-[13px] font-bold text-surface-900 line-clamp-1">{item.title}</p>
-                                <p className="text-sm font-black text-primary-600 mt-1">{formatPrice(item.price)}</p>
+                            <div className="w-full aspect-[3/4] bg-surface-100 relative group">
+                                <img src={item.image} alt={item.title} className="w-full h-full object-cover select-none group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+                                
+                                {/* Hover overlay action */}
+                                <div className="absolute inset-0 bg-surface-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                                    <div className="w-16 h-16 rounded-2xl bg-[#FEF08A] border-4 border-surface-900 flex items-center justify-center text-surface-900 shadow-[4px_4px_0_0_#0f172a] transform -rotate-3 hover:scale-110 transition-transform">
+                                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
                     );
@@ -164,32 +170,33 @@ export default function HeroBanner({ canLogin, activeProductsCount = 0 }) {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6 }}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-surface-950 text-white text-xs sm:text-sm font-bold uppercase tracking-widest mb-8 sm:mb-12 shadow-2xl shadow-surface-950/20"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#A7F3D0] border-4 border-surface-900 text-surface-900 text-sm font-black uppercase tracking-widest mb-8 sm:mb-12 shadow-[4px_4px_0_0_#0f172a] transform -rotate-2"
                 >
-                    <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse" />
-                    {activeProductsCount.toLocaleString('id-ID')} Produk Eksklusif Tersedia
+                    <span className="w-3 h-3 border-2 border-surface-900 rounded-none bg-white animate-pulse" />
+                    {activeProductsCount.toLocaleString('id-ID')} PRODUK TERSEDIA
                 </motion.div>
 
                 <motion.h1
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                    className="text-6xl sm:text-[6rem] lg:text-[8rem] font-black font-display uppercase leading-[0.85] tracking-tighter text-surface-950 mix-blend-darken"
+                    className="text-6xl sm:text-[6rem] lg:text-[8rem] font-black font-display uppercase leading-[0.85] tracking-tighter text-surface-900"
+                    style={{ textShadow: '6px 6px 0px #FEF08A' }}
                 >
                     KOLEKSI MERCH<br/>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-purple-500 to-primary-400">
+                    <span className="bg-[#BAE6FD] px-2 border-4 border-surface-900 inline-block transform rotate-1 mt-2">
                         JKT48 IMPIANMU
                     </span><br/>
-                    ADA DI SINI.
+                    <span className="mt-2 inline-block">ADA DI SINI.</span>
                 </motion.h1>
 
                 <motion.p
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.3 }}
-                    className="text-lg sm:text-2xl text-surface-600 max-w-2xl mt-8 sm:mt-12 mb-12 font-medium"
+                    className="text-lg sm:text-2xl text-surface-900 max-w-2xl mt-12 mb-12 font-black uppercase bg-white px-4 py-2 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a]"
                 >
-                    Marketplace khusus fans JKT48. Temukan photocard rare, lightstick official, apparel limited, dan ribuan merchandise eksklusif.
+                    MARKETPLACE KHUSUS FANS JKT48. TEMUKAN PHOTOCARD RARE, LIGHTSTICK OFFICIAL, APPAREL LIMITED, DAN LAINNYA.
                 </motion.p>
 
                 <motion.div
@@ -201,17 +208,16 @@ export default function HeroBanner({ canLogin, activeProductsCount = 0 }) {
                     {canLogin && (
                         <a
                             href={route('google.redirect')}
-                            className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 rounded-full bg-surface-950 text-white font-bold text-lg overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-surface-950/30"
+                            className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-[#FEF08A] border-4 border-surface-900 text-surface-900 font-black text-xl shadow-[6px_6px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_0_#0f172a] active:translate-y-2 active:translate-x-2 active:shadow-none transition-all uppercase tracking-widest transform -rotate-1"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            <span className="relative z-10">Mulai Belanja</span>
+                            MULAI BELANJA
                         </a>
                     )}
                     <a
                         href="#trending"
-                        className="inline-flex items-center justify-center px-10 py-5 rounded-full bg-white border-2 border-surface-200 text-surface-950 font-bold text-lg hover:border-surface-950 hover:bg-surface-50 transition-all"
+                        className="inline-flex items-center justify-center px-10 py-5 bg-white border-4 border-surface-900 text-surface-900 font-black text-xl shadow-[6px_6px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_0_#0f172a] active:translate-y-2 active:translate-x-2 active:shadow-none transition-all uppercase tracking-widest transform rotate-1"
                     >
-                        Jelajahi Produk
+                        JELAJAHI PRODUK
                     </a>
                 </motion.div>
 
@@ -220,16 +226,16 @@ export default function HeroBanner({ canLogin, activeProductsCount = 0 }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.6, delay: 0.6 }}
-                    className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 mt-16 text-sm font-bold uppercase tracking-widest text-surface-400"
+                    className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 mt-16 text-xs sm:text-sm font-black uppercase tracking-widest text-surface-900"
                 >
-                    <div className="flex items-center gap-2">
-                        <span className="text-xl">🛡️</span> Transaksi Aman
+                    <div className="flex items-center gap-2 bg-white px-3 py-1 border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">
+                        <span className="text-xl">🛡️</span> TRANSAKSI AMAN
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-xl">✅</span> 100% Verified
+                    <div className="flex items-center gap-2 bg-[#A7F3D0] px-3 py-1 border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">
+                        <span className="text-xl">✅</span> 100% VERIFIED
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-xl">👥</span> 15 Juta+ Fans
+                    <div className="flex items-center gap-2 bg-[#BAE6FD] px-3 py-1 border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">
+                        <span className="text-xl">👥</span> 15 JUTA+ FANS
                     </div>
                 </motion.div>
             </motion.div>

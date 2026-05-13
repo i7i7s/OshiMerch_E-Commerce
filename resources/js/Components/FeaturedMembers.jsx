@@ -59,15 +59,19 @@ export default function FeaturedMembers({ trendingMembers = [] }) {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-10"
+                    className="flex flex-col items-center text-center mb-10"
                 >
-                    <h2 className="text-2xl sm:text-3xl font-bold font-display text-surface-900 tracking-tight mb-2">
-                        Trending Members 💖
-                    </h2>
-                    <p className="text-surface-500 text-sm sm:text-base">Member dengan listing paling banyak minggu ini</p>
+                    <div className="bg-[#BAE6FD] px-4 py-2 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] transform rotate-1 mb-2">
+                        <h2 className="text-2xl sm:text-3xl font-black font-display text-surface-900 tracking-tight uppercase">
+                            TRENDING MEMBERS 💖
+                        </h2>
+                    </div>
+                    <p className="text-surface-900 bg-white px-3 py-1 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] text-sm sm:text-base font-bold uppercase transform -rotate-1">
+                        MEMBER DENGAN LISTING PALING BANYAK MINGGU INI
+                    </p>
                 </motion.div>
 
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 sm:gap-8">
                     {trendingMembers.map((member, index) => {
                         const teamColor = TEAM_COLORS[member.team] || TEAM_COLORS.PASSION;
                         const apiData = apiDataMap[member.name];
@@ -80,34 +84,25 @@ export default function FeaturedMembers({ trendingMembers = [] }) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.08 }}
-                                whileHover={{ y: -6, scale: 1.03 }}
+                                whileHover={{ y: -6, scale: 1.05, rotate: (Math.random() - 0.5) * 6 }}
                                 onClick={() => router.visit(route('members.show', member.code))}
-                                className="group text-center cursor-pointer"
+                                className="group text-center cursor-pointer bg-white border-4 border-surface-900 p-4 shadow-[6px_6px_0_0_#0f172a] hover:shadow-[8px_8px_0_0_#0f172a] hover:bg-[#FEF08A] transition-all duration-200 flex flex-col items-center"
                             >
-                                <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 mb-3">
-                                    <motion.div
-                                        className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                        style={{ boxShadow: `0 0 25px ${teamColor.bg}40, 0 0 50px ${teamColor.bg}20` }}
-                                    />
-                                    <div
-                                        className="absolute -inset-1 rounded-full opacity-60 group-hover:opacity-100 transition-opacity"
-                                        style={{ background: `linear-gradient(135deg, ${teamColor.bg}, transparent)` }}
-                                    />
+                                <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28 mb-4 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] overflow-hidden bg-surface-100 transform -rotate-2 group-hover:rotate-0 transition-transform">
                                     <img
                                         src={photo}
                                         alt={displayName}
-                                        className="relative w-full h-full rounded-full object-cover object-top border-2 border-white shadow-md"
+                                        className="relative w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-300"
                                         onError={e => { e.target.src = avatarFallback(displayName, teamColor); }}
                                     />
                                     <div
-                                        className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-sm whitespace-nowrap"
-                                        style={{ backgroundColor: teamColor.bg }}
+                                        className="absolute -bottom-1 -right-1 px-2 py-1 border-t-4 border-l-4 border-surface-900 text-[10px] font-black uppercase tracking-widest text-surface-900 bg-white"
                                     >
-                                        {member.listing_count} listing
+                                        {member.listing_count} LISTING
                                     </div>
                                 </div>
-                                <h3 className="text-sm font-semibold text-surface-800 group-hover:text-primary-600 transition-colors">{displayName}</h3>
-                                <p className="text-[11px] font-medium mt-0.5" style={{ color: teamColor.bg }}>{member.team}</p>
+                                <h3 className="text-sm font-black uppercase tracking-widest text-surface-900 mb-1">{displayName}</h3>
+                                <p className="text-[10px] font-bold px-2 py-0.5 border-2 border-surface-900 bg-white shadow-[2px_2px_0_0_#0f172a] uppercase" style={{ color: teamColor.bg }}>{member.team}</p>
                             </motion.div>
                         );
                     })}
