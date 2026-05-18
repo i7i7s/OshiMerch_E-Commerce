@@ -48,14 +48,14 @@ class TransactionPolicy
 
     public function ship(User $user, Transaction $transaction): bool
     {
-        return $user->id === $transaction->seller_id
-            && $transaction->delivery_status === 'Packed';
+        // Only admin can trigger this (via Filament) — before() hook allows Admin
+        return false;
     }
 
     public function outForDelivery(User $user, Transaction $transaction): bool
     {
-        return $user->id === $transaction->seller_id
-            && $transaction->delivery_status === 'Shipped';
+        // Only admin can trigger this (via Filament) — before() hook allows Admin
+        return false;
     }
 
     public function complete(User $user, Transaction $transaction): bool

@@ -28,7 +28,6 @@ class TransactionController extends Controller
 
         $request->validate([
             'listing_id'        => 'required|exists:listings,id',
-            'payment_method'    => 'required|in:BCA,Dana,GoPay,ShopeePay,OVO',
             'shipping_address'  => 'required|string|max:500',
             'shipping_province' => 'required|string|in:' . $validProvinces,
             'shipping_city'     => 'nullable|string|max:150',
@@ -58,7 +57,6 @@ class TransactionController extends Controller
             'seller_id'         => $listing->user_id,
             'listing_id'        => $listing->id,
             'item_price'        => $listing->price,
-            'payment_method'    => $request->payment_method,
             'shipping_address'  => $request->shipping_address,
             'shipping_province' => $request->shipping_province,
             'shipping_city'     => $request->shipping_city,
@@ -72,7 +70,126 @@ class TransactionController extends Controller
 
         $listing->update(['status' => 'Reserved']);
 
-        return redirect()->route('transactions.show', $transaction->id);
+        // Generate Midtrans Snap token
+        try {
+            \Midtrans\Config::$serverKey    = config('services.midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('services.midtrans.is_production');
+            \Midtrans\Config::$isSanitized  = true;
+            \Midtrans\Config::$is3ds        = true;
+
+            $orderId    = 'OM-' . $transaction->id . '-' . time();
+            $snapParams = [
+                'transaction_details' => [
+                    'order_id'     => $orderId,
+                    'gross_amount' => $transaction->item_price + $shippingFee,
+                ],
+                'customer_details' => [
+                    'first_name' => $request->recipient_name,
+                    'phone'      => $request->recipient_phone,
+                    'email'      => Auth::user()->email,
+                ],
+                'item_details' => [
+                    [
+                        'id'       => (string) $transaction->listing_id,
+                        'price'    => $transaction->item_price,
+                        'quantity' => 1,
+                        'name'     => Str::limit($listing->title, 50),
+                    ],
+                    [
+                        'id'       => 'OSHIGO-SHIPPING',
+                        'price'    => $shippingFee,
+                        'quantity' => 1,
+                        'name'     => 'Ongkir OshiGo',
+                    ],
+                ],
+            ];
+
+            // Only add shipping item if fee > 0 (Midtrans requires price > 0)
+            if ($shippingFee === 0) {
+                array_pop($snapParams['item_details']);
+            }
+
+            $orderId    = 'OM-' . $transaction->id . '-' . time();
+            $snapParams['transaction_details']['order_id'] = $orderId;
+            $snapToken = \Midtrans\Snap::getSnapToken($snapParams);
+            $transaction->update([
+                'midtrans_snap_token' => $snapToken,
+                'midtrans_order_id'   => $orderId,
+            ]);
+        } catch (\Exception $e) {
+            // Log error but don't block the checkout — buyer can retry payment
+            \Illuminate\Support\Facades\Log::error('Midtrans snap token error: ' . $e->getMessage());
+        }
+
+        return Inertia::location(route('transactions.show', $transaction->uuid));
+    }
+
+    /**
+     * Regenerate Midtrans snap token for a pending transaction.
+     * Used when token generation failed during checkout or token is missing.
+     */
+    public function refreshSnapToken(Transaction $transaction): \Illuminate\Http\JsonResponse
+    {
+        // Only buyer can refresh their own token
+        if (Auth::id() !== $transaction->buyer_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if ($transaction->payment_status !== 'Pending') {
+            return response()->json(['error' => 'Transaction is not pending'], 400);
+        }
+
+        try {
+            \Midtrans\Config::$serverKey    = config('services.midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('services.midtrans.is_production');
+            \Midtrans\Config::$isSanitized  = true;
+            \Midtrans\Config::$is3ds        = true;
+
+            $listing     = $transaction->listing;
+            $shippingFee = $transaction->shipping_fee ?? 0;
+
+            $itemDetails = [
+                [
+                    'id'       => (string) $transaction->listing_id,
+                    'price'    => $transaction->item_price,
+                    'quantity' => 1,
+                    'name'     => Str::limit($listing->title, 50),
+                ],
+            ];
+
+            if ($shippingFee > 0) {
+                $itemDetails[] = [
+                    'id'       => 'OSHIGO-SHIPPING',
+                    'price'    => $shippingFee,
+                    'quantity' => 1,
+                    'name'     => 'Ongkir OshiGo',
+                ];
+            }
+
+            $orderId    = 'OM-' . $transaction->id . '-' . time();
+            $snapParams = [
+                'transaction_details' => [
+                    'order_id'     => $orderId,
+                    'gross_amount' => $transaction->item_price + $shippingFee,
+                ],
+                'customer_details' => [
+                    'first_name' => $transaction->recipient_name,
+                    'phone'      => $transaction->recipient_phone,
+                    'email'      => Auth::user()->email,
+                ],
+                'item_details' => $itemDetails,
+            ];
+            $snapToken = \Midtrans\Snap::getSnapToken($snapParams);
+            $transaction->update([
+                'midtrans_snap_token' => $snapToken,
+                'midtrans_order_id'   => $orderId,
+            ]);
+
+            return response()->json(['snap_token' => $snapToken]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Midtrans refresh snap token error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -92,6 +209,7 @@ class TransactionController extends Controller
         return Inertia::render('Transactions/Show', [
             'transaction' => [
                 'id'                     => $transaction->id,
+                'uuid'                   => $transaction->uuid,
                 'item_price'             => $transaction->item_price,
                 'shipping_fee'           => $transaction->shipping_fee ?? 0,
                 'shipping_province'      => $transaction->shipping_province,
@@ -102,11 +220,16 @@ class TransactionController extends Controller
                 'recipient_phone'        => $transaction->recipient_phone,
                 'shipping_resi'          => $transaction->shipping_resi,
                 'oshigo_tracking_number' => $transaction->oshigo_tracking_number,
-                'payment_status'   => $transaction->payment_status,
-                'delivery_status'  => $transaction->delivery_status,
-                'proof_url'        => $transaction->proof_url,
-                'created_at'       => $transaction->created_at->toISOString(),
-                'created_at_human' => $transaction->created_at->diffForHumans(),
+                'payment_status'         => $transaction->payment_status,
+                'delivery_status'        => $transaction->delivery_status,
+                'proof_url'              => $transaction->proof_url,
+                'created_at'             => $transaction->created_at->toISOString(),
+                'created_at_human'       => $transaction->created_at->diffForHumans(),
+                // Only expose snap token to the buyer when payment is still pending
+                'midtrans_snap_token'    => (
+                    Auth::id() === $transaction->buyer_id &&
+                    $transaction->payment_status === 'Pending'
+                ) ? $transaction->midtrans_snap_token : null,
                 'listing' => [
                     'id'                   => $transaction->listing->id,
                     'title'                => $transaction->listing->title,
@@ -154,7 +277,7 @@ class TransactionController extends Controller
         ]);
 
         // Broadcast status change to both parties
-        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+        try { broadcast(new TransactionStatusUpdated($transaction->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         // Notify seller
         Notification::transactionPaid(
@@ -180,7 +303,7 @@ class TransactionController extends Controller
         $transaction->update(['payment_status' => 'Confirmed']);
 
         // Broadcast status change to both parties
-        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+        try { broadcast(new TransactionStatusUpdated($transaction->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         // Notify buyer that seller confirmed
         Notification::create([
@@ -188,7 +311,7 @@ class TransactionController extends Controller
             'type'    => 'payment_confirmed',
             'title'   => '✅ Pembayaran Dikonfirmasi!',
             'body'    => 'Penjual telah mengkonfirmasi pembayaranmu. Barang akan segera dikirim.',
-            'url'     => "/transactions/{$transaction->id}",
+            'url'     => "/transactions/{$transaction->uuid}",
             'data'    => ['transaction_id' => $transaction->id],
         ]);
 
@@ -209,14 +332,14 @@ class TransactionController extends Controller
             'delivery_status'        => 'Packed',
         ]);
 
-        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+        try { broadcast(new TransactionStatusUpdated($transaction->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         Notification::create([
             'user_id' => $transaction->buyer_id,
             'type'    => 'item_packed',
             'title'   => '📦 Pesananmu Sedang Dipacking!',
             'body'    => "Penjual sedang menyiapkan barangmu. Tracking OshiGo: {$tracking}",
-            'url'     => "/transactions/{$transaction->id}",
+            'url'     => "/transactions/{$transaction->uuid}",
             'data'    => ['transaction_id' => $transaction->id, 'tracking' => $tracking],
         ]);
 
@@ -232,7 +355,7 @@ class TransactionController extends Controller
 
         $transaction->update(['delivery_status' => 'Shipped']);
 
-        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+        try { broadcast(new TransactionStatusUpdated($transaction->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         Notification::itemShipped(
             $transaction->buyer_id,
@@ -252,14 +375,14 @@ class TransactionController extends Controller
 
         $transaction->update(['delivery_status' => 'OutForDelivery']);
 
-        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+        try { broadcast(new TransactionStatusUpdated($transaction->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         Notification::create([
             'user_id' => $transaction->buyer_id,
             'type'    => 'out_for_delivery',
             'title'   => '🚚 Barangmu Sedang Dalam Perjalanan!',
             'body'    => "Paketmu ({$transaction->oshigo_tracking_number}) sedang dalam perjalanan menuju alamatmu.",
-            'url'     => "/transactions/{$transaction->id}",
+            'url'     => "/transactions/{$transaction->uuid}",
             'data'    => ['transaction_id' => $transaction->id],
         ]);
 
@@ -276,10 +399,11 @@ class TransactionController extends Controller
         $transaction->update(['delivery_status' => 'Delivered']);
         $transaction->listing->update(['status' => 'Sold']);
 
-        broadcast(new TransactionStatusUpdated($transaction->fresh()));
+        try { broadcast(new TransactionStatusUpdated($transaction->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         Notification::transactionCompleted($transaction->seller_id, $transaction->id);
 
         return back()->with('success', 'Transaksi selesai! Terima kasih.');
     }
 }
+

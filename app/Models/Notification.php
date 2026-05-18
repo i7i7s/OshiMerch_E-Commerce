@@ -59,6 +59,16 @@ class Notification extends Model
         }
     }
 
+    /** Broadcast silently — don't fail the whole request if Reverb is down. */
+    private static function safeBroadcast(self $notification): void
+    {
+        try {
+            broadcast(new NewNotification($notification));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('[Notification] Broadcast failed: ' . $e->getMessage());
+        }
+    }
+
     // ─── Static Factory Methods ───────────────────────────────────────────────────
     // These are the "notification events" OshiMerch will trigger.
 
@@ -73,7 +83,7 @@ class Notification extends Model
             'data'    => ['transaction_id' => $transactionId],
         ]);
 
-        broadcast(new NewNotification($notification));
+        self::safeBroadcast($notification);
 
         return $notification;
     }
@@ -89,7 +99,7 @@ class Notification extends Model
             'data'    => ['transaction_id' => $transactionId, 'tracking_number' => $trackingNumber],
         ]);
 
-        broadcast(new NewNotification($notification));
+        self::safeBroadcast($notification);
 
         return $notification;
     }
@@ -105,7 +115,7 @@ class Notification extends Model
             'data'    => ['transaction_id' => $transactionId],
         ]);
 
-        broadcast(new NewNotification($notification));
+        self::safeBroadcast($notification);
 
         return $notification;
     }
@@ -121,7 +131,7 @@ class Notification extends Model
             'data'    => ['conversation_id' => $conversationId, 'sender_id' => $senderId],
         ]);
 
-        broadcast(new NewNotification($notification));
+        self::safeBroadcast($notification);
 
         return $notification;
     }
@@ -137,7 +147,7 @@ class Notification extends Model
             'data'    => ['member_name' => $memberName],
         ]);
 
-        broadcast(new NewNotification($notification));
+        self::safeBroadcast($notification);
 
         return $notification;
     }
@@ -153,7 +163,7 @@ class Notification extends Model
             'data'    => ['transaction_id' => $transactionId],
         ]);
 
-        broadcast(new NewNotification($notification));
+        self::safeBroadcast($notification);
 
         return $notification;
     }

@@ -60,6 +60,14 @@ const TABS = [
     { label: 'JKT48V',     value: 'JKT48V',   apiValue: 'JKT48_VIRTUAL' },
 ];
 
+const TEAM_PRIORITY = {
+    'PASSION': 1,
+    'LOVE': 2,
+    'DREAM': 3,
+    'TRAINEE': 4,
+    'JKT48_VIRTUAL': 5,
+};
+
 const TEAM_GRADIENTS = {
     PASSION: 'from-rose-500 to-pink-600',
     LOVE: 'from-pink-400 to-rose-400',
@@ -177,7 +185,16 @@ export default function Members({ auth }) {
 
     const filtered = useMemo(() => {
         const tab = TABS.find((t) => t.value === activeTab);
-        let result = allMembers;
+        let result = [...allMembers];
+
+        // Sort by team priority first, then by name
+        result.sort((a, b) => {
+            const pA = TEAM_PRIORITY[getTeam(a)] || 99;
+            const pB = TEAM_PRIORITY[getTeam(b)] || 99;
+            if (pA !== pB) return pA - pB;
+            return (a.name || '').localeCompare(b.name || '');
+        });
+
         if (tab?.apiValue) {
             result = result.filter((m) => getTeam(m) === tab.apiValue);
         }
@@ -260,7 +277,7 @@ export default function Members({ auth }) {
                                     onChange={(e) => setQuery(e.target.value)}
                                     onFocus={() => setSearchFocused(true)}
                                     onBlur={() => setSearchFocused(false)}
-                                    placeholder="Cari member (cth: Zee, Freya)"
+                                    placeholder="Cari member (cth: Kathrina, Freya)"
                                     className="w-full pl-4 pr-10 py-3 bg-transparent outline-none text-surface-900 font-bold placeholder-surface-400"
                                 />
                                 {query && (

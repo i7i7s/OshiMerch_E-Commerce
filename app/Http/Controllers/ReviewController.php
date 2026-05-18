@@ -19,7 +19,7 @@ class ReviewController extends Controller
     public function index(User $user): Response
     {
         $reviews = Review::where('seller_id', $user->id)
-            ->with('reviewer:id,name,profile_picture_url,oshi_member_name')
+            ->with(['reviewer:id,name,profile_picture_url,oshi_member_name', 'transaction.listing'])
             ->latest()
             ->paginate(12)
             ->through(fn ($r) => [
@@ -28,6 +28,9 @@ class ReviewController extends Controller
                 'comment'    => $r->comment,
                 'reviewer'   => $r->reviewer,
                 'created_at' => $r->created_at->diffForHumans(),
+                'product'    => $r->transaction?->listing ? [
+                    'title' => $r->transaction->listing->title,
+                ] : null,
             ]);
 
         $avgRating   = Review::where('seller_id', $user->id)->avg('rating') ?? 0;
@@ -65,7 +68,7 @@ class ReviewController extends Controller
         $user = $request->user();
 
         abort_unless($transaction->buyer_id === $user->id, 403);
-        abort_unless($transaction->delivery_status === 'Completed', 403);
+        abort_unless($transaction->delivery_status === 'Delivered', 403);
 
         if ($transaction->reviews()->where('reviewer_id', $user->id)->exists()) {
             return back()->with('error', 'Kamu sudah memberi ulasan untuk transaksi ini.');

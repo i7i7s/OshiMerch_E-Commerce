@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Toast from '@/Components/Toast';
 
 const NAV_LINKS = [
-    { label: 'Products', href: '/products' },
+    { label: 'Produk', href: '/produk' },
     { label: 'Tentang Kami', href: '/about' },
     { label: 'Member',   href: '/members' },
 ];
@@ -177,7 +177,7 @@ export default function Navbar() {
     const [unreadCount, setUnreadCount] = useState(0);
     const notifRef = useRef(null);
 
-    // Fetch notifications (initial load only — real-time via Echo/Reverb)
+    // Fetch notifications — called on mount and by polling interval
     const fetchNotifications = useCallback(async () => {
         if (!user) return;
         try {
@@ -198,6 +198,9 @@ export default function Navbar() {
         if (!user) return;
         fetchNotifications(); // Fetch existing on mount
 
+        // ─── Poll every 10 s as fallback (works even when Reverb is offline) ─
+        const pollTimer = setInterval(fetchNotifications, 10_000);
+
         // ─── Real-time: listen for new notifications via Echo/Reverb ─────
         if (window.Echo) {
             const channel = window.Echo.private(`notifications.${user.id}`);
@@ -207,9 +210,12 @@ export default function Navbar() {
             });
 
             return () => {
+                clearInterval(pollTimer);
                 window.Echo.leave(`notifications.${user.id}`);
             };
         }
+
+        return () => clearInterval(pollTimer);
     }, [user, fetchNotifications]);
 
     // Close notif dropdown on outside click

@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import { PROVINCES, getShippingFee } from '@/data/shipping';
+import { getCities } from '@/data/wilayah';
 
 // ── Icons ──────────────────────────────────────────────────────────────────────
 const IconChevron = () => (
@@ -27,14 +28,6 @@ const IconArrowLeft = () => (
     </svg>
 );
 
-// ── Payment methods ────────────────────────────────────────────────────────────
-const PAYMENT_METHODS = [
-    { id: 'BCA',       label: 'Transfer BCA',   icon: '🏦', number: '1234567890',    name: 'OshiMerch Official' },
-    { id: 'Dana',      label: 'DANA',            icon: '💙', number: '0812-3456-7890', name: 'OshiMerch' },
-    { id: 'GoPay',     label: 'GoPay',           icon: '💚', number: '0812-3456-7890', name: 'OshiMerch' },
-    { id: 'ShopeePay', label: 'ShopeePay',       icon: '🧡', number: '0812-3456-7890', name: 'OshiMerch' },
-    { id: 'OVO',       label: 'OVO',             icon: '💜', number: '0812-3456-7890', name: 'OshiMerch' },
-];
 
 // ── Section Wrapper (Brutalist) ────────────────────────────────────────────────────────────
 function Section({ step, title, children }) {
@@ -85,7 +78,6 @@ export default function Checkout({ listing }) {
             shipping_city:     primary?.city || '',
             shipping_district: '',
             shipping_address:  primary?.full_address || '',
-            payment_method:    'BCA',
         };
     });
     const [errors, setErrors] = useState(pageErrors || {});
@@ -98,6 +90,7 @@ export default function Checkout({ listing }) {
     // ── Computed ──────────────────────────────────────────────────────────────
     const shippingFee = useMemo(() => getShippingFee(form.shipping_province), [form.shipping_province]);
     const total       = listing.price + shippingFee;
+    const cities      = getCities(form.shipping_province);
 
     const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
@@ -112,7 +105,7 @@ export default function Checkout({ listing }) {
             recipient_phone:   addr.phone || f.recipient_phone,
             shipping_province: addr.province || '',
             shipping_city:     addr.city || '',
-            shipping_district: '',
+            shipping_district: addr.district || '',
             shipping_address:  addr.full_address || '',
         }));
     };
@@ -129,7 +122,7 @@ export default function Checkout({ listing }) {
         });
     };
 
-    const canSubmit = form.recipient_name && form.shipping_province && form.shipping_address && form.payment_method && !submitting;
+    const canSubmit = form.recipient_name && form.shipping_province && form.shipping_address && !submitting;
 
     return (
         <>
@@ -255,7 +248,7 @@ export default function Checkout({ listing }) {
                                                 <select
                                                     className={selectCls}
                                                     value={form.shipping_province}
-                                                    onChange={e => set('shipping_province', e.target.value)}
+                                                    onChange={e => setForm(f => ({ ...f, shipping_province: e.target.value, shipping_city: '' }))}
                                                 >
                                                     <option value="">-- Pilih Provinsi --</option>
                                                     {PROVINCES.map(p => (
@@ -268,16 +261,24 @@ export default function Checkout({ listing }) {
                                             </div>
                                         </Field>
 
-                                        {/* City - text input (no external API) */}
+                                        {/* City - cascading select from province */}
                                         <Field label="Kabupaten / Kota" error={errors.shipping_city}>
-                                            <input
-                                                type="text"
-                                                className={inputCls}
-                                                placeholder="Contoh: Kota Surabaya"
-                                                value={form.shipping_city}
-                                                onChange={e => set('shipping_city', e.target.value)}
-                                                maxLength={100}
-                                            />
+                                            <div className="relative">
+                                                <select
+                                                    className={selectCls}
+                                                    value={form.shipping_city}
+                                                    onChange={e => set('shipping_city', e.target.value)}
+                                                    disabled={!form.shipping_province}
+                                                >
+                                                    <option value="">{form.shipping_province ? '-- Pilih Kota/Kabupaten --' : '-- Pilih provinsi dulu --'}</option>
+                                                    {cities.map(c => (
+                                                        <option key={c} value={c}>{c}</option>
+                                                    ))}
+                                                </select>
+                                                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none bg-surface-50">
+                                                    <IconChevron />
+                                                </div>
+                                            </div>
                                         </Field>
 
                                         {/* District - text input */}
@@ -309,37 +310,21 @@ export default function Checkout({ listing }) {
                                     </div>
                                 </Section>
 
-                                {/* Step 3: Payment */}
-                                <Section step="3" title="Metode Pembayaran">
+                                {/* Step 3: Midtrans Payment Info */}
+                                <Section step="3" title="Pembayaran">
                                     <div className="space-y-4">
-                                        {PAYMENT_METHODS.map(pm => {
-                                            const isSelected = form.payment_method === pm.id;
-                                            return (
-                                                <button
-                                                    key={pm.id}
-                                                    type="button"
-                                                    onClick={() => set('payment_method', pm.id)}
-                                                    className={`w-full flex items-center gap-5 px-6 py-5 rounded-2xl border-4 text-left transition-all ${
-                                                        isSelected
-                                                            ? 'border-surface-900 bg-[#BAE6FD] shadow-[4px_4px_0_0_#0f172a] -translate-y-1 -translate-x-1'
-                                                            : 'border-surface-900 bg-white hover:bg-[#FEF08A] hover:shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1'
-                                                    }`}
-                                                >
-                                                    <span className="text-3xl bg-white w-12 h-12 rounded-xl flex items-center justify-center border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a] shrink-0">{pm.icon}</span>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="font-black text-surface-900 text-lg uppercase tracking-tight">{pm.label}</p>
-                                                        <p className="text-sm text-surface-700 font-bold mt-1 bg-white inline-block px-2 border-2 border-surface-900 rounded">{pm.number} · {pm.name}</p>
-                                                    </div>
-                                                    <div className={`w-8 h-8 rounded-xl border-4 flex items-center justify-center shrink-0 transition-all shadow-[2px_2px_0_0_#0f172a] ${
-                                                        isSelected
-                                                            ? 'border-surface-900 bg-[#A7F3D0] text-surface-900'
-                                                            : 'border-surface-900 bg-white'
-                                                    }`}>
-                                                        {isSelected && <IconCheck />}
-                                                    </div>
-                                                </button>
-                                            );
-                                        })}
+                                        <div className="flex items-center gap-4 bg-[#A7F3D0] border-4 border-surface-900 rounded-2xl p-5 shadow-[4px_4px_0_0_#0f172a] transform -rotate-1">
+                                            <span className="text-4xl">🔒</span>
+                                            <div>
+                                                <p className="font-black text-surface-900 text-lg uppercase tracking-tight">Pembayaran via Midtrans</p>
+                                                <p className="text-sm font-bold text-surface-700 mt-1">Setelah checkout, kamu akan diarahkan ke halaman pembayaran Midtrans. Tersedia: GoPay, OVO, DANA, Transfer Bank, Kartu Kredit, dan lebih banyak lagi.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-3">
+                                            {['GoPay', 'OVO', 'DANA', 'ShopeePay', 'BCA', 'Mandiri', 'BNI', 'Kartu Kredit'].map(m => (
+                                                <span key={m} className="px-3 py-1.5 bg-white border-2 border-surface-900 rounded-lg text-xs font-black uppercase shadow-[2px_2px_0_0_#0f172a]">{m}</span>
+                                            ))}
+                                        </div>
                                     </div>
                                 </Section>
                             </div>
@@ -430,7 +415,7 @@ export default function Checkout({ listing }) {
                                 <div className="bg-white border-4 border-surface-900 p-4 rounded-xl shadow-[4px_4px_0_0_#0f172a] transform rotate-1">
                                     <p className="text-xs text-surface-900 font-bold text-center leading-relaxed">
                                         Dengan checkout, listing akan di-<span className="font-black bg-[#FECDD3] px-1 border border-surface-900 rounded">RESERVE</span> dan
-                                        kamu perlu melakukan pembayaran dalam waktu <span className="font-black bg-[#BAE6FD] px-1 border border-surface-900 rounded">1×24 JAM</span>.
+                                        kamu akan diarahkan ke halaman <span className="font-black bg-[#BAE6FD] px-1 border border-surface-900 rounded">pembayaran Midtrans</span>.
                                     </p>
                                 </div>
                             </div>

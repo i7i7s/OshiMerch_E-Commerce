@@ -78,6 +78,14 @@ class TransactionResource extends Resource
                     ->label('OshiGo No.')
                     ->searchable()
                     ->placeholder('-'),
+                Tables\Columns\TextColumn::make('midtrans_order_id')
+                    ->label('Midtrans Order ID')
+                    ->searchable()
+                    ->copyable()
+                    ->placeholder('-'),
+                Tables\Columns\TextColumn::make('payment_method')
+                    ->label('Metode Bayar')
+                    ->placeholder('-'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Tanggal')
                     ->dateTime('d M Y')
@@ -133,7 +141,7 @@ class TransactionResource extends Resource
                             'type'    => 'payment_confirmed',
                             'title'   => '✅ Pembayaran Dikonfirmasi!',
                             'body'    => 'Admin OshiMerch telah mengkonfirmasi pembayaranmu. Barang akan segera diproses penjual.',
-                            'url'     => "/transactions/{$record->id}",
+                            'url'     => "/transactions/{$record->uuid}",
                             'data'    => ['transaction_id' => $record->id],
                         ]);
 
@@ -143,11 +151,11 @@ class TransactionResource extends Resource
                             'type'    => 'payment_confirmed',
                             'title'   => '✅ Pembayaran Terverifikasi!',
                             'body'    => 'Admin telah mengkonfirmasi pembayaran dari pembeli. Silakan proses pesanan.',
-                            'url'     => "/transactions/{$record->id}",
+                            'url'     => "/transactions/{$record->uuid}",
                             'data'    => ['transaction_id' => $record->id],
                         ]);
 
-                        broadcast(new \App\Events\TransactionStatusUpdated($record->fresh()));
+                        try { broadcast(new \App\Events\TransactionStatusUpdated($record->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
                     }),
                 Action::make('view_proof')
                     ->label('Lihat Bukti')
@@ -159,6 +167,46 @@ class TransactionResource extends Resource
                         'url' => asset('storage/' . $r->proof_of_transfer_path),
                     ]))
                     ->modalSubmitAction(false),
+                Action::make('mark_shipped')
+                    ->label('🚚 Tandai Dikirim (OshiGo)')
+                    ->icon('heroicon-o-truck')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi: Paket Dikirim')
+                    ->modalDescription('OshiGo sudah mengambil paket dari seller dan sedang dalam perjalanan ke buyer?')
+                    ->visible(fn (Transaction $r) => $r->delivery_status === 'Packed')
+                    ->action(function (Transaction $record): void {
+                        $record->update(['delivery_status' => 'Shipped']);
+                        try { broadcast(new \App\Events\TransactionStatusUpdated($record->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
+                        \App\Models\Notification::create([
+                            'user_id' => $record->buyer_id,
+                            'type'    => 'item_shipped',
+                            'title'   => '🚚 Paketmu Sudah Dikirim OshiGo!',
+                            'body'    => "Paket ({$record->oshigo_tracking_number}) sudah diambil OshiGo dan sedang dalam perjalanan.",
+                            'url'     => "/transactions/{$record->uuid}",
+                            'data'    => ['transaction_id' => $record->id],
+                        ]);
+                    }),
+                Action::make('mark_out_for_delivery')
+                    ->label('📍 Tandai Dalam Perjalanan')
+                    ->icon('heroicon-o-map-pin')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi: Dalam Perjalanan')
+                    ->modalDescription('OshiGo sedang mengantar paket ke alamat pembeli?')
+                    ->visible(fn (Transaction $r) => $r->delivery_status === 'Shipped')
+                    ->action(function (Transaction $record): void {
+                        $record->update(['delivery_status' => 'OutForDelivery']);
+                        try { broadcast(new \App\Events\TransactionStatusUpdated($record->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
+                        \App\Models\Notification::create([
+                            'user_id' => $record->buyer_id,
+                            'type'    => 'out_for_delivery',
+                            'title'   => '📍 Paketmu Sedang Dalam Perjalanan!',
+                            'body'    => "Paket OshiGo ({$record->oshigo_tracking_number}) sedang menuju alamatmu.",
+                            'url'     => "/transactions/{$record->uuid}",
+                            'data'    => ['transaction_id' => $record->id],
+                        ]);
+                    }),
                 Action::make('override_delivery')
                     ->label('Override Status')
                     ->icon('heroicon-o-pencil-square')
@@ -212,3 +260,4 @@ class TransactionResource extends Resource
         ];
     }
 }
+

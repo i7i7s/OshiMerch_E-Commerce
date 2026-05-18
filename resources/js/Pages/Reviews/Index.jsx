@@ -96,6 +96,13 @@ export default function Index({ seller, reviews, avg_rating, total_reviews, brea
                                                 <p className="text-xs text-surface-400">{review.created_at}</p>
                                             </div>
                                             <StarRating rating={review.rating} />
+                                            {review.product && (
+                                                <div className="mt-3 mb-1 text-[10px] font-black uppercase tracking-widest text-surface-900">
+                                                    <span className="bg-[#A7F3D0] px-2 py-1 border-2 border-surface-900 inline-block shadow-[2px_2px_0_0_#0f172a] transform rotate-1">
+                                                        📦 {review.product.title}
+                                                    </span>
+                                                </div>
+                                            )}
                                             {review.comment && (
                                                 <p className="text-surface-600 text-sm mt-2 leading-relaxed">{review.comment}</p>
                                             )}

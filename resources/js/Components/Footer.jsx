@@ -44,7 +44,7 @@ export default function Footer() {
                                     <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                                 </svg>
                                 <p className="text-lg sm:text-xl font-bold font-sans leading-relaxed relative z-10 italic">
-                                    "Dibuat dengan <span className="bg-primary-400 px-1 border border-surface-900 rounded font-black text-white transform -rotate-1 inline-block">passion</span>, dihadirkan dengan <span className="bg-[#BAE6FD] px-1 border border-surface-900 rounded font-black text-surface-900 transform rotate-1 inline-block">cinta</span>, diwujudkan untuk <span className="bg-[#FBCFE8] px-1 border border-surface-900 rounded font-black text-surface-900 inline-block">mimpimu</span>. Karena setiap pilihan yang kamu buat di sini adalah langkah menuju versi terbaik dirimu."
+                                    "Dibuat dengan <span className="bg-primary-400 px-1 border border-surface-900 rounded font-black text-white transform -rotate-1 inline-block">passion</span>, dihadirkan dengan <span className="bg-[#FBCFE8] px-1 border border-surface-900 rounded font-black text-surface-900 transform rotate-1 inline-block">cinta</span>, diwujudkan untuk <span className="bg-[#BAE6FD] px-1 border border-surface-900 rounded font-black text-surface-900 inline-block">mimpimu</span>. Karena setiap pilihan yang kamu buat di sini adalah langkah menuju versi terbaik dirimu."
                                 </p>
                             </div>
                         </div>

@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { ShoppingBag, Package, Heart, Sparkles, ChevronRight, Edit3, Trash2, AlertCircle } from 'lucide-react';
@@ -85,12 +85,18 @@ function FloatingProductCard({ item, type }) {
             whileHover={{ y: -10, rotate: (Math.random() - 0.5) * 4 }}
             className="relative aspect-[3/4] bg-white rounded-2xl border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] group overflow-hidden cursor-pointer">
             
-            <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            <img src={type === 'listings' ? item.image_url : item.listing?.image_url} alt={type === 'listings' ? item.title : item.listing?.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
             
             {/* Status Badge */}
-            <div className={`absolute top-3 left-3 px-3 py-1 border-4 border-surface-900 rounded-xl text-xs font-black uppercase shadow-[2px_2px_0_0_#0f172a] transform -rotate-2 ${item.status === 'Available' ? 'bg-[#A7F3D0] text-surface-900' : 'bg-white text-surface-900'}`}>
-                {item.status}
-            </div>
+            {type === 'listings' ? (
+                <div className={`absolute top-3 left-3 px-3 py-1 border-4 border-surface-900 rounded-xl text-xs font-black uppercase shadow-[2px_2px_0_0_#0f172a] transform -rotate-2 ${item.status === 'Available' ? 'bg-[#A7F3D0] text-surface-900' : 'bg-white text-surface-900'}`}>
+                    {item.status}
+                </div>
+            ) : (
+                <div className={`absolute top-3 left-3 px-3 py-1 border-4 border-surface-900 rounded-xl text-xs font-black uppercase shadow-[2px_2px_0_0_#0f172a] transform -rotate-2 ${item.delivery_status === 'Delivered' ? 'bg-[#A7F3D0] text-surface-900' : item.payment_status === 'Pending' ? 'bg-[#FEF08A] text-surface-900' : 'bg-[#BAE6FD] text-surface-900'}`}>
+                    {item.delivery_status === 'Delivered' ? '✓ Selesai' : item.payment_status === 'Pending' ? 'Belum Bayar' : item.delivery_status}
+                </div>
+            )}
 
             {/* Hover Actions Overlay */}
             <div className="absolute inset-0 bg-surface-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
@@ -105,7 +111,7 @@ function FloatingProductCard({ item, type }) {
                             </button>
                         </>
                     ) : (
-                        <Link href={route('products.show', item.id)} className="w-16 h-16 rounded-2xl bg-[#BAE6FD] border-4 border-surface-900 flex items-center justify-center text-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] transition-all transform hover:rotate-3">
+                        <Link href={route('transactions.show', item.uuid)} className="w-16 h-16 rounded-2xl bg-[#BAE6FD] border-4 border-surface-900 flex items-center justify-center text-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] transition-all transform hover:rotate-3">
                             <ChevronRight className="w-8 h-8" />
                         </Link>
                     )}
@@ -119,6 +125,14 @@ function FloatingProductCard({ item, type }) {
 export default function Dashboard({ auth, listings = [], purchases = [], sales = [] }) {
     const user = auth.user;
     const [activeTab, setActiveTab] = useState('listings');
+
+    // Auto-refresh purchases & sales every 30 s so new transactions appear
+    useEffect(() => {
+        const timer = setInterval(() => {
+            router.reload({ only: ['purchases', 'sales'], preserveScroll: true });
+        }, 30_000);
+        return () => clearInterval(timer);
+    }, []);
 
 
     const stats = {

@@ -34,8 +34,16 @@ class ListingController extends Controller
 
         $listings = $query->paginate(15)->withQueryString();
 
+        // Get the current user's favorited listing IDs for efficient per-card check
+        $favoritedIds = Auth::check()
+            ? Favorite::where('user_id', Auth::id())
+                ->pluck('listing_id')
+                ->flip()
+                ->all()
+            : [];
+
         // Transform to append imageUrl accessor and strip unneeded fields
-        $listings->through(function (Listing $listing) {
+        $listings->through(function (Listing $listing) use ($favoritedIds) {
             return [
                 'id'                   => $listing->id,
                 'title'                => $listing->title,
@@ -48,6 +56,7 @@ class ListingController extends Controller
                 'featured_member_name' => $listing->featured_member_name,
                 'featured_member_team' => $listing->featured_member_team,
                 'created_at'           => $listing->created_at->diffForHumans(),
+                'is_favorited'         => isset($favoritedIds[$listing->id]),
                 'seller'               => $listing->user ? [
                     'id'                 => $listing->user->id,
                     'name'               => $listing->user->name,

@@ -35,7 +35,7 @@ class SellerProfileController extends Controller
 
         // Load reviews with reviewer info
         $reviews = $user->reviewsReceived()
-            ->with('reviewer:id,name,profile_picture_url,oshi_member_name')
+            ->with(['reviewer:id,name,profile_picture_url,oshi_member_name', 'transaction.listing'])
             ->latest()
             ->take(20)
             ->get()
@@ -49,6 +49,9 @@ class SellerProfileController extends Controller
                     'avatar'             => $r->reviewer->profile_picture_url,
                     'oshi_member_name'   => $r->reviewer->oshi_member_name,
                 ],
+                'product'    => $r->transaction?->listing ? [
+                    'title' => $r->transaction->listing->title,
+                ] : null,
             ]);
 
         $avgRating    = $user->reviewsReceived()->avg('rating');

@@ -33,6 +33,7 @@ class ChatController extends Controller
                 return [
                     'type'            => 'transaction',
                     'id'              => $t->id,
+                    'uuid'            => $t->uuid,
                     'payment_status'  => $t->payment_status,
                     'delivery_status' => $t->delivery_status,
                     'listing' => [

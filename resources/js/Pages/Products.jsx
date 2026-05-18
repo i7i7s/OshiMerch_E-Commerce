@@ -400,15 +400,15 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                             )}
                         </div>
 
-                        {/* Category chips - Brutalist Scroll */}
-                        <div className="flex gap-4 mt-16 overflow-x-auto pb-6 pt-2 px-2 scrollbar-hide">
+                        {/* Category chips - Brutalist Wrap */}
+                        <div className="flex flex-wrap gap-4 mt-16 pb-6 pt-2">
                             {CATEGORIES.map((cat) => (
                                 <button
                                     key={cat.id}
                                     onClick={() =>
                                         handleFilterChange({ ...filters, category: cat.id === 'ALL' ? undefined : cat.id })
                                     }
-                                    className={`shrink-0 px-8 py-4 rounded-xl text-sm font-black tracking-widest uppercase transition-all duration-300 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none ${
+                                    className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-xs sm:text-sm font-black tracking-widest uppercase transition-all duration-300 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] active:translate-y-1 active:translate-x-1 active:shadow-none ${
                                         (filters.category || 'ALL') === cat.id
                                             ? 'bg-surface-900 text-white shadow-[2px_2px_0_0_#0f172a] translate-y-1 translate-x-1'
                                             : 'bg-white text-surface-900'
@@ -417,8 +417,6 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                                     {cat.name}
                                 </button>
                             ))}
-                            {/* Spacer to prevent last item from clipping its shadow */}
-                            <div className="shrink-0 w-2 md:w-6" />
                         </div>
                     </div>
                 </div>
@@ -560,7 +558,7 @@ export default function Products({ listings, filters: serverFilters, auth }) {
                                                 exit={{ opacity: 0, scale: 0.9 }}
                                                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                                             >
-                                                <ListingCard listing={listing} auth={auth} />
+                                                <ListingCard listing={listing} auth={auth} isFavorited={listing.is_favorited} />
                                             </motion.div>
                                         ))}
                                     </AnimatePresence>

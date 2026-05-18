@@ -55,9 +55,7 @@ class ConversationController extends Controller
         $listingData = null;
         $listingId   = $request->filled('listing_id') ? (int) $request->listing_id : $conversation->listing_id;
         if ($listingId) {
-            $listing = Listing::where('id', $listingId)
-                ->where('user_id', $user->id)
-                ->first();
+            $listing = Listing::find($listingId);
 
             if ($listing) {
                 $listingData = [
@@ -109,7 +107,7 @@ class ConversationController extends Controller
         ]);
 
         // Broadcast to the other participant via WebSocket
-        broadcast(new DirectMessageSent($message, $conversation->id))->toOthers();
+        try { broadcast(new DirectMessageSent($message, $conversation->id))->toOthers(); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         // Notify the other user
         $otherId = $conversation->user1_id === $user->id
@@ -135,3 +133,4 @@ class ConversationController extends Controller
         return back()->with('success', 'Pesan terkirim.');
     }
 }
+

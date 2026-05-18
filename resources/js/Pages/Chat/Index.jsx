@@ -24,7 +24,7 @@ function TransactionConvoItem({ convo, index }) {
             transition={{ delay: index * 0.06 }}
         >
             <Link
-                href={route('transactions.show', convo.id)}
+                href={route('transactions.show', convo.uuid)}
                 className="flex items-center gap-4 p-4 bg-white rounded-2xl border-4 border-surface-900 hover:shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 transition-all group"
             >
                 {/* Listing thumbnail */}

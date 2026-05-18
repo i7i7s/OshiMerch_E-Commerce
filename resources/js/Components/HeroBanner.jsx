@@ -24,7 +24,7 @@ const GoogleIcon = () => (
 function MeteorStreaks() {
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            {[...Array(30)].map((_, i) => (
+            {[...Array(8)].map((_, i) => (
                 <motion.div
                     key={i}
                     className="absolute h-[3px] rounded-full mix-blend-screen"

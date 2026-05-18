@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Transaction extends Model
 {
     protected $fillable = [
+        'uuid',
         'buyer_id',
         'seller_id',
         'listing_id',
@@ -27,7 +29,23 @@ class Transaction extends Model
         'oshigo_tracking_number',
         'payment_status',
         'delivery_status',
+        'midtrans_snap_token',
+        'midtrans_order_id',
     ];
+
+    // ── Route model binding via UUID ──────────────────────────────────────────
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Transaction $transaction) {
+            $transaction->uuid = (string) Str::uuid();
+        });
+    }
 
     // ── Relationships ─────────────────────────────────────────────────────────
 

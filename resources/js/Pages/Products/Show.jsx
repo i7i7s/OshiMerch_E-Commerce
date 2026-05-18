@@ -124,7 +124,7 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                             
                             {/* LEFT: Product Image */}
                             <div className="col-span-1 lg:col-span-5">
-                                <div className="relative w-full flex items-center justify-center rounded-3xl bg-[#BAE6FD] border-4 border-surface-900 overflow-hidden shadow-[12px_12px_0_#0f172a] group aspect-[4/5]">
+                                <div className="relative w-full flex items-center justify-center rounded-3xl bg-[#BAE6FD] border-4 border-surface-900 overflow-hidden shadow-[12px_12px_0_#0f172a] group p-6 sm:p-8 lg:p-10">
                                     {/* Abstract background pattern for the image container */}
                                     <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.2]"></div>
                                     
@@ -139,7 +139,7 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                                             transition={{ duration: 0.5 }}
                                             src={listing.image_url}
                                             alt={listing.title}
-                                            className="w-[90%] h-[90%] object-cover rounded-2xl border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] relative z-10 transition-transform duration-500 group-hover:scale-105"
+                                            className="w-full h-auto max-h-[80vh] object-contain rounded-2xl border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] relative z-10 transition-transform duration-500 group-hover:scale-[1.02] bg-surface-100"
                                             onError={() => setImgError(true)}
                                         />
                                     )}
@@ -206,23 +206,23 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                                 )}
 
                                 {/* Seller Info */}
-                                <div className="bg-[#A7F3D0] rounded-2xl border-4 border-surface-900 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 shadow-[8px_8px_0_#0f172a] transform -rotate-1">
+                                <div className="bg-[#A7F3D0] rounded-2xl border-4 border-surface-900 p-6 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 sm:gap-6 shadow-[8px_8px_0_#0f172a] transform -rotate-1">
                                     <Link href={route('seller.profile', listing.seller?.id)} className="shrink-0">
                                         <img
                                             src={sellerAvatar}
                                             alt={listing.seller?.name}
-                                            className="w-20 h-20 rounded-xl object-cover border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:scale-105 transition-transform"
+                                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:scale-105 transition-transform"
                                             onError={(e) => { e.target.src = sellerAvatar; }}
                                         />
                                     </Link>
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-[120px] max-w-full overflow-hidden">
                                         <p className="text-xs font-black text-surface-900 uppercase tracking-widest mb-1 bg-white inline-block px-1 border-2 border-surface-900">SELLER INFO</p>
-                                        <Link href={route('seller.profile', listing.seller?.id)} className="font-black text-2xl font-display text-surface-900 uppercase hover:text-white transition-colors block leading-none mt-1">
+                                        <Link href={route('seller.profile', listing.seller?.id)} className="font-black text-2xl sm:text-3xl font-display text-surface-900 uppercase hover:text-white transition-colors block leading-tight mt-1 truncate">
                                             {listing.seller?.name}
                                         </Link>
                                     </div>
                                     <Link href={route('seller.profile', listing.seller?.id)}
-                                        className="w-full sm:w-auto shrink-0 px-6 py-4 rounded-xl bg-surface-900 text-white font-black text-sm uppercase tracking-widest border-4 border-transparent hover:bg-white hover:text-surface-900 hover:border-surface-900 shadow-[4px_4px_0_0_rgba(15,23,42,0.2)] hover:shadow-[6px_6px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 transition-all text-center">
+                                        className="w-full sm:w-auto shrink-0 px-6 py-3 sm:py-4 mt-2 sm:mt-0 rounded-xl bg-surface-900 text-white font-black text-sm uppercase tracking-widest border-4 border-transparent hover:bg-white hover:text-surface-900 hover:border-surface-900 shadow-[4px_4px_0_0_rgba(15,23,42,0.2)] hover:shadow-[6px_6px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 transition-all text-center">
                                         CEK TOKO
                                     </Link>
                                 </div>

@@ -29,7 +29,7 @@ class MessageController extends Controller
         $message->load('sender:id,name,profile_picture_url');
 
         // Broadcast to the other participant via WebSocket
-        broadcast(new TransactionMessageSent($message, $transaction->id))->toOthers();
+        try { broadcast(new TransactionMessageSent($message, $transaction->id))->toOthers(); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -44,3 +44,4 @@ class MessageController extends Controller
         return back();
     }
 }
+

@@ -58,6 +58,13 @@ function ReviewCard({ review, index }) {
                         <span className="text-xs font-bold text-surface-500 shrink-0 bg-surface-100 px-2 py-1 rounded-md border border-surface-200">{review.created_at}</span>
                     </div>
                     <StarRating rating={review.rating} />
+                    {review.product && (
+                        <div className="mt-3 mb-1 text-[10px] font-black uppercase tracking-widest text-surface-900">
+                            <span className="bg-[#BAE6FD] px-2 py-1 border-2 border-surface-900 inline-block shadow-[2px_2px_0_0_#0f172a] transform -rotate-1">
+                                📦 {review.product.title}
+                            </span>
+                        </div>
+                    )}
                     {review.comment && (
                         <div className="mt-3 bg-surface-50 p-3 rounded-xl border-2 border-surface-200">
                             <p className="text-sm font-medium text-surface-800 leading-relaxed">{review.comment}</p>

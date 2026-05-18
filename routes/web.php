@@ -8,6 +8,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
@@ -21,6 +22,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+// ─── Midtrans Webhook (CSRF exempt — external request from Midtrans) ─────────
+Route::post('/midtrans/webhook', [MidtransController::class, 'webhook'])
+    ->name('midtrans.webhook');
 
 /*
 |--------------------------------------------------------------------------
@@ -108,10 +113,10 @@ Route::get('/about', function () {
 })->name('about');
 
 // Public: Products page (listing index — full marketplace)
-Route::get('/products', [ListingController::class, 'index'])->name('products.index');
+Route::get('/produk', [ListingController::class, 'index'])->name('products.index');
 
 // Public: Single product detail
-Route::get('/products/{listing}', [ListingController::class, 'show'])->name('products.show');
+Route::get('/produk/{listing}', [ListingController::class, 'show'])->name('products.show');
 
 // Public: Seller profile
 Route::get('/seller/{user}', [SellerProfileController::class, 'show'])->name('seller.profile');
@@ -156,6 +161,7 @@ Route::middleware(['auth', 'not.banned'])->group(function () {
 
             $mapTransaction = fn ($t) => [
                 'id'               => $t->id,
+                'uuid'             => $t->uuid,
                 'item_price'       => $t->item_price,
                 'payment_method'   => $t->payment_method,
                 'payment_status'   => $t->payment_status,
@@ -205,7 +211,8 @@ Route::middleware(['auth', 'not.banned'])->group(function () {
         // Transactions
         Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
         Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
-        Route::post('/transactions/{transaction}/proof', [TransactionController::class, 'uploadProof'])->name('transactions.uploadProof');
+        // uploadProof route removed — payment now handled by Midtrans webhook
+        Route::post('/transactions/{transaction}/refresh-snap-token', [TransactionController::class, 'refreshSnapToken'])->name('transactions.refreshSnapToken');
         Route::patch('/transactions/{transaction}/confirm-payment', [TransactionController::class, 'confirmPayment'])->name('transactions.confirmPayment');
         Route::patch('/transactions/{transaction}/pack', [TransactionController::class, 'pack'])->name('transactions.pack');
         Route::patch('/transactions/{transaction}/ship', [TransactionController::class, 'ship'])->name('transactions.ship');

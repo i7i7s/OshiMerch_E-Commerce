@@ -20,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // Exclude Midtrans webhook from CSRF verification (external POST from Midtrans servers)
+        $middleware->validateCsrfTokens(except: [
+            '/midtrans/webhook',
+        ]);
+
         $middleware->alias([
             'not.banned' => \App\Http\Middleware\EnsureUserIsNotBanned::class,
         ]);
