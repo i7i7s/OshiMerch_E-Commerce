@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Review extends Model
 {
@@ -12,7 +13,21 @@ class Review extends Model
         'seller_id',
         'rating',
         'comment',
+        'photo_paths',
     ];
+
+    protected $casts = [
+        'photo_paths' => 'array',
+    ];
+
+    public function getPhotoUrlsAttribute(): array
+    {
+        if (empty($this->photo_paths)) return [];
+        return array_map(
+            fn ($path) => Storage::disk('public')->url($path),
+            $this->photo_paths
+        );
+    }
 
     public function transaction()
     {

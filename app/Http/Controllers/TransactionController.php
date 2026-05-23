@@ -66,6 +66,7 @@ class TransactionController extends Controller
             'recipient_phone'   => $request->recipient_phone,
             'payment_status'    => 'Pending',
             'delivery_status'   => 'Pending',
+            'payment_deadline'  => now()->addHours(24),
         ]);
 
         $listing->update(['status' => 'Reserved']);
@@ -101,6 +102,9 @@ class TransactionController extends Controller
                         'quantity' => 1,
                         'name'     => 'Ongkir OshiGo',
                     ],
+                ],
+                'callbacks' => [
+                    'finish' => route('transactions.midtrans-finish', $transaction->uuid),
                 ],
             ];
 
@@ -178,6 +182,9 @@ class TransactionController extends Controller
                     'email'      => Auth::user()->email,
                 ],
                 'item_details' => $itemDetails,
+                'callbacks' => [
+                    'finish' => route('transactions.midtrans-finish', $transaction->uuid),
+                ],
             ];
             $snapToken = \Midtrans\Snap::getSnapToken($snapParams);
             $transaction->update([
@@ -225,6 +232,8 @@ class TransactionController extends Controller
                 'proof_url'              => $transaction->proof_url,
                 'created_at'             => $transaction->created_at->toISOString(),
                 'created_at_human'       => $transaction->created_at->diffForHumans(),
+                'payment_deadline'       => $transaction->payment_deadline?->toISOString(),
+                'ship_deadline'          => $transaction->ship_deadline?->toISOString(),
                 // Only expose snap token to the buyer when payment is still pending
                 'midtrans_snap_token'    => (
                     Auth::id() === $transaction->buyer_id &&

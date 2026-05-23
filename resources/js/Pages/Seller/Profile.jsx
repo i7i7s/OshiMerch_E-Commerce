@@ -1,6 +1,6 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ShoppingBag, Award, Calendar, ArrowLeft, MessageSquare } from 'lucide-react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
@@ -33,7 +33,7 @@ function RatingBar({ star, count, total }) {
     );
 }
 
-function ReviewCard({ review, index }) {
+function ReviewCard({ review, index, onPhotoClick }) {
     return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
@@ -70,6 +70,16 @@ function ReviewCard({ review, index }) {
                             <p className="text-sm font-medium text-surface-800 leading-relaxed">{review.comment}</p>
                         </div>
                     )}
+                    {review.photo_urls?.length > 0 && (
+                        <div className="flex gap-2 mt-3 flex-wrap">
+                            {review.photo_urls.map((url, pi) => (
+                                <button key={pi} type="button" onClick={() => onPhotoClick(url)}
+                                    className="w-16 h-16 rounded-xl overflow-hidden border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:scale-105 transition-transform">
+                                    <img src={url} alt={`foto ${pi + 1}`} className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </motion.div>
@@ -78,6 +88,7 @@ function ReviewCard({ review, index }) {
 
 export default function SellerProfile({ seller, listings, reviews, auth }) {
     const [activeTab, setActiveTab] = useState('profil');
+    const [activePhoto, setActivePhoto] = useState(null);
     const currentUser = auth?.user;
     const isOwnProfile = currentUser?.id === seller.id;
     const avgRating = seller.avg_rating;
@@ -89,6 +100,25 @@ export default function SellerProfile({ seller, listings, reviews, auth }) {
     return (
         <>
             <Head title={`${seller.name} — OshiMerch`} />
+            
+            {/* Lightbox */}
+            <AnimatePresence>
+                {activePhoto && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm"
+                        onClick={() => setActivePhoto(null)}>
+                        <motion.img initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+                            src={activePhoto} alt="Foto ulasan"
+                            className="max-h-[90vh] max-w-full rounded-2xl border-4 border-white shadow-2xl object-contain"
+                            onClick={e => e.stopPropagation()} />
+                        <button onClick={() => setActivePhoto(null)}
+                            className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full border-4 border-surface-900 font-black text-xl flex items-center justify-center shadow-[2px_2px_0_0_#0f172a] hover:bg-red-400 hover:text-white transition-colors z-50">
+                            ×
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="min-h-dvh bg-[#FAFAFA] flex flex-col font-sans">
                 <Navbar />
 
@@ -306,7 +336,7 @@ export default function SellerProfile({ seller, listings, reviews, auth }) {
                                         </p>
                                     </div>
                                 ) : (
-                                    reviews.map((r, i) => <ReviewCard key={r.id} review={r} index={i} />)
+                                    reviews.map((r, i) => <ReviewCard key={r.id} review={r} index={i} onPhotoClick={setActivePhoto} />)
                                 )}
                             </div>
                         </motion.div>

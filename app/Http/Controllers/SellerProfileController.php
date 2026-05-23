@@ -43,6 +43,7 @@ class SellerProfileController extends Controller
                 'id'         => $r->id,
                 'rating'     => $r->rating,
                 'comment'    => $r->comment,
+                'photo_urls' => $r->photo_urls,
                 'created_at' => $r->created_at->diffForHumans(),
                 'reviewer'   => [
                     'name'               => $r->reviewer->name,

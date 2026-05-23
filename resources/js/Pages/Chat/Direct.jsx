@@ -86,6 +86,13 @@ export default function Direct({ conversation, listing = null }) {
 
     // ─── Local state for real-time message updates ───────────────────────────
     const [messages, setMessages] = useState(conversation.messages);
+    const lastMessageIdRef = useRef(0);
+
+    // Track the highest real message ID seen
+    useEffect(() => {
+        const maxId = messages.filter(m => typeof m.id === 'number').reduce((max, m) => Math.max(max, m.id), 0);
+        if (maxId > lastMessageIdRef.current) lastMessageIdRef.current = maxId;
+    }, [messages]);
 
     // Sync when Inertia re-renders with fresh data (e.g., sender's own message)
     useEffect(() => {
@@ -109,6 +116,33 @@ export default function Direct({ conversation, listing = null }) {
         return () => {
             window.Echo.leave(`conversation.${conversation.id}`);
         };
+    }, [conversation.id]);
+
+    // ─── Polling fallback: fetch new messages every 3s (works without Reverb) ─
+    useEffect(() => {
+        const poll = async () => {
+            try {
+                const after = lastMessageIdRef.current;
+                const res = await fetch(
+                    route('chat.getMessages', conversation.id) + `?after=${after}`,
+                    { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }
+                );
+                if (!res.ok) return;
+                const { messages: newMsgs } = await res.json();
+                if (newMsgs?.length > 0) {
+                    setMessages(prev => {
+                        const existingIds = new Set(prev.map(m => m.id));
+                        const fresh = newMsgs.filter(m => !existingIds.has(m.id));
+                        return fresh.length > 0 ? [...prev, ...fresh] : prev;
+                    });
+                }
+            } catch {
+                // Silently fail
+            }
+        };
+
+        const timer = setInterval(poll, 3000);
+        return () => clearInterval(timer);
     }, [conversation.id]);
 
     // Auto-scroll when messages change

@@ -7,9 +7,51 @@ use App\Models\Notification;
 use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class MidtransController extends Controller
 {
+    /**
+     * Handle Midtrans finish redirect after Snap payment.
+     * User is redirected here after completing/closing payment popup.
+     */
+    public function finishRedirect(string $uuid): RedirectResponse
+    {
+        $transaction = Transaction::where('uuid', $uuid)->firstOrFail();
+
+        // Authorize: only buyer can access
+        if (Auth::id() !== $transaction->buyer_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Query Midtrans API to get latest transaction status
+        if ($transaction->midtrans_order_id) {
+            try {
+                \Midtrans\Config::$serverKey    = config('services.midtrans.server_key');
+                \Midtrans\Config::$isProduction = config('services.midtrans.is_production');
+                \Midtrans\Config::$isSanitized  = true;
+                \Midtrans\Config::$is3ds        = true;
+
+                $status = \Midtrans\Transaction::status($transaction->midtrans_order_id);
+
+                // If status is success & DB not updated yet, update it
+                if (($status->transaction_status === 'settlement' || 
+                     ($status->transaction_status === 'capture' && $status->fraud_status === 'accept')) &&
+                    $transaction->payment_status !== 'Confirmed') {
+                    
+                    $transaction->update(['payment_status' => 'Confirmed', 'ship_deadline' => now()->addDays(3)]);
+                    try { broadcast(new TransactionStatusUpdated($transaction->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
+                }
+            } catch (\Exception $e) {
+                // Log but don't fail — webhook will handle eventually
+                \Illuminate\Support\Facades\Log::warning('[Midtrans finish redirect] Status check failed: ' . $e->getMessage());
+            }
+        }
+
+        // Redirect back to transaction page (will show updated status or poll until webhook processes)
+        return redirect()->route('transactions.show', $transaction->uuid);
+    }
     /**
      * Handle Midtrans payment notification webhook.
      * This route must be excluded from CSRF middleware.
@@ -54,7 +96,8 @@ class MidtransController extends Controller
             $transaction->update([
                 'payment_status'    => 'Confirmed',
                 'midtrans_order_id' => $orderId,
-                'payment_method' => $request->payment_type ?? $transaction->payment_method,
+                'payment_method'    => $request->payment_type ?? $transaction->payment_method,
+                'ship_deadline'     => now()->addDays(3),
             ]);
 
             // Broadcast real-time status update via Reverb

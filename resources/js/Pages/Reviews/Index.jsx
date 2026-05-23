@@ -1,5 +1,6 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 
@@ -16,10 +17,33 @@ const StarRating = ({ rating, size = 'sm' }) => {
     );
 };
 
-export default function Index({ seller, reviews, avg_rating, total_reviews, breakdown }) {
+export default function Index({ seller, reviews, avg_rating, total_reviews, breakdown, has_photo_filter }) {
+    const [activePhoto, setActivePhoto] = useState(null);
+
+    const togglePhotoFilter = () => {
+        router.get(route('reviews.index', seller.id), has_photo_filter ? {} : { has_photo: 1 }, { preserveScroll: true });
+    };
+
     return (
         <>
             <Head title={`Ulasan ${seller.name} — OshiMerch`} />
+            {/* Lightbox */}
+            <AnimatePresence>
+                {activePhoto && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm"
+                        onClick={() => setActivePhoto(null)}>
+                        <motion.img initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+                            src={activePhoto} alt="Foto ulasan"
+                            className="max-h-[90vh] max-w-full rounded-2xl border-4 border-white shadow-2xl object-contain"
+                            onClick={e => e.stopPropagation()} />
+                        <button onClick={() => setActivePhoto(null)}
+                            className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full border-4 border-surface-900 font-black text-xl flex items-center justify-center shadow-[2px_2px_0_0_#0f172a] hover:bg-red-400 hover:text-white transition-colors">
+                            ×
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             <div className="min-h-dvh bg-surface-50 flex flex-col">
                 <Navbar />
                 <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-12 pt-[100px]">
@@ -69,6 +93,19 @@ export default function Index({ seller, reviews, avg_rating, total_reviews, brea
                     </motion.div>
 
                     {/* Reviews list */}
+                    {/* Filter bar */}
+                    <div className="flex items-center gap-3 mb-6">
+                        <button onClick={togglePhotoFilter}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl border-4 border-surface-900 font-black text-sm uppercase tracking-wide shadow-[2px_2px_0_0_#0f172a] transition-all active:translate-y-0.5 active:shadow-none ${has_photo_filter ? 'bg-surface-900 text-white' : 'bg-white text-surface-900 hover:bg-[#BAE6FD]'}`}>
+                            📸 Foto saja
+                        </button>
+                        {has_photo_filter && (
+                            <span className="text-xs font-black text-surface-500 uppercase tracking-widest bg-white px-2 border-2 border-surface-300 rounded-lg">
+                                {total_reviews} ulasan
+                            </span>
+                        )}
+                    </div>
+
                     {reviews.data.length === 0 ? (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                             className="text-center py-20">
@@ -105,6 +142,16 @@ export default function Index({ seller, reviews, avg_rating, total_reviews, brea
                                             )}
                                             {review.comment && (
                                                 <p className="text-surface-600 text-sm mt-2 leading-relaxed">{review.comment}</p>
+                                            )}
+                                            {review.photo_urls?.length > 0 && (
+                                                <div className="flex gap-2 mt-3 flex-wrap">
+                                                    {review.photo_urls.map((url, pi) => (
+                                                        <button key={pi} type="button" onClick={() => setActivePhoto(url)}
+                                                            className="w-20 h-20 rounded-xl overflow-hidden border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a] hover:scale-105 transition-transform">
+                                                            <img src={url} alt={`foto ${pi + 1}`} className="w-full h-full object-cover" />
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             )}
                                         </div>
                                     </div>

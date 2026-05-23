@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 // ── Raw SVG Icons (no Lucide dependency) ─────────────────────────────────────
@@ -74,15 +74,65 @@ function StatusTracker({ payment_status, delivery_status }) {
 }
 
 
+// ── Payment Countdown ─────────────────────────────────────────────────────────
+
+function PaymentCountdown({ deadline }) {
+    const calc = () => {
+        const diff = new Date(deadline) - new Date();
+        if (diff <= 0) return { str: 'HABIS', urgent: true };
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        return {
+            str: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`,
+            urgent: diff < 2 * 3600000,
+        };
+    };
+    const [display, setDisplay] = useState(calc);
+    useEffect(() => {
+        const timer = setInterval(() => setDisplay(calc()), 1000);
+        return () => clearInterval(timer);
+    }, [deadline]);
+    return (
+        <div className={`flex items-center gap-4 p-4 rounded-2xl border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] ${display.urgent ? 'bg-red-400 animate-pulse' : 'bg-[#FEF08A]'}`}>
+            <span className="text-3xl">⏰</span>
+            <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-surface-900">Batas Waktu Bayar</p>
+                <p className={`text-2xl font-black font-mono tracking-widest ${display.urgent ? 'text-white' : 'text-surface-900'}`}>{display.str}</p>
+            </div>
+        </div>
+    );
+}
+
 // ── Review Form ───────────────────────────────────────────────────────────────
 
 function ReviewForm({ transactionId, sellerName }) {
-    const { data, setData, post, processing, errors, reset, recentlySuccessful } = useForm({ rating: 5, comment: '' });
+    const { data, setData, post, processing, errors, reset, recentlySuccessful } = useForm({ rating: 5, comment: '', photos: [] });
     const [hoveredStar, setHoveredStar] = useState(0);
+    const [photoPreviews, setPhotoPreviews] = useState([]);
+    const fileInputRef = useRef(null);
+
+    const handlePhotoSelect = (e) => {
+        const incoming = Array.from(e.target.files);
+        const combined = [...data.photos, ...incoming].slice(0, 3);
+        setData('photos', combined);
+        setPhotoPreviews(combined.map(f => URL.createObjectURL(f)));
+        e.target.value = '';
+    };
+
+    const removePhoto = (idx) => {
+        const newPhotos = data.photos.filter((_, i) => i !== idx);
+        setData('photos', newPhotos);
+        setPhotoPreviews(newPhotos.map(f => URL.createObjectURL(f)));
+    };
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('reviews.store', transactionId), { onSuccess: () => reset(), preserveScroll: true });
+        post(route('reviews.store', transactionId), {
+            forceFormData: true,
+            onSuccess: () => { reset(); setPhotoPreviews([]); },
+            preserveScroll: true,
+        });
     };
 
     if (recentlySuccessful) {
@@ -120,6 +170,34 @@ function ReviewForm({ transactionId, sellerName }) {
                     rows={4} className="w-full px-5 py-4 rounded-2xl border-4 border-surface-900 text-sm font-bold uppercase focus:outline-none focus:bg-[#BAE6FD] resize-none shadow-[4px_4px_0_0_#0f172a] transition-all" />
                 {errors.rating && <p className="text-xs font-black text-[#f43f5e] mt-2 bg-white inline-block px-2 border-2 border-surface-900">{errors.rating}</p>}
             </div>
+
+            {/* Photo picker */}
+            <div className="space-y-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-surface-900 bg-white inline-block px-2 border-2 border-surface-900">📸 FOTO ULASAN (opsional, maks 3)</p>
+                {photoPreviews.length > 0 && (
+                    <div className="flex gap-3 flex-wrap">
+                        {photoPreviews.map((src, i) => (
+                            <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">
+                                <img src={src} alt={`foto ${i+1}`} className="w-full h-full object-cover" />
+                                <button type="button" onClick={() => removePhoto(i)}
+                                    className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center border-2 border-white shadow leading-none">
+                                    ×
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                {photoPreviews.length < 3 && (
+                    <button type="button" onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl border-4 border-surface-900 bg-white shadow-[2px_2px_0_0_#0f172a] font-black text-sm uppercase tracking-wide hover:bg-[#BAE6FD] transition-colors active:translate-y-0.5 active:shadow-none">
+                        <span>📷</span> Tambah Foto
+                    </button>
+                )}
+                <input ref={fileInputRef} type="file" accept="image/jpg,image/jpeg,image/png,image/webp"
+                    multiple className="hidden" onChange={handlePhotoSelect} />
+                {errors.photos && <p className="text-xs font-black text-[#f43f5e] bg-white inline-block px-2 border-2 border-surface-900">{errors.photos}</p>}
+            </div>
+
             <button onClick={submit} disabled={processing}
                 className="w-full py-4 rounded-xl bg-surface-900 text-white font-black text-sm uppercase tracking-widest shadow-[4px_4px_0_0_#0f172a] hover:bg-white hover:text-surface-900 hover:border-surface-900 border-4 border-transparent transition-all active:translate-y-1 active:translate-x-1 active:shadow-none disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0">
                 {processing ? 'MENGIRIM...' : 'KIRIM ULASAN ⭐'}
@@ -159,6 +237,17 @@ export default function Show({ transaction: initialTransaction }) {
             window.Echo.leave(`transaction.${txn.id}`);
         };
     }, [txn.id]);
+
+    // ─── Poll transaction status every 3s (fallback when Reverb offline or waiting for webhook) ─
+    useEffect(() => {
+        if (txn.payment_status === 'Confirmed' || !isBuyer) return;
+
+        const timer = setInterval(() => {
+            router.reload({ preserveScroll: true });
+        }, 3000);
+
+        return () => clearInterval(timer);
+    }, [txn.payment_status, isBuyer]);
 
     // Upload proof form
     const proofForm = useForm({ proof: null });
@@ -430,6 +519,11 @@ export default function Show({ transaction: initialTransaction }) {
                                     <div className="absolute top-4 right-4 text-4xl transform rotate-12 drop-shadow-[2px_2px_0_#0f172a]">💳</div>
                                     <h2 className="text-2xl font-black font-display text-surface-900 uppercase tracking-tighter" style={{ textShadow: '2px 2px 0px white' }}>SELESAIKAN PEMBAYARAN</h2>
 
+                                    {/* Payment deadline countdown */}
+                                    {txn.payment_deadline && (
+                                        <PaymentCountdown deadline={txn.payment_deadline} />
+                                    )}
+
                                     {/* Payment summary */}
                                     <div className="bg-white border-4 border-surface-900 rounded-2xl p-5 shadow-[4px_4px_0_0_#0f172a]">
                                         <div className="flex flex-col gap-3">
@@ -514,6 +608,25 @@ export default function Show({ transaction: initialTransaction }) {
                                         <h2 className="text-xl sm:text-2xl font-black font-display text-surface-900 uppercase tracking-tighter mb-2">✅ PEMBAYARAN DIKONFIRMASI</h2>
                                         <p className="text-xs font-black text-surface-900 uppercase tracking-widest bg-[#BAE6FD] inline-block px-2 border-2 border-surface-900 mt-1">SIAPKAN PESANAN</p>
                                     </div>
+                                    {/* Ship deadline */}
+                                    {txn.ship_deadline && (() => {
+                                        const deadline = new Date(txn.ship_deadline);
+                                        const now = new Date();
+                                        const hoursLeft = (deadline - now) / 3600000;
+                                        const isWarning = hoursLeft < 24;
+                                        return (
+                                            <div className={`flex items-center gap-3 p-4 rounded-2xl border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] ${isWarning ? 'bg-red-400' : 'bg-[#A7F3D0]'}`}>
+                                                <span className="text-2xl">📦</span>
+                                                <div>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-surface-900">Tenggat Kirim</p>
+                                                    <p className={`font-black text-lg ${isWarning ? 'text-white' : 'text-surface-900'}`}>
+                                                        {deadline.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                                    </p>
+                                                    {isWarning && <p className="text-white font-bold text-xs mt-0.5">⚠️ Segera kirim sebelum tenggat habis!</p>}
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
                                     <p className="text-sm font-bold text-surface-900 bg-white p-4 border-2 border-surface-900 rounded-xl shadow-[2px_2px_0_0_#0f172a] text-center transform -rotate-1">
                                         Klik tombol di bawah untuk generate nomor tracking OshiGo dan mulai packing barang.
                                     </p>
@@ -639,7 +752,7 @@ export default function Show({ transaction: initialTransaction }) {
                                     Ada pertanyaan soal transaksi ini? Hubungi langsung {isBuyer ? 'penjual' : 'pembeli'} via chat pribadi.
                                 </p>
                                 <Link
-                                    href={route('chat.direct', { user: isBuyer ? txn.seller.id : txn.buyer.id })}
+                                    href={route('chat.direct', { user: isBuyer ? txn.seller.id : txn.buyer.id, listing_id: txn.listing.id })}
                                     className="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-surface-900 text-white font-black uppercase tracking-widest border-4 border-transparent shadow-[4px_4px_0_0_#0f172a] hover:bg-white hover:text-surface-900 hover:border-surface-900 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] transition-all"
                                 >
                                     💬 BUKA CHAT PRIBADI

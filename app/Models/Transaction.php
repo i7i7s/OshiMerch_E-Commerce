@@ -31,6 +31,13 @@ class Transaction extends Model
         'delivery_status',
         'midtrans_snap_token',
         'midtrans_order_id',
+        'payment_deadline',
+        'ship_deadline',
+    ];
+
+    protected $casts = [
+        'payment_deadline' => 'datetime',
+        'ship_deadline'    => 'datetime',
     ];
 
     // ── Route model binding via UUID ──────────────────────────────────────────

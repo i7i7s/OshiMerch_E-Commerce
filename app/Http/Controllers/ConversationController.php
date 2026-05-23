@@ -132,5 +132,35 @@ class ConversationController extends Controller
         // Inertia fallback
         return back()->with('success', 'Pesan terkirim.');
     }
+
+    /**
+     * Fetch messages newer than a given ID (polling fallback for WebSocket).
+     */
+    public function getMessages(Request $request, Conversation $conversation)
+    {
+        $user = Auth::user();
+
+        abort_unless(
+            $conversation->user1_id === $user->id || $conversation->user2_id === $user->id,
+            403
+        );
+
+        $afterId = (int) $request->query('after', 0);
+
+        $messages = $conversation->directMessages()
+            ->with('sender:id,name,profile_picture_url')
+            ->when($afterId > 0, fn ($q) => $q->where('id', '>', $afterId))
+            ->orderBy('id')
+            ->get()
+            ->map(fn ($m) => [
+                'id'               => $m->id,
+                'content'          => $m->content,
+                'sender_id'        => $m->sender_id,
+                'sender'           => $m->sender?->only(['id', 'name', 'profile_picture_url']),
+                'created_at_human' => $m->created_at->diffForHumans(),
+            ]);
+
+        return response()->json(['messages' => $messages]);
+    }
 }
 

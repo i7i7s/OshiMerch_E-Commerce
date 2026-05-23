@@ -27,6 +27,11 @@ use Inertia\Inertia;
 Route::post('/midtrans/webhook', [MidtransController::class, 'webhook'])
     ->name('midtrans.webhook');
 
+// ─── Midtrans finish redirect (after Snap payment) ──────────────────────────
+Route::get('/transactions/{uuid}/midtrans-finish', [MidtransController::class, 'finishRedirect'])
+    ->middleware('auth')
+    ->name('transactions.midtrans-finish');
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes — OshiMerch
@@ -248,6 +253,7 @@ Route::middleware(['auth', 'not.banned'])->group(function () {
         // Direct chat with a specific user (seller)
         Route::get('/chat/with/{user}', [ConversationController::class, 'show'])->name('chat.direct');
         Route::post('/chat/conversations/{conversation}/messages', [ConversationController::class, 'sendMessage'])->name('chat.sendDirect');
+        Route::get('/chat/conversations/{conversation}/messages', [ConversationController::class, 'getMessages'])->name('chat.getMessages');
 
         // ─── Notifications API (Phase 4.7 — polling, Reverb-ready) ────────────────
         Route::prefix('api/notifications')->name('notifications.')->group(function () {

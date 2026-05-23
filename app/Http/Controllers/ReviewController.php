@@ -16,16 +16,22 @@ class ReviewController extends Controller
     /**
      * Show all reviews received by a seller.
      */
-    public function index(User $user): Response
+    public function index(Request $request, User $user): Response
     {
-        $reviews = Review::where('seller_id', $user->id)
-            ->with(['reviewer:id,name,profile_picture_url,oshi_member_name', 'transaction.listing'])
-            ->latest()
+        $query = Review::where('seller_id', $user->id)
+            ->with(['reviewer:id,name,profile_picture_url,oshi_member_name', 'transaction.listing']);
+
+        if ($request->boolean('has_photo')) {
+            $query->whereNotNull('photo_paths');
+        }
+
+        $reviews = $query->latest()
             ->paginate(12)
             ->through(fn ($r) => [
                 'id'         => $r->id,
                 'rating'     => $r->rating,
                 'comment'    => $r->comment,
+                'photo_urls' => $r->photo_urls,
                 'reviewer'   => $r->reviewer,
                 'created_at' => $r->created_at->diffForHumans(),
                 'product'    => $r->transaction?->listing ? [
@@ -47,16 +53,17 @@ class ReviewController extends Controller
         }
 
         return Inertia::render('Reviews/Index', [
-            'seller'       => [
+            'seller'          => [
                 'id'                  => $user->id,
                 'name'                => $user->name,
                 'profile_picture_url' => $user->profile_picture_url,
                 'oshi_member_name'    => $user->oshi_member_name,
             ],
-            'reviews'      => $reviews,
-            'avg_rating'   => round($avgRating, 1),
-            'total_reviews'=> $totalReviews,
-            'breakdown'    => $breakdown,
+            'reviews'         => $reviews,
+            'avg_rating'      => round($avgRating, 1),
+            'total_reviews'   => $totalReviews,
+            'breakdown'       => $breakdown,
+            'has_photo_filter' => $request->boolean('has_photo'),
         ]);
     }
 
@@ -75,9 +82,18 @@ class ReviewController extends Controller
         }
 
         $validated = $request->validate([
-            'rating'  => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string|max:500',
+            'rating'    => 'required|integer|min:1|max:5',
+            'comment'   => 'nullable|string|max:500',
+            'photos'    => 'nullable|array|max:3',
+            'photos.*'  => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
+
+        $photoPaths = [];
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $photoPaths[] = $photo->store('reviews', 'public');
+            }
+        }
 
         Review::create([
             'transaction_id' => $transaction->id,
@@ -85,6 +101,7 @@ class ReviewController extends Controller
             'seller_id'      => $transaction->seller_id,
             'rating'         => $validated['rating'],
             'comment'        => $validated['comment'] ?? null,
+            'photo_paths'    => !empty($photoPaths) ? $photoPaths : null,
         ]);
 
         Notification::reviewReceived($transaction->seller_id, $transaction->id, $user->name);

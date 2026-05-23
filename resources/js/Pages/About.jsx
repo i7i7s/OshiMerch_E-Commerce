@@ -77,25 +77,25 @@ const TEAM = [
         name: 'Muhammad Daffa Alwafi',
         role: 'FOUNDER & LEAD ENGINEER',
         color: 'bg-[#FEF08A]',
-        image: '/images/team/daffa.jpg'
+        image: '/images/team/daffa.png'
     },
     {
         name: 'Aidil Addzikra',
         role: 'BACKEND ARCHITECT',
         color: 'bg-[#BAE6FD]',
-        image: '/images/team/aidil.jpg'
+        image: '/images/team/aidil.png'
     },
     {
         name: 'Al Ilham Daffa Nurridho',
         role: 'FRONTEND SPECIALIST',
         color: 'bg-[#A7F3D0]',
-        image: '/images/team/dappol.jpg'
+        image: '/images/team/dappol.png'
     },
     {
         name: 'Erizal Rahmad Pramudhita',
         role: 'PRODUCT STRATEGIST',
         color: 'bg-[#FECDD3]',
-        image: '/images/team/rizal.jpg'
+        image: '/images/team/rizal.png'
     }
 ];
 
