@@ -1,7 +1,27 @@
 # 📋 Dokumentasi Lengkap OshiMerch — Untuk AI Agent Selanjutnya
 
-> **Dibuat:** 2026-05-12 | **Sesi:** Implementasi Laravel Reverb + Bug Fixes  
-> **Stack:** Laravel 13 + Inertia.js + React 19 + Vite 6 + Laravel Reverb + MySQL (Laragon)
+> **Dibuat:** 2026-05-12 | **Terakhir diupdate:** 2026-05-29  
+> **Stack:** Laravel 13 + Inertia.js + React 19 + Vite 6 + Laravel Reverb + MySQL
+
+---
+
+## 📅 Riwayat Sesi Pengembangan
+
+### Sesi 1 — 2026-05-12: Implementasi Laravel Reverb + Bug Fixes
+- Setup Laravel Reverb sebagai WebSocket server self-hosted
+- Implementasi real-time chat (Direct Message & Transaction Message)
+- Notifikasi real-time via WebSocket
+- Bug fixes berbagai komponen frontend
+- Removed `php artisan pail` dari dev script (tidak support Windows — butuh `pcntl`)
+
+### Sesi 2 — 2026-05-29: Member Auto-Tag System
+- **Problem:** Listing seperti "JKT48 Spring Has Come Photocard - Lia" tidak tampil badge tim karena seller tidak mengisi member secara manual. Satu listing lama tampil badge "EXMEMBER" dari data lama (sebelum validasi diterapkan).
+- **Solusi yang dibangun:**
+  1. **`app/Services/MemberAutoTagService.php`** — Service baru yang fetch data member dari JKT48 API (`https://jkt-48-member-api-i7i7.vercel.app/api/members`), cache 1 jam, lalu scan judul + deskripsi listing dengan word-boundary regex. Member diurutkan terpanjang-nama-dulu agar nickname pendek ("Lia") tidak salah match ke kata lain.
+  2. **`app/Http/Controllers/ListingController.php`** dimodifikasi di `store()` dan `update()`: jika seller tidak pilih member via combobox, auto-detect dari judul + deskripsi.
+  3. **`app/Console/Commands/AutoTagListings.php`** — Artisan command baru `listings:auto-tag` untuk backfill listing lama yang belum punya tag member. Flag `--all` untuk reprocess semua listing.
+- **Hasil backfill:** 5 dari 6 listing null berhasil di-tag. 1 tidak match karena "Indira" adalah member yang sudah lulus (tidak ada di API aktif).
+- **Type mapping:** `JKT48_VIRTUAL` dari API → disimpan sebagai `VIRTUAL` di DB (sesuai `TEAM_BADGE` di frontend).
 
 ---
 

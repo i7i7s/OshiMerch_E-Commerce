@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Favorite;
 use App\Models\Listing;
+use App\Services\MemberAutoTagService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -163,6 +164,23 @@ class ListingController extends Controller
 
         $imagePath = $request->file('image')->store('listings', 'public');
 
+        // Auto-detect member from title/description if the seller didn't pick one
+        $memberCode = $validated['featured_member_code'] ?? null;
+        $memberName = $validated['featured_member_name'] ?? null;
+        $memberTeam = $validated['featured_member_team'] ?? null;
+
+        if (empty($memberCode)) {
+            $autoTag = app(MemberAutoTagService::class)->detect(
+                $validated['title'],
+                $validated['description'] ?? ''
+            );
+            if ($autoTag) {
+                $memberCode = $autoTag['code'];
+                $memberName = $autoTag['name'];
+                $memberTeam = $autoTag['team'];
+            }
+        }
+
         $listing = $request->user()->listings()->create([
             'title'                => $validated['title'],
             'description'          => $validated['description'] ?? null,
@@ -170,9 +188,9 @@ class ListingController extends Controller
             'price'                => $validated['price'],
             'condition'            => $validated['condition'],
             'image_path'           => $imagePath,
-            'featured_member_code' => $validated['featured_member_code'] ?? null,
-            'featured_member_name' => $validated['featured_member_name'] ?? null,
-            'featured_member_team' => $validated['featured_member_team'] ?? null,
+            'featured_member_code' => $memberCode,
+            'featured_member_name' => $memberName,
+            'featured_member_team' => $memberTeam,
             'status'               => 'Available',
         ]);
 
@@ -230,6 +248,23 @@ class ListingController extends Controller
             $validated['image_path'] = $request->file('image')->store('listings', 'public');
         }
 
+        // Auto-detect member from title/description if the seller didn't pick one
+        $memberCode = $validated['featured_member_code'] ?? null;
+        $memberName = $validated['featured_member_name'] ?? null;
+        $memberTeam = $validated['featured_member_team'] ?? null;
+
+        if (empty($memberCode)) {
+            $autoTag = app(MemberAutoTagService::class)->detect(
+                $validated['title'],
+                $validated['description'] ?? ''
+            );
+            if ($autoTag) {
+                $memberCode = $autoTag['code'];
+                $memberName = $autoTag['name'];
+                $memberTeam = $autoTag['team'];
+            }
+        }
+
         $listing->update([
             'title'                => $validated['title'],
             'description'          => $validated['description'] ?? null,
@@ -237,9 +272,9 @@ class ListingController extends Controller
             'price'                => $validated['price'],
             'condition'            => $validated['condition'],
             'image_path'           => $validated['image_path'] ?? $listing->image_path,
-            'featured_member_code' => $validated['featured_member_code'] ?? null,
-            'featured_member_name' => $validated['featured_member_name'] ?? null,
-            'featured_member_team' => $validated['featured_member_team'] ?? null,
+            'featured_member_code' => $memberCode,
+            'featured_member_name' => $memberName,
+            'featured_member_team' => $memberTeam,
         ]);
 
         return Inertia::location(route('products.show', $listing));
