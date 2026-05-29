@@ -23,7 +23,7 @@ function Counter({ value, duration = 1400 }) {
 
         const startTime = performance.now();
         const scrambleMs = duration * 0.65;
-        const settleMs   = duration * 0.35;
+        const settleMs = duration * 0.35;
         const scrambleMax = Math.max(value, 50);
 
         const tick = (now) => {
@@ -84,9 +84,9 @@ function FloatingProductCard({ item, type }) {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }}
             whileHover={{ y: -10, rotate: (Math.random() - 0.5) * 4 }}
             className="relative aspect-[3/4] bg-white rounded-2xl border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] group overflow-hidden cursor-pointer">
-            
+
             <img src={type === 'listings' ? item.image_url : item.listing?.image_url} alt={type === 'listings' ? item.title : item.listing?.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-            
+
             {/* Status Badge */}
             {type === 'listings' ? (
                 <div className={`absolute top-3 left-3 px-3 py-1 border-4 border-surface-900 rounded-xl text-xs font-black uppercase shadow-[2px_2px_0_0_#0f172a] transform -rotate-2 ${item.status === 'Available' ? 'bg-[#A7F3D0] text-surface-900' : 'bg-white text-surface-900'}`}>
@@ -168,11 +168,11 @@ export default function Dashboard({ auth, listings = [], purchases = [], sales =
                 <Navbar />
 
                 <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pt-24 sm:pt-32">
-                    
+
                     {/* Brutalist Welcome Banner */}
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} 
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                         className="bg-[#FEF08A] rounded-2xl border-4 border-surface-900 p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 mb-12 shadow-[8px_8px_0_0_#0f172a] relative overflow-hidden">
-                        
+
                         {/* Decorative pattern & Meteors */}
                         <div className="absolute right-0 top-0 w-1/2 h-full bg-[url('/img/grid.svg')] opacity-[0.1] pointer-events-none" />
                         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -181,9 +181,9 @@ export default function Dashboard({ auth, listings = [], purchases = [], sales =
 
                         <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10 w-full text-center sm:text-left">
                             <div className="relative">
-                                <img 
-                                    src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF1100&color=fff`} 
-                                    alt={user.name} 
+                                <img
+                                    src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF1100&color=fff`}
+                                    alt={user.name}
                                     className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] transform -rotate-3"
                                 />
                                 <div className="absolute -bottom-3 -right-3 bg-white border-4 border-surface-900 rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-[2px_2px_0_0_#0f172a]">
@@ -201,6 +201,14 @@ export default function Dashboard({ auth, listings = [], purchases = [], sales =
                                         <>Yuk lengkapi profil dan pilih oshi kamu!</>
                                     )}
                                 </p>
+                                <div className="mt-4">
+                                    <a
+                                        href={`/seller/${user.id}`}
+                                        className="inline-flex items-center gap-2 px-5 py-2 bg-surface-900 text-white rounded-xl border-2 border-surface-900 font-black text-xs uppercase tracking-widest shadow-[3px_3px_0_0_white] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[5px_5px_0_0_white] transition-all"
+                                    >
+                                        🏪 DASHBOARD SELLER
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -215,22 +223,20 @@ export default function Dashboard({ auth, listings = [], purchases = [], sales =
 
                     {/* Content Section */}
                     <div className="mb-16">
-                        
+
                         {/* Block Tabs */}
                         <div className="flex flex-wrap items-center gap-4 mb-8">
                             {tabs.map(tab => {
                                 const isActive = activeTab === tab.id;
                                 return (
                                     <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                                        className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 border-surface-900 font-black uppercase tracking-widest transition-all ${
-                                            isActive 
-                                            ? 'bg-surface-900 text-white shadow-[4px_4px_0_0_#0f172a] -translate-y-1 -translate-x-1' 
-                                            : 'bg-white text-surface-600 hover:bg-[#FEF08A] hover:text-surface-900 hover:shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1'
-                                        }`}>
+                                        className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 border-surface-900 font-black uppercase tracking-widest transition-all ${isActive
+                                                ? 'bg-surface-900 text-white shadow-[4px_4px_0_0_#0f172a] -translate-y-1 -translate-x-1'
+                                                : 'bg-white text-surface-600 hover:bg-[#FEF08A] hover:text-surface-900 hover:shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1'
+                                            }`}>
                                         <span className="text-sm">{tab.label}</span>
-                                        <span className={`px-2 py-0.5 rounded-md border-2 text-[10px] ${
-                                            isActive ? 'bg-white text-surface-900 border-white' : 'bg-surface-100 border-surface-900 text-surface-900'
-                                        }`}>
+                                        <span className={`px-2 py-0.5 rounded-md border-2 text-[10px] ${isActive ? 'bg-white text-surface-900 border-white' : 'bg-surface-100 border-surface-900 text-surface-900'
+                                            }`}>
                                             {tab.count}
                                         </span>
                                     </button>

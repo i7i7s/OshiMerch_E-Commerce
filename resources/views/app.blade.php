@@ -16,6 +16,19 @@
         <!-- Favicon -->
         <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎀</text></svg>">
 
+        <!-- Google Analytics 4 -->
+        @if(config('services.google_analytics.id'))
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_analytics.id') }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ config('services.google_analytics.id') }}', {
+                anonymize_ip: true
+            });
+        </script>
+        @endif
+
         <!-- Scripts -->
         @routes
         @viteReactRefresh

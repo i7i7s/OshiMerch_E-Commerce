@@ -3,36 +3,36 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 // ── Raw SVG Icons (no Lucide dependency) ─────────────────────────────────────
-const IconArrowLeft  = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>;
-const IconPackage    = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>;
-const IconCheck      = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>;
-const IconTruck      = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17H7A5 5 0 0117 7h2a3 3 0 013 3v4a1 1 0 01-1 1h-1m-9 0H7m2 0a2 2 0 104 0m-4 0a2 2 0 004 0m5 0a2 2 0 104 0m-4 0a2 2 0 004 0"/></svg>;
-const IconUpload     = () => <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>;
-const IconStar       = ({ filled }) => <svg className={`w-8 h-8 transition-all ${filled ? 'text-[#FEF08A] fill-[#FEF08A] drop-shadow-[2px_2px_0_#0f172a] -translate-y-1' : 'text-surface-900 stroke-surface-900 drop-shadow-[1px_1px_0_#0f172a]'}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>;
-const IconShieldCheck = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>;
-const IconBox        = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>;
-const IconMapPin     = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>;
+const IconArrowLeft = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>;
+const IconPackage = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>;
+const IconCheck = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>;
+const IconTruck = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17H7A5 5 0 0117 7h2a3 3 0 013 3v4a1 1 0 01-1 1h-1m-9 0H7m2 0a2 2 0 104 0m-4 0a2 2 0 004 0m5 0a2 2 0 104 0m-4 0a2 2 0 004 0" /></svg>;
+const IconUpload = () => <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>;
+const IconStar = ({ filled }) => <svg className={`w-8 h-8 transition-all ${filled ? 'text-[#FEF08A] fill-[#FEF08A] drop-shadow-[2px_2px_0_#0f172a] -translate-y-1' : 'text-surface-900 stroke-surface-900 drop-shadow-[1px_1px_0_#0f172a]'}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>;
+const IconShieldCheck = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>;
+const IconBox = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>;
+const IconMapPin = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 import Navbar from '@/Components/Navbar';
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
 const STEPS = [
-    { key: 'order',            label: 'DIBUAT',       Icon: IconPackage },
-    { key: 'paid',             label: 'DIBAYAR',      Icon: IconCheck },
-    { key: 'confirmed',        label: 'KONFIRMASI',   Icon: IconShieldCheck },
-    { key: 'packed',           label: 'PACKING',      Icon: IconBox },
-    { key: 'shipped',          label: 'DIKIRIM',      Icon: IconTruck },
-    { key: 'out_for_delivery', label: 'DI JALAN',     Icon: IconMapPin },
-    { key: 'delivered',        label: 'DITERIMA',     Icon: IconCheck },
+    { key: 'order', label: 'DIBUAT', Icon: IconPackage },
+    { key: 'paid', label: 'DIBAYAR', Icon: IconCheck },
+    { key: 'confirmed', label: 'KONFIRMASI', Icon: IconShieldCheck },
+    { key: 'packed', label: 'PACKING', Icon: IconBox },
+    { key: 'shipped', label: 'MENUNGGU KURIR', Icon: IconTruck },
+    { key: 'out_for_delivery', label: 'DIANTAR KURIR', Icon: IconMapPin },
+    { key: 'delivered', label: 'DITERIMA', Icon: IconCheck },
 ];
 
 function getActiveStep(payment_status, delivery_status) {
-    if (delivery_status === 'Delivered')       return 6;
-    if (delivery_status === 'OutForDelivery')  return 5;
-    if (delivery_status === 'Shipped')         return 4;
-    if (delivery_status === 'Packed')          return 3;
-    if (payment_status  === 'Confirmed')       return 2;
-    if (payment_status  === 'Paid')            return 1;
+    if (delivery_status === 'Delivered') return 6;
+    if (delivery_status === 'OutForDelivery') return 5;
+    if (delivery_status === 'Shipped') return 4;
+    if (delivery_status === 'Packed') return 3;
+    if (payment_status === 'Confirmed') return 2;
+    if (payment_status === 'Paid') return 1;
     return 0;
 }
 
@@ -46,24 +46,22 @@ function StatusTracker({ payment_status, delivery_status }) {
         <div className="overflow-x-auto scrollbar-hide pb-4">
             <div className="flex items-start gap-0 mt-8 mb-2 min-w-[700px] px-2">
                 {STEPS.map(({ key, label, Icon }, i) => {
-                    const done    = i < active;
+                    const done = i < active;
                     const current = i === active;
                     return (
                         <div key={key} className="flex-1 flex flex-col items-center relative group">
                             {i < STEPS.length - 1 && (
                                 <div className={`absolute top-6 left-1/2 w-full h-2 border-y-4 border-surface-900 transition-colors duration-500 z-0 ${done ? 'bg-[#A7F3D0]' : 'bg-surface-200'}`} />
                             )}
-                            <div className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center border-4 transition-all duration-500 shadow-[4px_4px_0_0_#0f172a] transform ${
-                                done    ? 'bg-[#A7F3D0] border-surface-900 text-surface-900 -rotate-3' :
-                                current ? 'bg-[#FEF08A] border-surface-900 text-surface-900 scale-110 rotate-3' :
-                                          'bg-white border-surface-900 text-surface-400'
-                            }`}>
+                            <div className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center border-4 transition-all duration-500 shadow-[4px_4px_0_0_#0f172a] transform ${done ? 'bg-[#A7F3D0] border-surface-900 text-surface-900 -rotate-3' :
+                                    current ? 'bg-[#FEF08A] border-surface-900 text-surface-900 scale-110 rotate-3' :
+                                        'bg-white border-surface-900 text-surface-400'
+                                }`}>
                                 <Icon />
                             </div>
                             <div className="mt-3 text-center relative z-10">
-                                <span className={`inline-block text-[10px] font-black leading-tight uppercase tracking-wider ${
-                                    done || current ? 'text-surface-900 bg-[#FEF08A] px-2 py-0.5 border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a]' : 'text-surface-400'
-                                }`}>{label}</span>
+                                <span className={`inline-block text-[10px] font-black leading-tight uppercase tracking-wider ${done || current ? 'text-surface-900 bg-[#FEF08A] px-2 py-0.5 border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a]' : 'text-surface-400'
+                                    }`}>{label}</span>
                             </div>
                         </div>
                     );
@@ -152,7 +150,7 @@ function ReviewForm({ transactionId, sellerName }) {
             <h3 className="font-black font-display text-surface-900 text-2xl uppercase tracking-tighter" style={{ textShadow: '2px 2px 0px white' }}>BERI ULASAN UNTUK {sellerName}</h3>
             <div className="flex items-center gap-2 bg-white border-4 border-surface-900 rounded-2xl p-4 shadow-[4px_4px_0_0_#0f172a]">
                 <div className="flex items-center gap-1">
-                    {[1,2,3,4,5].map(i => (
+                    {[1, 2, 3, 4, 5].map(i => (
                         <button key={i} type="button"
                             onMouseEnter={() => setHoveredStar(i)}
                             onMouseLeave={() => setHoveredStar(0)}
@@ -178,7 +176,7 @@ function ReviewForm({ transactionId, sellerName }) {
                     <div className="flex gap-3 flex-wrap">
                         {photoPreviews.map((src, i) => (
                             <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border-4 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">
-                                <img src={src} alt={`foto ${i+1}`} className="w-full h-full object-cover" />
+                                <img src={src} alt={`foto ${i + 1}`} className="w-full h-full object-cover" />
                                 <button type="button" onClick={() => removePhoto(i)}
                                     className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center border-2 border-white shadow leading-none">
                                     ×
@@ -220,7 +218,7 @@ export default function Show({ transaction: initialTransaction }) {
         setTxn(initialTransaction);
     }, [initialTransaction]);
 
-    const isBuyer  = user?.id === txn.buyer?.id;
+    const isBuyer = user?.id === txn.buyer?.id;
     const isSeller = user?.id === txn.seller?.id;
 
     // ─── Echo: listen for real-time status + message updates ─────────────
@@ -267,7 +265,7 @@ export default function Show({ transaction: initialTransaction }) {
     };
 
     // OshiGo action forms (seller)
-    const packForm          = useForm({});
+    const packForm = useForm({});
 
     // Confirm payment (seller)
     const confirmForm = useForm({});
@@ -329,6 +327,7 @@ export default function Show({ transaction: initialTransaction }) {
     }, [txn.id, txn.payment_status, txn.midtrans_snap_token, isBuyer]);
 
     const [paymentResult, setPaymentResult] = useState(null); // null | 'success' | 'pending' | 'error'
+    const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 
     const handleMidtransPay = () => {
         if (!txn.midtrans_snap_token || !window.snap) return;
@@ -348,11 +347,43 @@ export default function Show({ transaction: initialTransaction }) {
                     setPaymentResult(null);
                 }, 3000);
             },
-            onError:   () => { setPaymentResult('error'); },
-            onClose:   () => { /* User closed popup */ },
+            onError: () => { setPaymentResult('error'); },
+            onClose: () => { /* User closed popup */ },
         });
     };
-
+    const handleChangeMethod = async () => {
+        if (isRefreshingToken) return;
+        setIsRefreshingToken(true);
+        try {
+            const res = await fetch(route('transactions.refreshSnapToken', txn.uuid), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                },
+            });
+            const data = await res.json();
+            if (data.snap_token) {
+                setTxn(prev => ({ ...prev, midtrans_snap_token: data.snap_token }));
+                if (window.snap) {
+                    window.snap.pay(data.snap_token, {
+                        onSuccess: () => {
+                            setPaymentResult('success');
+                            setTimeout(() => { setPaymentResult(null); setTimeout(() => router.reload(), 300); }, 1500);
+                        },
+                        onPending: () => { setPaymentResult('pending'); setTimeout(() => { setPaymentResult(null); }, 3000); },
+                        onError: () => { setPaymentResult('error'); },
+                        onClose: () => { },
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Failed to refresh snap token:', err);
+        } finally {
+            setIsRefreshingToken(false);
+        }
+    };
     return (
         <>
             <Head title={`Transaksi #${txn.id} — OshiMerch`} />
@@ -373,7 +404,7 @@ export default function Show({ transaction: initialTransaction }) {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
                         {/* ── Left column: order info ── */}
                         <div className="lg:col-span-7 xl:col-span-8 space-y-8">
-                            
+
                             {/* Status tracker */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -488,18 +519,17 @@ export default function Show({ transaction: initialTransaction }) {
                                         </div>
                                     </div>
                                     <div className="relative z-10 grid grid-cols-4 gap-2 sm:gap-4 text-[10px] text-center bg-white p-4 rounded-2xl border-4 border-[#3b82f6] shadow-[4px_4px_0_0_#1e3a8a]">
-                                        {['Packing','Dikirim','Di Jalan','Diterima'].map((label, i) => {
-                                            const statuses = ['Packed','Shipped','OutForDelivery','Delivered'];
+                                        {['Packing', 'Menunggu Kurir', 'Diantar Kurir', 'Diterima'].map((label, i) => {
+                                            const statuses = ['Packed', 'Shipped', 'OutForDelivery', 'Delivered'];
                                             const idx = statuses.indexOf(txn.delivery_status);
-                                            const done    = i < idx;
+                                            const done = i < idx;
                                             const current = i === idx;
                                             return (
                                                 <div key={label} className="flex flex-col items-center gap-2 col-span-1 relative">
-                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black border-4 transition-all ${
-                                                        done    ? 'bg-[#3b82f6] border-[#1e3a8a] text-white shadow-[2px_2px_0_0_#1e3a8a] rotate-3' :
-                                                        current ? 'bg-[#FEF08A] border-[#1e3a8a] text-[#1e3a8a] shadow-[2px_2px_0_0_#1e3a8a] scale-110 -rotate-3 animate-pulse' :
-                                                                  'bg-white border-[#bfdbfe] text-[#93c5fd]'
-                                                    }`}>{done ? '✓' : i + 1}</div>
+                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black border-4 transition-all ${done ? 'bg-[#3b82f6] border-[#1e3a8a] text-white shadow-[2px_2px_0_0_#1e3a8a] rotate-3' :
+                                                            current ? 'bg-[#FEF08A] border-[#1e3a8a] text-[#1e3a8a] shadow-[2px_2px_0_0_#1e3a8a] scale-110 -rotate-3 animate-pulse' :
+                                                                'bg-white border-[#bfdbfe] text-[#93c5fd]'
+                                                        }`}>{done ? '✓' : i + 1}</div>
                                                     <span className={`leading-tight font-black uppercase tracking-widest bg-white px-1 ${done || current ? 'text-[#1e3a8a] border-2 border-[#1e3a8a]' : 'text-[#93c5fd] border-2 border-transparent'}`}>{label}</span>
                                                 </div>
                                             );
@@ -570,6 +600,17 @@ export default function Show({ transaction: initialTransaction }) {
                                             ⏳ Memuat sistem pembayaran...
                                         </div>
                                     )}
+
+                                    {/* Change payment method */}
+                                    {txn.midtrans_snap_token && (
+                                        <button
+                                            onClick={handleChangeMethod}
+                                            disabled={isRefreshingToken}
+                                            className="w-full py-3 rounded-xl bg-white text-surface-900 border-4 border-surface-900 font-black text-sm uppercase tracking-widest shadow-[4px_4px_0_0_#0f172a] hover:bg-[#BAE6FD] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] transition-all active:translate-y-1 active:translate-x-1 active:shadow-none disabled:opacity-50 flex items-center justify-center gap-2"
+                                        >
+                                            {isRefreshingToken ? '⏳ MEMUAT...' : '🔄 GANTI METODE PEMBAYARAN'}
+                                        </button>
+                                    )}
                                 </motion.div>
                             )}
 
@@ -628,14 +669,14 @@ export default function Show({ transaction: initialTransaction }) {
                                         );
                                     })()}
                                     <p className="text-sm font-bold text-surface-900 bg-white p-4 border-2 border-surface-900 rounded-xl shadow-[2px_2px_0_0_#0f172a] text-center transform -rotate-1">
-                                        Klik tombol di bawah untuk generate nomor tracking OshiGo dan mulai packing barang.
+                                        Klik tombol di bawah setelah barang selesai di-packing. Nomor tracking OshiGo akan di-generate otomatis.
                                     </p>
                                     <button
                                         type="button"
                                         onClick={() => packForm.patch(route('transactions.pack', txn.uuid))}
                                         disabled={packForm.processing}
                                         className="w-full py-5 rounded-xl bg-surface-900 text-white border-4 border-transparent font-black text-lg sm:text-xl uppercase tracking-widest shadow-[6px_6px_0_0_#0f172a] hover:bg-[#A7F3D0] hover:text-surface-900 hover:border-surface-900 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_0_#0f172a] transition-all active:translate-y-1 active:translate-x-1 active:shadow-none flex items-center justify-center gap-3">
-                                        <IconBox /> {packForm.processing ? 'MEMPROSES...' : 'GENERATE RESI OSHIGO'}
+                                        <IconBox /> {packForm.processing ? 'MEMPROSES...' : 'SELESAI PACKING'}
                                     </button>
                                 </motion.div>
                             )}
@@ -674,7 +715,7 @@ export default function Show({ transaction: initialTransaction }) {
                                         </div>
                                     </div>
                                     <p className="text-sm font-bold text-surface-900 bg-white p-4 border-2 border-surface-900 rounded-xl shadow-[2px_2px_0_0_#0f172a] text-center">
-                                        🚚 OshiGo sedang mengantarkan paketmu. Pantau statusnya di sini.
+                                        � Paketmu sedang menunggu dijemput kurir OshiGo. Pantau statusnya di sini.
                                     </p>
                                 </motion.div>
                             )}
@@ -687,7 +728,7 @@ export default function Show({ transaction: initialTransaction }) {
                                     className="bg-[#BAE6FD] rounded-3xl border-4 border-surface-900 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[8px_8px_0_0_#0f172a]"
                                 >
                                     <div className="bg-white p-5 rounded-2xl border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] w-full md:w-auto transform -rotate-1">
-                                        <p className="font-black font-display text-surface-900 text-xl uppercase tracking-tighter">🚚 DI JALAN OTW!</p>
+                                        <p className="font-black font-display text-surface-900 text-xl uppercase tracking-tighter">� DIANTAR KURIR!</p>
                                         {txn.oshigo_tracking_number && (
                                             <p className="text-xs text-surface-900 font-black mt-2 font-mono bg-[#FEF08A] inline-block px-2 border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">TRACKING: {txn.oshigo_tracking_number}</p>
                                         )}
@@ -775,22 +816,21 @@ export default function Show({ transaction: initialTransaction }) {
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className={`max-w-sm w-full border-4 border-surface-900 rounded-3xl p-8 shadow-[12px_12px_0_0_#0f172a] text-center space-y-4 ${
-                            paymentResult === 'success' ? 'bg-[#A7F3D0]' :
-                            paymentResult === 'pending' ? 'bg-[#FEF08A]' : 'bg-[#FECDD3]'
-                        }`}
+                        className={`max-w-sm w-full border-4 border-surface-900 rounded-3xl p-8 shadow-[12px_12px_0_0_#0f172a] text-center space-y-4 ${paymentResult === 'success' ? 'bg-[#A7F3D0]' :
+                                paymentResult === 'pending' ? 'bg-[#FEF08A]' : 'bg-[#FECDD3]'
+                            }`}
                     >
                         <div className="text-6xl drop-shadow-[3px_3px_0_#0f172a]">
                             {paymentResult === 'success' ? '✅' : paymentResult === 'pending' ? '⏳' : '❌'}
                         </div>
                         <h2 className="font-black font-display text-2xl uppercase tracking-tighter text-surface-900" style={{ textShadow: '2px 2px 0 white' }}>
                             {paymentResult === 'success' ? 'PEMBAYARAN BERHASIL!' :
-                             paymentResult === 'pending' ? 'MENUNGGU PEMBAYARAN' : 'PEMBAYARAN GAGAL'}
+                                paymentResult === 'pending' ? 'MENUNGGU PEMBAYARAN' : 'PEMBAYARAN GAGAL'}
                         </h2>
                         <p className="font-bold text-surface-900 text-sm bg-white border-2 border-surface-900 rounded-xl px-4 py-2">
                             {paymentResult === 'success' ? 'Terima kasih! Halaman akan diperbarui otomatis...' :
-                             paymentResult === 'pending' ? 'Selesaikan pembayaranmu. Halaman akan diperbarui...' :
-                             'Terjadi kesalahan. Silakan coba lagi.'}
+                                paymentResult === 'pending' ? 'Selesaikan pembayaranmu. Halaman akan diperbarui...' :
+                                    'Terjadi kesalahan. Silakan coba lagi.'}
                         </p>
                         {paymentResult === 'error' && (
                             <button

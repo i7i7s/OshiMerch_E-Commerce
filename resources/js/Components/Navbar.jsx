@@ -6,8 +6,20 @@ import Toast from '@/Components/Toast';
 const NAV_LINKS = [
     { label: 'Produk', href: '/produk' },
     { label: 'Tentang Kami', href: '/about' },
-    { label: 'Member',   href: '/members' },
+    { label: 'Member', href: '/members' },
 ];
+
+const HamburgerIcon = () => (
+    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    </svg>
+);
+
+const XIcon = () => (
+    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+);
 
 // ─── SVG Icons ────────────────────────────────────────────────────────────────
 
@@ -64,12 +76,12 @@ const BellIcon = ({ unreadCount = 0 }) => (
 // ─── Notification type icons ───────────────────────────────────────────────────
 const NotifIcon = ({ type }) => {
     const icons = {
-        transaction_paid:      { emoji: '💰', bg: 'bg-[#A7F3D0]' },
-        item_shipped:          { emoji: '📦', bg: 'bg-[#BAE6FD]' },
+        transaction_paid: { emoji: '💰', bg: 'bg-[#A7F3D0]' },
+        item_shipped: { emoji: '📦', bg: 'bg-[#BAE6FD]' },
         transaction_completed: { emoji: '✅', bg: 'bg-[#FEF08A]' },
-        new_message:           { emoji: '💬', bg: 'bg-[#FECDD3]' },
-        new_listing:           { emoji: '🌟', bg: 'bg-white' },
-        review_received:       { emoji: '⭐', bg: 'bg-[#FBCFE8]' },
+        new_message: { emoji: '💬', bg: 'bg-[#FECDD3]' },
+        new_listing: { emoji: '🌟', bg: 'bg-white' },
+        review_received: { emoji: '⭐', bg: 'bg-[#FBCFE8]' },
     };
     const cfg = icons[type] || { emoji: '🔔', bg: 'bg-white' };
     return (
@@ -122,8 +134,8 @@ function NotificationDropdown({ notifications, unreadCount, onMarkAllRead, onMar
                             key={notif.id}
                             layout
                             className={`flex items-start gap-4 px-5 py-4 cursor-pointer transition-colors group ${!notif.is_read ? 'bg-[#FEF08A]' : 'hover:bg-surface-50'}`}
-                            onClick={() => {
-                                if (!notif.is_read) onMarkRead(notif.id);
+                            onClick={async () => {
+                                if (!notif.is_read) await onMarkRead(notif.id);
                                 if (notif.url) router.visit(notif.url);
                                 onClose();
                             }}
@@ -171,6 +183,7 @@ export default function Navbar() {
     const [searchFocused, setSearchFocused] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const [showNotif, setShowNotif] = useState(false);
+    const [showMobile, setShowMobile] = useState(false);
 
     // ─── Notification state ───────────────────────────────────────────────────
     const [notifications, setNotifications] = useState([]);
@@ -229,22 +242,17 @@ export default function Navbar() {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
-    // CSRF helper — reads from XSRF-TOKEN cookie (set by Laravel on every response)
-    // This is the SPA-safe approach: no meta tag needed
-    const getCsrf = () => {
-        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)
-        return match ? decodeURIComponent(match[1]) : (
-            document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
-        );
-    };
+    // CSRF helper — reads plain token from meta tag (set by Laravel in app.blade.php)
+    // X-CSRF-TOKEN expects the plain session token, NOT the encrypted cookie value
+    const getCsrf = () =>
+        document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 
     const apiFetch = (url, method = 'POST') =>
         fetch(url, {
             method,
             headers: {
                 'Content-Type': 'application/json',
-                'X-XSRF-TOKEN': getCsrf(),   // Laravel accepts this from cookie
-                'X-CSRF-TOKEN':  getCsrf(),   // Laravel also accepts this from meta tag
+                'X-CSRF-TOKEN': getCsrf(),
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
             },
@@ -289,121 +297,248 @@ export default function Navbar() {
 
     return (
         <>
-        <motion.nav
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-                scrolled
+            <motion.nav
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
                     ? 'bg-white border-b-4 border-surface-900 shadow-[0_4px_0_0_#0f172a]'
                     : 'bg-[#FAFAFA] border-b-4 border-surface-900'
-            }`}
-        >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center gap-4 h-16 sm:h-[80px]">
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3 shrink-0 group">
-                        <img src="/images/logo.png" alt="OshiMerch" className="w-12 h-12 sm:w-14 sm:h-14 object-contain group-hover:-translate-y-1 group-hover:-rotate-6 transition-transform drop-shadow-[2px_2px_0_rgba(15,23,42,1)]" />
-                        <span className="text-2xl sm:text-3xl font-black font-display text-surface-900 uppercase tracking-tighter hidden sm:block group-hover:-translate-y-1 transition-transform" style={{ textShadow: '2px 2px 0px #FEF08A' }}>
-                            Oshi<span className="text-[#3b82f6]">Merch</span>
-                        </span>
-                    </Link>
+                    }`}
+            >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center gap-4 h-16 sm:h-[80px]">
+                        {/* Logo */}
+                        <Link href="/" className="flex items-center gap-3 shrink-0 group">
+                            <img src="/images/logo.png" alt="OshiMerch" className="w-12 h-12 sm:w-14 sm:h-14 object-contain group-hover:-translate-y-1 group-hover:-rotate-6 transition-transform drop-shadow-[2px_2px_0_rgba(15,23,42,1)]" />
+                            <span className="text-2xl sm:text-3xl font-black font-display text-surface-900 uppercase tracking-tighter hidden sm:block group-hover:-translate-y-1 transition-transform" style={{ textShadow: '2px 2px 0px #FEF08A' }}>
+                                Oshi<span className="text-[#3b82f6]">Merch</span>
+                            </span>
+                        </Link>
 
-                    {/* Nav Links — Desktop */}
-                    <div className="hidden lg:flex items-center gap-2 ml-4 flex-1">
-                        {NAV_LINKS.map((link) => (
-                            <a
-                                key={link.href}
-                                href={link.href}
-                                className="px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 border-4 border-transparent hover:border-surface-900 hover:bg-[#FEF08A] hover:shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 transition-all"
-                            >
-                                {link.label}
-                            </a>
-                        ))}
-                    </div>
+                        {/* Nav Links — Desktop */}
+                        <div className="hidden lg:flex items-center gap-2 ml-4 flex-1">
+                            {NAV_LINKS.map((link) => (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    className="px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 border-4 border-transparent hover:border-surface-900 hover:bg-[#FEF08A] hover:shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 transition-all"
+                                >
+                                    {link.label}
+                                </a>
+                            ))}
+                        </div>
 
-                    {/* Right Actions */}
-                    <div className="flex items-center gap-3">
-                        {user ? (
-                            <>
-                                {/* ─── Notification Bell ───────────────────────────── */}
-                                <div className="relative hidden sm:block" ref={notifRef}>
-                                    <button
-                                        onClick={() => setShowNotif(!showNotif)}
-                                        className={`p-3 rounded-2xl border-4 border-surface-900 transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none hover:bg-white text-surface-900 ${showNotif ? 'bg-[#BAE6FD] translate-y-1 translate-x-1 shadow-none' : 'bg-[#BAE6FD]'}`}
-                                        aria-label="Notifikasi"
-                                    >
-                                        <BellIcon unreadCount={unreadCount} />
-                                    </button>
-                                    <AnimatePresence>
-                                        {showNotif && (
-                                            <NotificationDropdown
-                                                notifications={notifications}
-                                                unreadCount={unreadCount}
-                                                onMarkAllRead={handleMarkAllRead}
-                                                onMarkRead={handleMarkRead}
-                                                onClose={() => setShowNotif(false)}
-                                            />
-                                        )}
-                                    </AnimatePresence>
-                                </div>
+                        {/* Spacer — mobile only, pushes hamburger to right */}
+                        <div className="flex-1 lg:hidden" />
 
-                                {/* Chat */}
-                                <Link href={route('chat.index')} className="p-3 rounded-2xl border-4 border-surface-900 bg-[#FEF08A] transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none hover:bg-white text-surface-900 flex items-center" aria-label="Chat">
-                                    <svg className="w-6 h-6 stroke-surface-900" fill="none" viewBox="0 0 24 24" strokeWidth={2.5}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-                                    </svg>
-                                </Link>
+                        {/* Right Actions — desktop/tablet only */}
+                        <div className="hidden lg:flex items-center gap-3">
+                            {user ? (
+                                <>
+                                    {/* ─── Notification Bell — desktop/tablet only ─────── */}
+                                    <div className="relative hidden sm:block" ref={notifRef}>
+                                        <button
+                                            onClick={() => setShowNotif(!showNotif)}
+                                            className={`p-3 rounded-2xl border-4 border-surface-900 transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none hover:bg-white text-surface-900 ${showNotif ? 'bg-[#BAE6FD] translate-y-1 translate-x-1 shadow-none' : 'bg-[#BAE6FD]'}`}
+                                            aria-label="Notifikasi"
+                                        >
+                                            <BellIcon unreadCount={unreadCount} />
+                                        </button>
+                                        <AnimatePresence>
+                                            {showNotif && (
+                                                <NotificationDropdown
+                                                    notifications={notifications}
+                                                    unreadCount={unreadCount}
+                                                    onMarkAllRead={handleMarkAllRead}
+                                                    onMarkRead={handleMarkRead}
+                                                    onClose={() => setShowNotif(false)}
+                                                />
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
 
-                                {/* Favorites */}
-                                <Link href={route('favorites')} className="p-3 rounded-2xl border-4 border-surface-900 bg-[#FBCFE8] transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none hover:bg-white text-surface-900" aria-label="Favorit">
-                                    <WishlistIcon count={0} />
-                                </Link>
+                                    {/* Chat */}
+                                    <Link href={route('chat.index')} className="p-3 rounded-2xl border-4 border-surface-900 bg-[#FEF08A] transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none hover:bg-white text-surface-900 flex items-center" aria-label="Chat">
+                                        <svg className="w-6 h-6 stroke-surface-900" fill="none" viewBox="0 0 24 24" strokeWidth={2.5}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                                        </svg>
+                                    </Link>
 
-                                {/* Cart */}
-                                <Link href={route('cart')} className="p-3 rounded-2xl border-4 border-surface-900 bg-[#A7F3D0] transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none hover:bg-white text-surface-900" aria-label="Keranjang">
-                                    <CartIcon count={0} />
-                                </Link>
+                                    {/* Favorites */}
+                                    <Link href={route('favorites')} className="p-3 rounded-2xl border-4 border-surface-900 bg-[#FBCFE8] transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none hover:bg-white text-surface-900" aria-label="Favorit">
+                                        <WishlistIcon count={0} />
+                                    </Link>
 
-                                {/* Avatar + Dropdown */}
-                                <div className="relative ml-2">
-                                    <button onClick={() => setShowDropdown(!showDropdown)} className={`flex items-center p-0.5 rounded-2xl border-4 border-surface-900 bg-white transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none ${showDropdown ? 'translate-y-1 translate-x-1 shadow-none' : ''}`}>
-                                        <img src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${user.name}&background=FF1100&color=fff`} alt={user.name} className="w-10 h-10 rounded-xl object-cover border-2 border-surface-900" />
-                                    </button>
-                                    <AnimatePresence>
-                                        {showDropdown && (
-                                            <>
-                                                <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
-                                                <motion.div initial={{ opacity: 0, scale: 0.95, y: -8, rotate: 2 }} animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }} exit={{ opacity: 0, scale: 0.95, y: -8, rotate: -2 }} transition={{ duration: 0.15 }} className="absolute right-0 top-full mt-4 w-56 z-50 rounded-2xl bg-white border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] overflow-hidden">
-                                                    <div className="px-5 py-4 border-b-4 border-surface-900 bg-[#FEF08A]">
-                                                        <p className="text-sm font-black text-surface-900 truncate uppercase tracking-widest">{user.name}</p>
-                                                        <p className="text-[10px] font-bold text-surface-900 bg-white inline-block px-1 border-2 border-surface-900 mt-1 truncate max-w-full">{user.email}</p>
-                                                    </div>
-                                                    <div className="py-2 flex flex-col gap-1 px-2">
-                                                        <Link href={route('dashboard')} className="block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-surface-900 hover:bg-[#FEF08A] hover:border-surface-900 border-4 border-transparent transition-all" onClick={() => setShowDropdown(false)}>DASHBOARD</Link>
-                                                        <Link href={route('profile.edit')} className="block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-surface-900 hover:bg-[#BAE6FD] hover:border-surface-900 border-4 border-transparent transition-all" onClick={() => setShowDropdown(false)}>PROFIL</Link>
-                                                        <Link href={route('favorites')} className="block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-surface-900 hover:bg-[#FBCFE8] hover:border-surface-900 border-4 border-transparent transition-all" onClick={() => setShowDropdown(false)}>FAVORIT</Link>
-                                                        <Link href={route('cart')} className="block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-surface-900 hover:bg-[#A7F3D0] hover:border-surface-900 border-4 border-transparent transition-all" onClick={() => setShowDropdown(false)}>KERANJANG</Link>
-                                                        <div className="border-t-4 border-surface-900 my-2 mx-2" />
-                                                        <Link href={route('logout')} method="post" as="button" className="block w-full text-center px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-white bg-surface-900 hover:bg-[#f43f5e] hover:text-white transition-all border-4 border-transparent hover:border-surface-900 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0_0_#0f172a] active:translate-y-0 active:translate-x-0 active:shadow-none mb-1">KELUAR</Link>
-                                                    </div>
-                                                </motion.div>
-                                            </>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <a href={route('login')} className="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-surface-900 bg-white border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] hover:bg-[#FEF08A] transition-all hidden sm:block">MASUK</a>
-                                <a href={route('register')} className="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-surface-900 bg-[#BAE6FD] border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] hover:bg-white transition-all">DAFTAR</a>
-                            </>
-                        )}
+                                    {/* Cart */}
+                                    <Link href={route('cart')} className="p-3 rounded-2xl border-4 border-surface-900 bg-[#A7F3D0] transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none hover:bg-white text-surface-900" aria-label="Keranjang">
+                                        <CartIcon count={0} />
+                                    </Link>
+
+                                    {/* Avatar + Dropdown */}
+                                    <div className="relative ml-2">
+                                        <button onClick={() => setShowDropdown(!showDropdown)} className={`flex items-center p-0.5 rounded-2xl border-4 border-surface-900 bg-white transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none ${showDropdown ? 'translate-y-1 translate-x-1 shadow-none' : ''}`}>
+                                            <img src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${user.name}&background=FF1100&color=fff`} alt={user.name} className="w-10 h-10 rounded-xl object-cover border-2 border-surface-900" />
+                                        </button>
+                                        <AnimatePresence>
+                                            {showDropdown && (
+                                                <>
+                                                    <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
+                                                    <motion.div initial={{ opacity: 0, scale: 0.95, y: -8, rotate: 2 }} animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }} exit={{ opacity: 0, scale: 0.95, y: -8, rotate: -2 }} transition={{ duration: 0.15 }} className="absolute right-0 top-full mt-4 w-56 z-50 rounded-2xl bg-white border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] overflow-hidden">
+                                                        <div className="px-5 py-4 border-b-4 border-surface-900 bg-[#FEF08A]">
+                                                            <p className="text-sm font-black text-surface-900 truncate uppercase tracking-widest">{user.name}</p>
+                                                            <p className="text-[10px] font-bold text-surface-900 bg-white inline-block px-1 border-2 border-surface-900 mt-1 truncate max-w-full">{user.email}</p>
+                                                        </div>
+                                                        <div className="py-2 flex flex-col gap-1 px-2">
+                                                            <Link href={route('dashboard')} className="block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-surface-900 hover:bg-[#FEF08A] hover:border-surface-900 border-4 border-transparent transition-all" onClick={() => setShowDropdown(false)}>DASHBOARD</Link>
+                                                            <Link href={route('profile.edit')} className="block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-surface-900 hover:bg-[#BAE6FD] hover:border-surface-900 border-4 border-transparent transition-all" onClick={() => setShowDropdown(false)}>PROFIL</Link>
+                                                            <Link href={route('favorites')} className="block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-surface-900 hover:bg-[#FBCFE8] hover:border-surface-900 border-4 border-transparent transition-all" onClick={() => setShowDropdown(false)}>FAVORIT</Link>
+                                                            <Link href={route('cart')} className="block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-surface-900 hover:bg-[#A7F3D0] hover:border-surface-900 border-4 border-transparent transition-all" onClick={() => setShowDropdown(false)}>KERANJANG</Link>
+                                                            <div className="border-t-4 border-surface-900 my-2 mx-2" />
+                                                            <Link href={route('logout')} method="post" as="button" className="block w-full text-center px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-white bg-surface-900 hover:bg-[#f43f5e] hover:text-white transition-all border-4 border-transparent hover:border-surface-900 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0_0_#0f172a] active:translate-y-0 active:translate-x-0 active:shadow-none mb-1">KELUAR</Link>
+                                                        </div>
+                                                    </motion.div>
+                                                </>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <a href={route('login')} className="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-surface-900 bg-white border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] hover:bg-[#FEF08A] transition-all hidden sm:block">MASUK</a>
+                                    <a href={route('register')} className="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-surface-900 bg-[#BAE6FD] border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#0f172a] hover:bg-white transition-all hidden sm:block">DAFTAR</a>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Hamburger — mobile only */}
+                        <button
+                            onClick={() => setShowMobile(!showMobile)}
+                            className="lg:hidden p-3 rounded-2xl border-4 border-surface-900 bg-white transition-all shadow-[4px_4px_0_0_#0f172a] hover:translate-y-1 hover:translate-x-1 hover:shadow-none text-surface-900"
+                            aria-label="Menu"
+                        >
+                            {showMobile ? <XIcon /> : <HamburgerIcon />}
+                        </button>
                     </div>
                 </div>
-            </div>
-        </motion.nav>
-        <Toast />
+            </motion.nav>
+
+            {/* Mobile Drawer */}
+            <AnimatePresence>
+                {showMobile && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-40 bg-black/50"
+                            onClick={() => setShowMobile(false)}
+                        />
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ duration: 0.25, ease: 'easeOut' }}
+                            className="fixed top-0 right-0 bottom-0 w-72 z-50 bg-[#FAFAFA] border-l-4 border-surface-900 shadow-[-8px_0_0_0_#0f172a] flex flex-col overflow-y-auto"
+                        >
+                            {/* Drawer Header */}
+                            <div className="flex items-center justify-between px-5 py-4 border-b-4 border-surface-900 bg-[#FEF08A]">
+                                <span className="font-black font-display text-xl uppercase tracking-tighter" style={{ textShadow: '2px 2px 0px white' }}>MENU</span>
+                                <button onClick={() => setShowMobile(false)} className="p-2 border-2 border-surface-900 rounded-xl bg-white hover:bg-[#f43f5e] hover:text-white transition-colors">
+                                    <XIcon />
+                                </button>
+                            </div>
+
+                            {/* Nav Links */}
+                            <div className="flex flex-col gap-1 p-4 border-b-4 border-surface-900">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-surface-500 px-2 mb-1">NAVIGASI</p>
+                                {NAV_LINKS.map(link => (
+                                    <a
+                                        key={link.href}
+                                        href={link.href}
+                                        className="block px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 border-4 border-transparent hover:border-surface-900 hover:bg-[#FEF08A] hover:shadow-[4px_4px_0_0_#0f172a] transition-all"
+                                        onClick={() => setShowMobile(false)}
+                                    >
+                                        {link.label}
+                                    </a>
+                                ))}
+                            </div>
+
+                            {/* User Section */}
+                            {user ? (
+                                <div className="flex flex-col flex-1">
+                                    {/* User Info */}
+                                    <div className="flex items-center gap-3 px-5 py-4 border-b-4 border-surface-900 bg-white">
+                                        <img src={user.profile_picture_url || `https://ui-avatars.com/api/?name=${user.name}&background=FF1100&color=fff`} alt={user.name} className="w-12 h-12 rounded-xl object-cover border-4 border-surface-900 shadow-[3px_3px_0_0_#0f172a] flex-shrink-0" />
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-black text-surface-900 truncate uppercase tracking-widest">{user.name}</p>
+                                            <p className="text-[10px] font-bold text-surface-600 truncate">{user.email}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Inline Notifications */}
+                                    <div className="border-b-4 border-surface-900">
+                                        <div className="flex items-center justify-between px-5 py-3 bg-[#BAE6FD]">
+                                            <span className="text-xs font-black uppercase tracking-widest text-surface-900">🔔 NOTIFIKASI</span>
+                                            {unreadCount > 0 && (
+                                                <span className="bg-[#f43f5e] text-white text-[10px] px-2 py-0.5 rounded-md border-2 border-surface-900 font-black shadow-[2px_2px_0_0_#0f172a]">{unreadCount} BARU</span>
+                                            )}
+                                        </div>
+                                        <div className="max-h-52 overflow-y-auto divide-y-2 divide-surface-200">
+                                            {notifications.length === 0 ? (
+                                                <p className="px-5 py-4 text-xs font-bold text-surface-400 text-center">Tidak ada notifikasi</p>
+                                            ) : (
+                                                notifications.slice(0, 5).map(notif => (
+                                                    <div
+                                                        key={notif.id}
+                                                        className={`flex items-start gap-3 px-4 py-3 cursor-pointer active:opacity-70 ${!notif.is_read ? 'bg-[#FEFCE8]' : 'bg-white'}`}
+                                                        onClick={async () => {
+                                                            if (!notif.is_read) await handleMarkRead(notif.id);
+                                                            setShowMobile(false);
+                                                            if (notif.url) router.visit(notif.url);
+                                                        }}
+                                                    >
+                                                        <NotifIcon type={notif.type} />
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-xs font-black uppercase tracking-tight text-surface-900 leading-tight">{notif.title}</p>
+                                                            <p className="text-[10px] text-surface-600 mt-0.5 line-clamp-2">{notif.body}</p>
+                                                        </div>
+                                                        {!notif.is_read && <div className="w-2 h-2 rounded-full bg-[#f43f5e] border-2 border-surface-900 flex-shrink-0 mt-1" />}
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                        {notifications.length > 5 && (
+                                            <Link href="/dashboard" className="block text-center px-4 py-2 text-[10px] font-black uppercase tracking-widest text-surface-900 border-t-2 border-surface-200 bg-white hover:bg-[#FEF08A]" onClick={() => setShowMobile(false)}>
+                                                LIHAT SEMUA →
+                                            </Link>
+                                        )}
+                                    </div>
+
+                                    {/* Nav Items */}
+                                    <div className="flex flex-col gap-1 p-4">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-surface-400 px-2 mb-1">AKUN</p>
+                                        <Link href={route('chat.index')} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 border-4 border-transparent hover:border-surface-900 hover:bg-[#FEF08A] hover:shadow-[4px_4px_0_0_#0f172a] transition-all" onClick={() => setShowMobile(false)}><span>💬</span> CHAT</Link>
+                                        <Link href={route('dashboard')} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 border-4 border-transparent hover:border-surface-900 hover:bg-[#FEF08A] hover:shadow-[4px_4px_0_0_#0f172a] transition-all" onClick={() => setShowMobile(false)}><span>🏠</span> DASHBOARD</Link>
+                                        <Link href={route('profile.edit')} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 border-4 border-transparent hover:border-surface-900 hover:bg-[#BAE6FD] hover:shadow-[4px_4px_0_0_#0f172a] transition-all" onClick={() => setShowMobile(false)}><span>👤</span> PROFIL</Link>
+                                        <Link href={route('favorites')} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 border-4 border-transparent hover:border-surface-900 hover:bg-[#FBCFE8] hover:shadow-[4px_4px_0_0_#0f172a] transition-all" onClick={() => setShowMobile(false)}><span>❤️</span> FAVORIT</Link>
+                                        <Link href={route('cart')} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 border-4 border-transparent hover:border-surface-900 hover:bg-[#A7F3D0] hover:shadow-[4px_4px_0_0_#0f172a] transition-all" onClick={() => setShowMobile(false)}><span>🛒</span> KERANJANG</Link>
+                                        <div className="border-t-4 border-surface-900 my-2" />
+                                        <Link href={route('logout')} method="post" as="button" className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-white bg-surface-900 hover:bg-[#f43f5e] transition-all border-4 border-transparent" onClick={() => setShowMobile(false)}><span>🚪</span> KELUAR</Link>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-2 p-4">
+                                    <a href={route('login')} className="block text-center px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 bg-white border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:bg-[#FEF08A] transition-all" onClick={() => setShowMobile(false)}>MASUK</a>
+                                    <a href={route('register')} className="block text-center px-4 py-3 rounded-xl text-sm font-black uppercase tracking-widest text-surface-900 bg-[#BAE6FD] border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:bg-white transition-all" onClick={() => setShowMobile(false)}>DAFTAR</a>
+                                </div>
+                            )}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            <Toast />
         </>
     );
 }

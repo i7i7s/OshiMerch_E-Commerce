@@ -4,26 +4,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // SVG Icons
 const SearchIcon = ({ className }) => (
-    <svg className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
     </svg>
 );
 
 const CheckCircleIcon = ({ className }) => (
-    <svg className={className || "w-6 h-6"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg className={className || "w-6 h-6"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
 
 const ArrowRightIcon = ({ className }) => (
-    <svg className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
     </svg>
 );
 
 const SparklesIcon = ({ className }) => (
-    <svg className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+    </svg>
+);
+
+const StarSVG = ({ className }) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
 );
 
@@ -44,11 +50,11 @@ const proxyPhoto = (url) => {
 // Skeleton loader component
 function MemberCardSkeleton() {
     return (
-        <div className="rounded-[2rem] bg-white border-2 border-surface-200 overflow-hidden">
-            <div className="aspect-[3/4] skeleton" />
-            <div className="p-5 space-y-3">
-                <div className="h-6 w-3/4 skeleton rounded-lg" />
-                <div className="h-4 w-1/2 skeleton rounded-lg" />
+        <div className="bg-white border-4 border-surface-900 shadow-[6px_6px_0_0_#0f172a] overflow-hidden">
+            <div className="aspect-[3/4] bg-surface-200 animate-pulse border-b-4 border-surface-900" />
+            <div className="p-4 bg-[#BAE6FD] space-y-3">
+                <div className="h-6 w-3/4 bg-surface-400 animate-pulse" />
+                <div className="h-4 w-1/2 bg-surface-400 animate-pulse" />
             </div>
         </div>
     );
@@ -61,73 +67,63 @@ function MemberCard({ member, isSelected, onSelect }) {
     const [imgError, setImgError] = useState(false);
 
     return (
-        <motion.button
-            layout
-            whileHover={{ y: -8, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+        <button
             type="button"
             onClick={() => onSelect(member)}
-            className={`group relative rounded-[2rem] overflow-hidden text-left w-full border-4 transition-all duration-300 ${
-                isSelected
-                    ? `border-primary-500 shadow-[0_20px_40px_rgba(244,63,94,0.3)]`
-                    : 'border-transparent bg-white shadow-card hover:shadow-xl'
-            }`}
+            className={`group relative text-left w-full border-4 border-surface-900 transition-all duration-200 overflow-hidden ${isSelected
+                ? `bg-[#FEF08A] shadow-[8px_8px_0_0_#0f172a] translate-x-[-2px] translate-y-[-2px]`
+                : 'bg-white shadow-[4px_4px_0_0_#0f172a] hover:shadow-[6px_6px_0_0_#0f172a] hover:translate-y-[-2px] hover:translate-x-[-2px]'
+                }`}
         >
             {/* Selection indicator */}
             {isSelected && (
-                <motion.div 
-                    initial={{ scale: 0 }} 
-                    animate={{ scale: 1 }} 
-                    className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full gradient-primary flex items-center justify-center shadow-lg"
+                <div
+                    className="absolute top-2 right-2 z-20 bg-[#F472B6] border-4 border-surface-900 px-3 py-1 text-surface-900 font-black uppercase text-xs tracking-widest shadow-[2px_2px_0_0_#0f172a] transform rotate-3"
                 >
-                    <CheckCircleIcon className="w-6 h-6 text-white" />
-                </motion.div>
+                    OSHI TERPILIH
+                </div>
             )}
 
+            {/* Team badge */}
+            <div className={`absolute top-2 left-2 px-2 py-1 border-2 border-surface-900 ${teamInfo.bg} text-white text-[10px] font-black tracking-widest uppercase shadow-[2px_2px_0_0_#0f172a] z-10 transform -rotate-2`}>
+                {teamInfo.label}
+            </div>
+
             {/* Photo */}
-            <div className="relative aspect-[3/4] overflow-hidden bg-surface-100">
+            <div className="relative aspect-[3/4] overflow-hidden bg-surface-100 border-b-4 border-surface-900">
                 {!imgLoaded && !imgError && (
-                    <div className="absolute inset-0 skeleton" />
+                    <div className="absolute inset-0 bg-surface-200 animate-pulse" />
                 )}
                 {imgError ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-surface-100">
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#FECDD3]">
                         <div className="text-center">
                             <div className="text-5xl mb-2">{teamInfo.emoji}</div>
-                            <div className="text-sm font-bold text-surface-400">{member.nickname}</div>
+                            <div className="text-sm font-black text-surface-900 uppercase tracking-widest">{member.nickname}</div>
                         </div>
                     </div>
                 ) : (
                     <img
                         src={proxyPhoto(member.photo)}
                         alt={member.name}
-                        className={`w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110 ${
-                            imgLoaded ? 'opacity-100' : 'opacity-0'
-                        } ${isSelected ? '' : 'grayscale group-hover:grayscale-0'}`}
+                        className={`w-full h-full object-cover object-top transition-transform duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'
+                            } ${isSelected ? 'scale-105 grayscale-0' : 'grayscale group-hover:grayscale-0'}`}
                         onLoad={() => setImgLoaded(true)}
                         onError={() => setImgError(true)}
                         loading="lazy"
                     />
                 )}
-
-                {/* Team badge */}
-                <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-xl ${teamInfo.bg} text-white text-xs font-black tracking-widest uppercase shadow-md`}>
-                    {teamInfo.label}
-                </div>
-
-                {/* Gradient overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-t from-surface-950/90 via-surface-950/20 to-transparent transition-opacity duration-300 ${isSelected ? 'opacity-90' : 'opacity-60 group-hover:opacity-80'}`} />
-                
-                {/* Info placed over the image */}
-                <div className="absolute bottom-0 left-0 right-0 p-5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                    <h3 className="font-display font-black text-white text-2xl tracking-tight leading-none mb-1">
-                        {member.nickname || member.name}
-                    </h3>
-                    <p className="text-sm font-medium text-surface-300 truncate">
-                        {member.name}
-                    </p>
-                </div>
             </div>
-        </motion.button>
+
+            {/* Info */}
+            <div className={`p-4 ${isSelected ? 'bg-[#FEF08A]' : 'bg-white group-hover:bg-[#BAE6FD]'} transition-colors`}>
+                <h3 className="font-display font-black text-surface-900 text-xl tracking-tight leading-none mb-1 uppercase">
+                    {member.nickname || member.name}
+                </h3>
+                <p className="text-xs font-bold text-surface-600 truncate uppercase tracking-wider">
+                    {member.name}
+                </p>
+            </div>
+        </button>
     );
 }
 
@@ -138,7 +134,7 @@ export default function Onboarding({ apiUrl }) {
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTeam, setActiveTeam] = useState('ALL');
-    const [step, setStep] = useState(1); 
+    const [step, setStep] = useState(1);
 
     const { data, setData, post, processing, errors } = useForm({
         oshi_member_code: '',
@@ -197,37 +193,44 @@ export default function Onboarding({ apiUrl }) {
 
     return (
         <>
-            <Head title="Pilih Oshi Kamu" />
+            <Head title="Pilih Oshi Kamu — OshiMerch" />
 
-            <div className="min-h-screen bg-surface-50 font-sans selection:bg-primary-500 selection:text-white">
-                
+            <div className="min-h-screen bg-[#A7F3D0] text-surface-900 font-sans selection:bg-surface-900 selection:text-[#FEF08A] relative overflow-hidden">
+
+                {/* Decorative Grid Pattern */}
+                <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.4] pointer-events-none fixed" />
+
+                {/* Decorative Stars */}
+                <StarSVG className="fixed top-24 left-10 w-24 h-24 text-surface-900 opacity-10 transform -rotate-12 pointer-events-none" />
+                <StarSVG className="fixed bottom-20 right-10 w-32 h-32 text-surface-900 opacity-10 transform rotate-45 pointer-events-none" />
+
                 {/* Header Navbar */}
-                <header className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-xl border-b border-surface-200">
+                <header className="fixed top-0 inset-x-0 z-50 bg-[#FEF08A] border-b-4 border-surface-900 shadow-[0_6px_0_0_#0f172a]">
                     <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <img src="/images/logo.png" alt="OshiMerch" className="w-10 h-10 object-contain" />
-                            <span className="text-2xl font-black font-display text-surface-900 tracking-tight">
-                                Oshi<span className="text-primary-500">Merch</span>
+                        <div className="flex items-center gap-4 bg-white border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] px-4 py-2 transform -rotate-1">
+                            <img src="/images/logo.png" alt="OshiMerch" className="w-8 h-8 object-contain" />
+                            <span className="text-xl font-black font-display text-surface-900 tracking-tight uppercase">
+                                Oshi<span className="text-[#F472B6]">Merch</span>
                             </span>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="hidden sm:flex flex-col items-end mr-2">
-                                <span className="text-sm font-bold text-surface-900">{auth.user.name}</span>
-                                <span className="text-xs font-medium text-surface-500">Wota Trainee</span>
+                                <span className="text-sm font-black text-surface-900 uppercase">{auth.user.name}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-surface-900 bg-white border-2 border-surface-900 px-2 py-0.5 shadow-[2px_2px_0_0_#0f172a] transform rotate-2">Wota Trainee</span>
                             </div>
                             <img
                                 src={auth.user.profile_picture_url || `https://ui-avatars.com/api/?name=${auth.user.name}&background=f43f5e&color=fff`}
                                 alt={auth.user.name}
-                                className="w-10 h-10 rounded-full border-2 border-surface-200"
+                                className="w-12 h-12 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] object-cover bg-white"
                             />
                         </div>
                     </div>
                 </header>
 
-                <main className="pt-28 pb-32">
+                <main className="pt-32 pb-32 relative z-10">
                     <AnimatePresence mode="wait">
                         {step === 1 ? (
-                            <motion.div 
+                            <motion.div
                                 key="step1"
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -237,29 +240,33 @@ export default function Onboarding({ apiUrl }) {
                             >
                                 {/* Step 1 Header */}
                                 <div className="max-w-3xl mb-12">
-                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-primary-500 font-bold uppercase tracking-widest mb-2">Step 01</motion.p>
-                                    <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-5xl sm:text-6xl md:text-7xl font-black font-display text-surface-950 uppercase tracking-tighter leading-[0.9] mb-6">
-                                        CHOOSE <br/> YOUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-purple-600">OSHI.</span>
-                                    </motion.h1>
-                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-xl text-surface-500 font-medium">
-                                        Tentukan tujuan utamamu di fandom ini. Oshi-mu akan menentukan identitas profil OshiMerch kamu.
-                                    </motion.p>
+                                    <div className="inline-block bg-[#F472B6] border-4 border-surface-900 px-3 py-1 mb-4 shadow-[4px_4px_0_0_#0f172a] transform -rotate-2">
+                                        <p className="text-surface-900 font-black uppercase tracking-widest text-sm">STEP 01</p>
+                                    </div>
+                                    <h1 className="text-5xl sm:text-6xl md:text-7xl font-black font-display text-surface-900 uppercase tracking-tighter leading-[0.9] mb-6 drop-shadow-[4px_4px_0_rgba(15,23,42,1)] text-white">
+                                        CHOOSE <br /> YOUR <span className="text-[#FEF08A]">OSHI.</span>
+                                    </h1>
+                                    <div className="bg-white border-4 border-surface-900 p-4 shadow-[6px_6px_0_0_#0f172a] inline-block max-w-2xl transform rotate-1">
+                                        <p className="text-lg text-surface-900 font-bold uppercase">
+                                            Tentukan tujuan utamamu di fandom ini. Oshi-mu akan menentukan identitas profil OshiMerch kamu.
+                                        </p>
+                                    </div>
                                 </div>
 
                                 {/* Filter & Search - Brutalist Style */}
                                 <div className="flex flex-col lg:flex-row gap-6 mb-12 items-start lg:items-center">
                                     <div className="relative w-full lg:w-96 shrink-0">
-                                        <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-400" />
+                                        <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-surface-900" />
                                         <input
                                             type="text"
-                                            placeholder="Cari member idaman..."
+                                            placeholder="CARI MEMBER IDAMAN..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white border-2 border-surface-200 text-surface-900 font-bold placeholder-surface-400 focus:outline-none focus:border-primary-500 focus:shadow-[4px_4px_0_rgba(244,63,94,0.2)] transition-all"
+                                            className="w-full pl-14 pr-6 py-4 bg-white border-4 border-surface-900 text-surface-900 font-black uppercase placeholder-surface-400 focus:outline-none focus:ring-0 focus:bg-[#FEF08A] shadow-[6px_6px_0_0_#0f172a] transition-all text-lg"
                                         />
                                     </div>
-                                    
-                                    <div className="flex gap-3 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide w-full">
+
+                                    <div className="flex gap-4 overflow-x-auto pb-4 lg:pb-0 w-full snap-x">
                                         {teams.map((team) => {
                                             const teamInfo = team === 'ALL' ? null : TEAM_COLORS[team];
                                             const isActive = activeTeam === team;
@@ -267,11 +274,10 @@ export default function Onboarding({ apiUrl }) {
                                                 <button
                                                     key={team}
                                                     onClick={() => setActiveTeam(team)}
-                                                    className={`shrink-0 px-6 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all duration-300 border-2 ${
-                                                        isActive
-                                                            ? team === 'ALL' ? 'gradient-primary border-transparent text-white shadow-lg' : `${teamInfo.bg} border-transparent text-white shadow-lg`
-                                                            : 'bg-white border-surface-200 text-surface-500 hover:border-surface-400 hover:text-surface-900'
-                                                    }`}
+                                                    className={`shrink-0 px-6 py-4 font-black uppercase tracking-widest transition-all duration-200 border-4 border-surface-900 snap-center ${isActive
+                                                        ? 'bg-surface-900 text-white shadow-[4px_4px_0_0_#FEF08A] translate-y-[2px] translate-x-[2px]'
+                                                        : 'bg-white text-surface-900 shadow-[4px_4px_0_0_#0f172a] hover:shadow-[6px_6px_0_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:bg-[#BAE6FD]'
+                                                        }`}
                                                 >
                                                     {team === 'ALL' ? 'ALL MEMBERS' : teamInfo?.label || team}
                                                 </button>
@@ -286,37 +292,44 @@ export default function Onboarding({ apiUrl }) {
                                         {Array.from({ length: 10 }).map((_, i) => <MemberCardSkeleton key={i} />)}
                                     </div>
                                 ) : error ? (
-                                    <div className="text-center py-24 bg-white rounded-3xl border-2 border-surface-200">
+                                    <div className="text-center py-24 bg-white border-4 border-surface-900 shadow-[12px_12px_0_0_#0f172a]">
                                         <div className="text-6xl mb-4">💔</div>
-                                        <h3 className="text-2xl font-bold font-display text-surface-900 mb-2">Network Error</h3>
-                                        <p className="text-surface-500 font-medium mb-6">{error}</p>
-                                        <button onClick={() => window.location.reload()} className="px-8 py-3 rounded-xl bg-surface-900 text-white font-bold hover:bg-surface-800 transition-colors">
-                                            Reload Page
+                                        <h3 className="text-3xl font-black font-display text-surface-900 mb-4 uppercase">Network Error</h3>
+                                        <p className="text-surface-900 font-bold mb-8 uppercase text-lg">{error}</p>
+                                        <button onClick={() => window.location.reload()} className="px-8 py-4 border-4 border-surface-900 bg-[#FEF08A] text-surface-900 font-black uppercase tracking-widest shadow-[6px_6px_0_0_#0f172a] hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#0f172a] transition-all text-xl">
+                                            RELOAD PAGE
                                         </button>
                                     </div>
                                 ) : filteredMembers.length === 0 ? (
-                                    <div className="text-center py-24 bg-white rounded-3xl border-2 border-surface-200">
+                                    <div className="text-center py-24 bg-white border-4 border-surface-900 shadow-[12px_12px_0_0_#0f172a]">
                                         <div className="text-6xl mb-4">🔍</div>
-                                        <h3 className="text-2xl font-bold font-display text-surface-900 mb-2">Member Tidak Ditemukan</h3>
-                                        <p className="text-surface-500 font-medium">Coba gunakan nama panggilan lain.</p>
+                                        <h3 className="text-3xl font-black font-display text-surface-900 mb-4 uppercase">Member Tidak Ditemukan</h3>
+                                        <p className="text-surface-900 font-bold uppercase text-lg">Coba gunakan nama panggilan lain.</p>
                                     </div>
                                 ) : (
-                                    <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                                    <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 gap-y-8">
                                         <AnimatePresence>
                                             {filteredMembers.map((member) => (
-                                                <MemberCard
+                                                <motion.div
                                                     key={member.code}
-                                                    member={member}
-                                                    isSelected={data.oshi_member_code === member.code}
-                                                    onSelect={handleSelectMember}
-                                                />
+                                                    initial={{ opacity: 0, scale: 0.9 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    exit={{ opacity: 0, scale: 0.9 }}
+                                                    layout
+                                                >
+                                                    <MemberCard
+                                                        member={member}
+                                                        isSelected={data.oshi_member_code === member.code}
+                                                        onSelect={handleSelectMember}
+                                                    />
+                                                </motion.div>
                                             ))}
                                         </AnimatePresence>
                                     </motion.div>
                                 )}
                             </motion.div>
                         ) : (
-                            <motion.div 
+                            <motion.div
                                 key="step2"
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -327,73 +340,77 @@ export default function Onboarding({ apiUrl }) {
                                 <button
                                     type="button"
                                     onClick={() => setStep(1)}
-                                    className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-surface-500 hover:text-surface-900 transition-colors mb-8"
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-white border-4 border-surface-900 font-black uppercase tracking-widest text-surface-900 hover:bg-[#FECDD3] shadow-[4px_4px_0_0_#0f172a] hover:shadow-[6px_6px_0_0_#0f172a] hover:-translate-y-1 transition-all mb-8"
                                 >
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                                     </svg>
-                                    Ganti Oshi
+                                    GANTI OSHI
                                 </button>
 
                                 <div className="mb-12">
-                                    <p className="text-primary-500 font-bold uppercase tracking-widest mb-2">Step 02</p>
-                                    <h1 className="text-5xl sm:text-6xl font-black font-display text-surface-950 uppercase tracking-tighter leading-none mb-4">
-                                        DECLARE <br/> YOUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-purple-600">LOYALTY.</span>
+                                    <div className="inline-block bg-[#BAE6FD] border-4 border-surface-900 px-3 py-1 mb-4 shadow-[4px_4px_0_0_#0f172a] transform rotate-2">
+                                        <p className="text-surface-900 font-black uppercase tracking-widest text-sm">STEP 02</p>
+                                    </div>
+                                    <h1 className="text-5xl sm:text-6xl font-black font-display text-surface-900 uppercase tracking-tighter leading-[0.9] mb-4 drop-shadow-[4px_4px_0_rgba(15,23,42,1)] text-white">
+                                        DECLARE <br /> YOUR <span className="text-[#F472B6]">LOYALTY.</span>
                                     </h1>
-                                    <p className="text-lg text-surface-500 font-medium">
-                                        Ceritakan sedikit tentang dirimu dan alasan memilih Oshi ini.
-                                    </p>
-                                </div>
-
-                                {/* Wota ID Card Design */}
-                                <div className="relative rounded-[2rem] bg-surface-950 p-1 overflow-hidden shadow-2xl mb-8">
-                                    {/* Animated Border/Background */}
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary-500 via-purple-500 to-amber-500 opacity-30" />
-                                    
-                                    <div className="relative bg-surface-900 rounded-[1.8rem] p-8 md:p-10 border border-surface-800">
-                                        {selectedMember && (
-                                            <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-                                                <div className="w-32 h-40 shrink-0 rounded-2xl overflow-hidden border-4 border-surface-800 relative">
-                                                    <img
-                                                        src={proxyPhoto(selectedMember.photo)}
-                                                        alt={selectedMember.name}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                    <div className="absolute inset-0 bg-primary-500 mix-blend-color opacity-20"></div>
-                                                </div>
-                                                <div className="flex-1 text-center md:text-left">
-                                                    <div className="inline-block px-3 py-1 bg-surface-800 rounded-lg text-xs font-black text-white uppercase tracking-widest mb-4">
-                                                        OFFICIAL WOTA ID
-                                                    </div>
-                                                    <h3 className="text-4xl font-black font-display text-white mb-2 uppercase">{selectedMember.nickname}</h3>
-                                                    <p className="text-surface-400 font-bold uppercase tracking-widest mb-6">Oshi Level: Dedicated</p>
-                                                    {selectedMember.jikoshoukai && (
-                                                        <div className="bg-surface-950/50 p-4 rounded-xl border border-surface-800/50">
-                                                            <p className="text-surface-300 font-medium italic">"{selectedMember.jikoshoukai}"</p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
+                                    <div className="bg-white border-4 border-surface-900 p-4 shadow-[6px_6px_0_0_#0f172a] inline-block transform -rotate-1">
+                                        <p className="text-lg text-surface-900 font-bold uppercase">
+                                            Ceritakan sedikit tentang dirimu dan alasan memilih Oshi ini.
+                                        </p>
                                     </div>
                                 </div>
 
+                                {/* Wota ID Card Design (Brutalist) */}
+                                <div className="bg-[#FEF08A] border-4 border-surface-900 p-6 md:p-10 shadow-[12px_12px_0_0_#0f172a] mb-12 transform rotate-1 relative">
+                                    {/* Decorative Pin */}
+                                    <div className="absolute -top-6 -right-6 w-16 h-16 bg-[#A7F3D0] border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a] rounded-full flex items-center justify-center transform rotate-12 z-20">
+                                        <StarSVG className="w-8 h-8 text-surface-900" />
+                                    </div>
+
+                                    {selectedMember && (
+                                        <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+                                            <div className="w-32 h-40 shrink-0 border-4 border-surface-900 bg-white shadow-[6px_6px_0_0_#0f172a] transform -rotate-3 p-2">
+                                                <img
+                                                    src={proxyPhoto(selectedMember.photo)}
+                                                    alt={selectedMember.name}
+                                                    className="w-full h-full object-cover border-2 border-surface-900"
+                                                />
+                                            </div>
+                                            <div className="flex-1 text-center md:text-left bg-white border-4 border-surface-900 p-6 shadow-[6px_6px_0_0_#0f172a]">
+                                                <div className="inline-block px-3 py-1 bg-surface-900 border-2 border-surface-900 text-sm font-black text-[#FEF08A] uppercase tracking-widest mb-4 shadow-[2px_2px_0_0_#FEF08A] transform -rotate-1">
+                                                    OFFICIAL WOTA ID
+                                                </div>
+                                                <h3 className="text-3xl font-black font-display text-surface-900 mb-2 uppercase tracking-tight">{selectedMember.nickname}</h3>
+                                                <p className="text-surface-600 font-black uppercase tracking-widest mb-4">OSHI LEVEL: DEDICATED</p>
+                                                {selectedMember.jikoshoukai && (
+                                                    <div className="bg-[#BAE6FD] p-3 border-4 border-surface-900 shadow-[4px_4px_0_0_#0f172a]">
+                                                        <p className="text-surface-900 font-bold uppercase italic">"{selectedMember.jikoshoukai}"</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
                                 {/* Form */}
-                                <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 md:p-10 rounded-[2rem] border-2 border-surface-200 shadow-xl">
+                                <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 md:p-10 border-4 border-surface-900 shadow-[12px_12px_0_0_#0f172a] transform -rotate-1 relative z-10">
                                     <div>
-                                        <label className="block text-sm font-black uppercase tracking-widest text-surface-900 mb-4">
-                                            Wota Bio <span className="text-surface-400 font-medium">(Optional)</span>
+                                        <label className="block text-xl font-black uppercase tracking-widest text-surface-900 mb-4 flex items-center gap-2">
+                                            <span className="w-4 h-4 bg-[#F472B6] border-2 border-surface-900 inline-block"></span>
+                                            WOTA BIO <span className="text-surface-500 font-bold ml-2">(OPTIONAL)</span>
                                         </label>
                                         <textarea
                                             value={data.bio}
                                             onChange={(e) => setData('bio', e.target.value)}
-                                            placeholder="Tulis sejarah fandom-mu disini..."
+                                            placeholder="TULIS SEJARAH FANDOM-MU DISINI..."
                                             rows={5}
                                             maxLength={500}
-                                            className="w-full px-6 py-5 rounded-2xl bg-surface-50 border-2 border-surface-200 text-surface-900 font-medium placeholder-surface-400 focus:outline-none focus:border-primary-500 focus:bg-white focus:shadow-[4px_4px_0_rgba(244,63,94,0.2)] transition-all resize-none text-lg"
+                                            className="w-full px-6 py-5 bg-surface-50 border-4 border-surface-900 text-surface-900 font-bold uppercase placeholder-surface-400 focus:outline-none focus:ring-0 focus:bg-[#FEF08A] shadow-[6px_6px_0_0_#0f172a] transition-all resize-none text-lg"
                                         />
-                                        <div className="flex justify-end mt-3">
-                                            <span className="text-sm font-bold text-surface-400 bg-surface-100 px-3 py-1 rounded-lg">
+                                        <div className="flex justify-end mt-4">
+                                            <span className="text-sm font-black uppercase text-surface-900 bg-[#BAE6FD] px-3 py-1 border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a]">
                                                 {data.bio.length}/500
                                             </span>
                                         </div>
@@ -402,11 +419,11 @@ export default function Onboarding({ apiUrl }) {
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="w-full flex items-center justify-center gap-3 px-8 py-5 rounded-2xl gradient-primary text-white font-black text-xl tracking-wide uppercase shadow-[0_10px_30px_rgba(244,63,94,0.4)] hover:shadow-[0_15px_40px_rgba(244,63,94,0.6)] hover:-translate-y-1 transition-all disabled:opacity-50 disabled:transform-none disabled:shadow-none"
+                                        className="w-full flex items-center justify-center gap-3 px-8 py-6 bg-surface-900 text-[#FEF08A] font-black text-2xl tracking-widest uppercase border-4 border-surface-900 shadow-[8px_8px_0_0_#FEF08A] hover:shadow-[12px_12px_0_0_#FEF08A] hover:-translate-y-1 hover:-translate-x-1 transition-all disabled:opacity-50 disabled:transform-none disabled:shadow-[8px_8px_0_0_#FEF08A] mt-8"
                                     >
                                         {processing ? 'SAVING DATA...' : (
                                             <>
-                                                <SparklesIcon className="w-6 h-6" />
+                                                <SparklesIcon className="w-8 h-8 text-[#FEF08A]" />
                                                 COMPLETE ONBOARDING
                                             </>
                                         )}
@@ -420,21 +437,21 @@ export default function Onboarding({ apiUrl }) {
                 {/* Floating Bottom Bar (Step 1) */}
                 <AnimatePresence>
                     {step === 1 && data.oshi_member_code && (
-                        <motion.div 
-                            initial={{ y: 100, opacity: 0 }}
+                        <motion.div
+                            initial={{ y: 150, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: 100, opacity: 0 }}
+                            exit={{ y: 150, opacity: 0 }}
                             transition={{ type: "spring", stiffness: 300, damping: 25 }}
                             className="fixed bottom-6 inset-x-6 lg:inset-x-auto lg:left-1/2 lg:-translate-x-1/2 z-50 lg:w-[600px]"
                         >
-                            <div className="bg-surface-950 p-4 rounded-3xl shadow-2xl flex items-center justify-between border border-surface-800">
+                            <div className="bg-white p-4 border-4 border-surface-900 shadow-[12px_12px_0_0_#0f172a] flex items-center justify-between">
                                 <div className="flex items-center gap-4 pl-2 min-w-0">
-                                    <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 border-2 border-surface-800">
-                                        <img src={proxyPhoto(selectedMember?.photo)} alt="" className="w-full h-full object-cover" />
+                                    <div className="w-16 h-16 bg-[#FEF08A] border-4 border-surface-900 shrink-0 p-1 shadow-[4px_4px_0_0_#0f172a] transform -rotate-3">
+                                        <img src={proxyPhoto(selectedMember?.photo)} alt="" className="w-full h-full object-cover border-2 border-surface-900" />
                                     </div>
-                                    <div className="min-w-0">
-                                        <p className="text-surface-400 text-xs font-bold uppercase tracking-widest mb-0.5">Oshi Terpilih</p>
-                                        <p className="text-white font-black font-display text-xl truncate">{selectedMember?.nickname}</p>
+                                    <div className="min-w-0 pl-2">
+                                        <p className="text-surface-900 bg-[#FECDD3] inline-block px-2 border-2 border-surface-900 shadow-[2px_2px_0_0_#0f172a] text-[10px] font-black uppercase tracking-widest mb-1">OSHI TERPILIH</p>
+                                        <p className="text-surface-900 font-black font-display text-2xl uppercase tracking-tight truncate">{selectedMember?.nickname}</p>
                                     </div>
                                 </div>
                                 <button
@@ -443,9 +460,9 @@ export default function Onboarding({ apiUrl }) {
                                         window.scrollTo({ top: 0, behavior: 'smooth' });
                                         setStep(2);
                                     }}
-                                    className="shrink-0 flex items-center gap-2 px-6 py-4 rounded-2xl gradient-primary text-white font-bold uppercase tracking-widest hover:scale-105 active:scale-95 transition-transform"
+                                    className="shrink-0 flex items-center gap-2 px-6 py-4 bg-surface-900 text-[#A7F3D0] border-4 border-surface-900 shadow-[4px_4px_0_0_#A7F3D0] font-black uppercase tracking-widest hover:translate-y-[-2px] hover:translate-x-[-2px] hover:shadow-[6px_6px_0_0_#A7F3D0] transition-all text-xl"
                                 >
-                                    NEXT <ArrowRightIcon className="w-5 h-5" />
+                                    NEXT <ArrowRightIcon className="w-6 h-6" />
                                 </button>
                             </div>
                         </motion.div>

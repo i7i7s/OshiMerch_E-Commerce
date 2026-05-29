@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Exclude Midtrans webhook from CSRF verification (external POST from Midtrans servers)
         $middleware->validateCsrfTokens(except: [
             '/midtrans/webhook',
+            '/midtrans/callback',
         ]);
 
         $middleware->alias([

@@ -26,6 +26,9 @@ use Inertia\Inertia;
 // ─── Midtrans Webhook (CSRF exempt — external request from Midtrans) ─────────
 Route::post('/midtrans/webhook', [MidtransController::class, 'webhook'])
     ->name('midtrans.webhook');
+// Alias — both /midtrans/callback and /midtrans/webhook are accepted
+Route::post('/midtrans/callback', [MidtransController::class, 'webhook'])
+    ->name('midtrans.callback');
 
 // ─── Midtrans finish redirect (after Snap payment) ──────────────────────────
 Route::get('/transactions/{uuid}/midtrans-finish', [MidtransController::class, 'finishRedirect'])
@@ -78,10 +81,12 @@ Route::get('/', function () {
 
     // Trending members — top 6 by listing count (with at least 1 available listing)
     $trendingMembers = \App\Models\Listing::where('status', 'Available')
-        ->whereNotNull('featured_member_name')
         ->whereNotNull('featured_member_code')
-        ->selectRaw('featured_member_name as name, featured_member_team as team, featured_member_code as code, count(*) as listing_count')
-        ->groupBy('featured_member_name', 'featured_member_team', 'featured_member_code')
+        ->where('featured_member_code', '!=', '')
+        ->whereNotNull('featured_member_name')
+        ->where('featured_member_name', '!=', '')
+        ->selectRaw('MAX(featured_member_name) as name, MAX(featured_member_team) as team, featured_member_code as code, count(*) as listing_count')
+        ->groupBy('featured_member_code')
         ->orderByDesc('listing_count')
         ->take(6)
         ->get()

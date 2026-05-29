@@ -30,6 +30,8 @@ class Listing extends Model
         'price' => 'integer',
     ];
 
+    protected $appends = ['image_url'];
+
     // ── Relationships ──────────────────────────────────────────────────────────
 
     public function user(): BelongsTo

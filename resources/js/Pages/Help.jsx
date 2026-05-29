@@ -149,11 +149,78 @@ const HELP_SECTIONS = [
                                 "Kerusakan akibat kelalaian kurir bukan tanggung jawab penjual (kecuali penjual tidak menggunakan packing standar)."
                             ].map((li, i) => (
                                 <li key={i} className="flex gap-4 items-start">
-                                    <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-[#A7F3D0] border-2 border-surface-900 font-black mt-1">{i+1}</span>
+                                    <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-[#A7F3D0] border-2 border-surface-900 font-black mt-1">{i + 1}</span>
                                     <span className="bg-white p-3 border-2 border-surface-900 shadow-[4px_4px_0_0_#0f172a] w-full">{li}</span>
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                )
+            },
+            {
+                title: 'Kebijakan Privasi (Privacy Policy)',
+                content: (
+                    <div className="pt-4 space-y-6 text-surface-900">
+                        <div className="p-6 bg-[#A7F3D0] border-4 border-surface-900 shadow-[8px_8px_0_0_#0f172a] transform rotate-1">
+                            <p className="text-xl font-bold leading-relaxed">Kebijakan Privasi ini menjelaskan bagaimana OshiMerch mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat menggunakan layanan kami.</p>
+                        </div>
+
+                        {[
+                            {
+                                label: '1. Data yang Kami Kumpulkan',
+                                color: 'bg-white',
+                                points: [
+                                    'Data Akun: nama, alamat email, foto profil — diperoleh saat registrasi manual atau melalui Google OAuth.',
+                                    'Data Transaksi: alamat pengiriman, riwayat pembelian dan penjualan.',
+                                    'Data Aktivitas: listing yang dilihat, produk difavoritkan, pesan antar pengguna.',
+                                    'Data Teknis: alamat IP, jenis perangkat, dan log akses untuk keamanan sistem.',
+                                ]
+                            },
+                            {
+                                label: '2. Tujuan Penggunaan Data',
+                                color: 'bg-[#FEF08A]',
+                                points: [
+                                    'Menjalankan layanan marketplace (pembuatan akun, transaksi, pengiriman).',
+                                    'Mengirim notifikasi terkait aktivitas akun dan transaksi.',
+                                    'Meningkatkan keamanan platform dan mencegah penipuan.',
+                                    'Menganalisis penggunaan layanan untuk peningkatan fitur (analytics internal & Google Analytics).',
+                                ]
+                            },
+                            {
+                                label: '3. Berbagi Data dengan Pihak Ketiga',
+                                color: 'bg-[#FECDD3]',
+                                points: [
+                                    'Midtrans — payment gateway untuk memproses pembayaran secara aman.',
+                                    'Google — untuk autentikasi OAuth (Login dengan Google) dan layanan analytics.',
+                                    'Kami tidak menjual data pribadi Anda kepada pihak manapun.',
+                                ]
+                            },
+                            {
+                                label: '4. Hak Pengguna',
+                                color: 'bg-[#BAE6FD]',
+                                points: [
+                                    'Anda berhak mengakses, memperbaiki, atau menghapus data pribadi Anda kapan saja.',
+                                    'Anda dapat meminta penghapusan akun beserta seluruh data melalui halaman Profil atau menghubungi admin.',
+                                    'Anda dapat mencabut akses Google OAuth melalui pengaturan akun Google Anda.',
+                                ]
+                            },
+                        ].map(({ label, color, points }, i) => (
+                            <div key={i} className={`p-6 border-4 border-surface-900 shadow-[6px_6px_0_0_#0f172a] ${color}`}>
+                                <h4 className="text-2xl font-display font-black uppercase mb-4 underline decoration-2 underline-offset-4">{label}</h4>
+                                <ul className="space-y-3">
+                                    {points.map((p, j) => (
+                                        <li key={j} className="flex gap-3 items-start text-lg font-bold">
+                                            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-surface-900 text-white font-black text-xs mt-1">✓</span>
+                                            <span>{p}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+
+                        <div className="p-6 bg-surface-900 text-white border-4 border-surface-900 shadow-[8px_8px_0_0_#FEF08A] transform -rotate-1">
+                            <p className="text-lg font-bold">Dengan menggunakan OshiMerch, Anda menyetujui Kebijakan Privasi ini. Kebijakan dapat diperbarui sewaktu-waktu dan perubahan akan diinformasikan melalui notifikasi platform. Pertanyaan: <span className="underline">support@oshimerch.id</span></p>
+                        </div>
                     </div>
                 )
             }
@@ -166,7 +233,7 @@ const AccordionItem = ({ title, content, color }) => {
 
     return (
         <div className="border-b-4 border-surface-900 bg-white">
-            <button 
+            <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-full py-6 sm:py-8 px-6 flex items-center justify-between text-left group transition-colors duration-300 ${isOpen ? color : 'hover:bg-surface-100'}`}
             >
@@ -213,7 +280,7 @@ export default function HelpCenter({ auth }) {
                 <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.4] pointer-events-none" />
                 <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-end gap-12 relative z-10">
                     <div>
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
@@ -222,7 +289,7 @@ export default function HelpCenter({ auth }) {
                             <StarSVG className="w-6 h-6 text-surface-900" />
                             <span className="text-xl font-black uppercase tracking-widest text-surface-900">OSHI SUPPORT</span>
                         </motion.div>
-                        
+
                         <motion.div
                             initial={{ opacity: 0, y: 40 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -230,13 +297,13 @@ export default function HelpCenter({ auth }) {
                             className="bg-white p-6 sm:p-10 border-4 border-surface-900 shadow-[16px_16px_0_0_#0f172a] transform rotate-1 inline-block"
                         >
                             <h1 className="text-5xl sm:text-7xl md:text-8xl leading-[0.9] font-display font-black uppercase tracking-tighter" style={{ textShadow: '4px 4px 0px #A7F3D0' }}>
-                                WE'VE GOT<br/>
+                                WE'VE GOT<br />
                                 YOUR BACK.
                             </h1>
                         </motion.div>
                     </div>
-                    
-                    <motion.div 
+
+                    <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1, delay: 0.5 }}
@@ -247,7 +314,7 @@ export default function HelpCenter({ auth }) {
                         </p>
                     </motion.div>
                 </div>
-                
+
                 {/* Decorative Elements */}
                 <div className="absolute top-20 right-20 w-32 h-32 bg-[#FECDD3] border-4 border-surface-900 rounded-full blur-2xl opacity-50 pointer-events-none"></div>
                 <StarSVG className="absolute bottom-10 right-1/4 w-24 h-24 text-surface-900 opacity-20 rotate-45 pointer-events-none" />
@@ -256,7 +323,7 @@ export default function HelpCenter({ auth }) {
             {/* --- MAIN CONTENT (STICKY SIDEBAR LAYOUT) --- */}
             <div className="px-6 sm:px-12 lg:px-24 py-20 lg:py-32 bg-[#FAFAFA] relative">
                 <div className="max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-16 lg:gap-32">
-                    
+
                     {/* Sticky Sidebar */}
                     <div className="lg:w-1/3 relative z-20">
                         <div className="sticky top-32">
@@ -277,7 +344,7 @@ export default function HelpCenter({ auth }) {
                             </div>
 
                             <div className="p-8 bg-[#FEF08A] border-4 border-surface-900 shadow-[12px_12px_0_0_#0f172a] transform -rotate-1">
-                                <h3 className="text-3xl font-display font-black mb-4 uppercase leading-none">Masih<br/>Bingung?</h3>
+                                <h3 className="text-3xl font-display font-black mb-4 uppercase leading-none">Masih<br />Bingung?</h3>
                                 <p className="text-surface-900 font-bold mb-6 text-lg">Tim dukungan Wota kami siap membantu kendalamu 24/7.</p>
                                 <a href="mailto:support@oshimerch.id" className="inline-block w-full py-4 bg-surface-900 text-white text-center font-black uppercase tracking-widest border-4 border-surface-900 hover:bg-white hover:text-surface-900 transition-colors shadow-[4px_4px_0_0_#fff]">
                                     HUBUNGI ADMIN
