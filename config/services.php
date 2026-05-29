@@ -51,6 +51,10 @@ return [
         'api_url' => env('JKT48_API_URL', 'https://jkt-48-member-api-i7i7.vercel.app'),
     ],
 
+    'google_analytics' => [
+        'id' => env('GOOGLE_ANALYTICS_ID'),
+    ],
+
     'midtrans' => [
         'server_key'    => env('MIDTRANS_SERVER_KEY'),
         'client_key'    => env('MIDTRANS_CLIENT_KEY'),

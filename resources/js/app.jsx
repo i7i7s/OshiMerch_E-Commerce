@@ -1,11 +1,23 @@
 import '../css/app.css';
 import './bootstrap';
 
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { useState, useEffect, Component } from 'react';
 import OfflineFallback from './Components/OfflineFallback';
+
+// ── Google Analytics 4: re-fire page_view on every Inertia SPA navigation ──
+// Without this, GA only tracks the very first page load because Inertia
+// navigates without a full browser reload.
+router.on('navigate', () => {
+    if (typeof window.gtag === 'function' && window.GA_ID) {
+        window.gtag('event', 'page_view', {
+            page_location: window.location.href,
+            page_title: document.title,
+        });
+    }
+});
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

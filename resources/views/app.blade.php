@@ -24,8 +24,11 @@
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '{{ config('services.google_analytics.id') }}', {
-                anonymize_ip: true
+                anonymize_ip: true,
+                send_page_view: false
             });
+            // Expose ID so the React/Inertia layer can re-fire page_view on SPA navigation
+            window.GA_ID = '{{ config('services.google_analytics.id') }}';
         </script>
         @endif
 

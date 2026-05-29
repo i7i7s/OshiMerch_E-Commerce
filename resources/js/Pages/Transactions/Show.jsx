@@ -54,8 +54,8 @@ function StatusTracker({ payment_status, delivery_status }) {
                                 <div className={`absolute top-6 left-1/2 w-full h-2 border-y-4 border-surface-900 transition-colors duration-500 z-0 ${done ? 'bg-[#A7F3D0]' : 'bg-surface-200'}`} />
                             )}
                             <div className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center border-4 transition-all duration-500 shadow-[4px_4px_0_0_#0f172a] transform ${done ? 'bg-[#A7F3D0] border-surface-900 text-surface-900 -rotate-3' :
-                                    current ? 'bg-[#FEF08A] border-surface-900 text-surface-900 scale-110 rotate-3' :
-                                        'bg-white border-surface-900 text-surface-400'
+                                current ? 'bg-[#FEF08A] border-surface-900 text-surface-900 scale-110 rotate-3' :
+                                    'bg-white border-surface-900 text-surface-400'
                                 }`}>
                                 <Icon />
                             </div>
@@ -128,7 +128,18 @@ function ReviewForm({ transactionId, sellerName }) {
         e.preventDefault();
         post(route('reviews.store', transactionId), {
             forceFormData: true,
-            onSuccess: () => { reset(); setPhotoPreviews([]); },
+            onSuccess: () => {
+                reset();
+                setPhotoPreviews([]);
+                // GA4: track review submission
+                if (typeof window.gtag === 'function') {
+                    window.gtag('event', 'review_submitted', {
+                        transaction_id: String(transactionId),
+                        rating: data.rating,
+                        event_category: 'engagement',
+                    });
+                }
+            },
             preserveScroll: true,
         });
     };
@@ -221,7 +232,27 @@ export default function Show({ transaction: initialTransaction }) {
     const isBuyer = user?.id === txn.buyer?.id;
     const isSeller = user?.id === txn.seller?.id;
 
-    // ─── Echo: listen for real-time status + message updates ─────────────
+    // ─── GA4: fire purchase event once per transaction (buyer only) ──────
+    useEffect(() => {
+        if (!isBuyer) return;
+        const key = `ga_purchase_fired_${txn.id}`;
+        if (sessionStorage.getItem(key)) return;
+        if (typeof window.gtag !== 'function') return;
+        sessionStorage.setItem(key, '1');
+        window.gtag('event', 'purchase', {
+            transaction_id: String(txn.id),
+            value: txn.item_price,
+            currency: 'IDR',
+            items: [{
+                item_id: String(txn.listing?.id ?? txn.id),
+                item_name: txn.listing?.title ?? 'Merchandise',
+                item_category: txn.listing?.category ?? 'other',
+                price: txn.item_price,
+                quantity: 1,
+            }],
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     useEffect(() => {
         if (!window.Echo) return;
 
@@ -527,8 +558,8 @@ export default function Show({ transaction: initialTransaction }) {
                                             return (
                                                 <div key={label} className="flex flex-col items-center gap-2 col-span-1 relative">
                                                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black border-4 transition-all ${done ? 'bg-[#3b82f6] border-[#1e3a8a] text-white shadow-[2px_2px_0_0_#1e3a8a] rotate-3' :
-                                                            current ? 'bg-[#FEF08A] border-[#1e3a8a] text-[#1e3a8a] shadow-[2px_2px_0_0_#1e3a8a] scale-110 -rotate-3 animate-pulse' :
-                                                                'bg-white border-[#bfdbfe] text-[#93c5fd]'
+                                                        current ? 'bg-[#FEF08A] border-[#1e3a8a] text-[#1e3a8a] shadow-[2px_2px_0_0_#1e3a8a] scale-110 -rotate-3 animate-pulse' :
+                                                            'bg-white border-[#bfdbfe] text-[#93c5fd]'
                                                         }`}>{done ? '✓' : i + 1}</div>
                                                     <span className={`leading-tight font-black uppercase tracking-widest bg-white px-1 ${done || current ? 'text-[#1e3a8a] border-2 border-[#1e3a8a]' : 'text-[#93c5fd] border-2 border-transparent'}`}>{label}</span>
                                                 </div>
@@ -817,7 +848,7 @@ export default function Show({ transaction: initialTransaction }) {
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         className={`max-w-sm w-full border-4 border-surface-900 rounded-3xl p-8 shadow-[12px_12px_0_0_#0f172a] text-center space-y-4 ${paymentResult === 'success' ? 'bg-[#A7F3D0]' :
-                                paymentResult === 'pending' ? 'bg-[#FEF08A]' : 'bg-[#FECDD3]'
+                            paymentResult === 'pending' ? 'bg-[#FEF08A]' : 'bg-[#FECDD3]'
                             }`}
                     >
                         <div className="text-6xl drop-shadow-[3px_3px_0_#0f172a]">
