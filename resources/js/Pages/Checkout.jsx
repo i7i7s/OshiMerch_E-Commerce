@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import { PROVINCES, getShippingFee } from '@/data/shipping';
@@ -71,13 +71,13 @@ export default function Checkout({ listing }) {
         // Pre-fill from primary address if available
         const primary = savedAddresses.find(a => a.is_primary) || savedAddresses[0] || null;
         return {
-            listing_id:        listing.id,
-            recipient_name:    primary?.recipient || user?.name || '',
-            recipient_phone:   primary?.phone || user?.phone || '',
+            listing_id: listing.id,
+            recipient_name: primary?.recipient || user?.name || '',
+            recipient_phone: primary?.phone || user?.phone || '',
             shipping_province: primary?.province || '',
-            shipping_city:     primary?.city || '',
+            shipping_city: primary?.city || '',
             shipping_district: '',
-            shipping_address:  primary?.full_address || '',
+            shipping_address: primary?.full_address || '',
         };
     });
     const [errors, setErrors] = useState(pageErrors || {});
@@ -89,8 +89,8 @@ export default function Checkout({ listing }) {
 
     // ── Computed ──────────────────────────────────────────────────────────────
     const shippingFee = useMemo(() => getShippingFee(form.shipping_province), [form.shipping_province]);
-    const total       = listing.price + shippingFee;
-    const cities      = getCities(form.shipping_province);
+    const total = listing.price + shippingFee;
+    const cities = getCities(form.shipping_province);
 
     const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
@@ -101,12 +101,12 @@ export default function Checkout({ listing }) {
         setSelectedSavedAddr(idx);
         setForm(f => ({
             ...f,
-            recipient_name:    addr.recipient || f.recipient_name,
-            recipient_phone:   addr.phone || f.recipient_phone,
+            recipient_name: addr.recipient || f.recipient_name,
+            recipient_phone: addr.phone || f.recipient_phone,
             shipping_province: addr.province || '',
-            shipping_city:     addr.city || '',
+            shipping_city: addr.city || '',
             shipping_district: addr.district || '',
-            shipping_address:  addr.full_address || '',
+            shipping_address: addr.full_address || '',
         }));
     };
 
@@ -123,6 +123,23 @@ export default function Checkout({ listing }) {
     };
 
     const canSubmit = form.recipient_name && form.shipping_province && form.shipping_address && !submitting;
+
+    // GA4: begin_checkout — fires when user lands on the checkout page
+    useEffect(() => {
+        if (typeof window.gtag !== 'function') return;
+        window.gtag('event', 'begin_checkout', {
+            currency: 'IDR',
+            value: listing.price,
+            items: [{
+                item_id: String(listing.id),
+                item_name: listing.title,
+                item_category: listing.category ?? 'other',
+                price: listing.price,
+                quantity: 1,
+            }],
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <>
@@ -203,11 +220,10 @@ export default function Checkout({ listing }) {
                                                             key={idx}
                                                             type="button"
                                                             onClick={() => applyAddress(idx)}
-                                                            className={`w-full text-left px-5 py-4 rounded-2xl border-4 transition-all ${
-                                                                selectedSavedAddr === idx
+                                                            className={`w-full text-left px-5 py-4 rounded-2xl border-4 transition-all ${selectedSavedAddr === idx
                                                                     ? 'border-surface-900 bg-[#BAE6FD] shadow-[4px_4px_0_0_#0f172a] -translate-y-0.5 -translate-x-0.5'
                                                                     : 'border-surface-900 bg-white hover:bg-[#FEF08A] hover:shadow-[4px_4px_0_0_#0f172a]'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <div className={`w-5 h-5 rounded-full border-4 border-surface-900 shrink-0 flex items-center justify-center shadow-[1px_1px_0_0_#0f172a] ${selectedSavedAddr === idx ? 'bg-surface-900' : 'bg-white'}`}>
@@ -230,11 +246,10 @@ export default function Checkout({ listing }) {
                                                             setSelectedSavedAddr(null);
                                                             setForm(f => ({ ...f, recipient_name: user?.name || '', recipient_phone: user?.phone || '', shipping_province: '', shipping_city: '', shipping_district: '', shipping_address: '' }));
                                                         }}
-                                                        className={`w-full text-left px-5 py-3 rounded-2xl border-4 border-dashed transition-all ${
-                                                            selectedSavedAddr === null
+                                                        className={`w-full text-left px-5 py-3 rounded-2xl border-4 border-dashed transition-all ${selectedSavedAddr === null
                                                                 ? 'border-surface-900 bg-[#FEF08A] shadow-[4px_4px_0_0_#0f172a]'
                                                                 : 'border-surface-400 bg-white hover:border-surface-900 hover:bg-surface-50'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <p className="font-black text-surface-900 text-sm uppercase tracking-wide">+ Isi Alamat Baru</p>
                                                     </button>

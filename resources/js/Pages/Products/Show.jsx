@@ -1,16 +1,16 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import ListingCard from '@/Components/ListingCard';
 
 // ── Raw SVG Icons ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-const IconArrowLeft    = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>;
-const IconCart         = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>;
-const IconMessage      = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>;
-const IconPackage      = () => <svg className="w-20 h-20 text-surface-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="square" strokeLinejoin="miter"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>;
-const IconMapPin       = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>;
+const IconArrowLeft = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>;
+const IconCart = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>;
+const IconMessage = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>;
+const IconPackage = () => <svg className="w-20 h-20 text-surface-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="square" strokeLinejoin="miter"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>;
+const IconMapPin = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 const IconHeart = ({ filled }) => (
     <svg className={`w-6 h-6 transition-all duration-300 ${filled ? 'text-[#f43f5e] fill-[#f43f5e] scale-110' : 'text-surface-900 group-hover:scale-110'}`}
         fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -44,11 +44,28 @@ const CATEGORY_LABEL = {
 };
 
 export default function Show({ listing, related, auth, is_favorited = false }) {
-    const [imgError, setImgError]         = useState(false);
-    const [favorited, setFavorited]       = useState(is_favorited);
-    const [favLoading, setFavLoading]     = useState(false);
-    const [cartAdded, setCartAdded]       = useState(false);
-    const [cartLoading, setCartLoading]   = useState(false);
+    const [imgError, setImgError] = useState(false);
+    const [favorited, setFavorited] = useState(is_favorited);
+    const [favLoading, setFavLoading] = useState(false);
+    const [cartAdded, setCartAdded] = useState(false);
+    const [cartLoading, setCartLoading] = useState(false);
+
+    // GA4: view_item — fires once when the product page is opened
+    useEffect(() => {
+        if (typeof window.gtag !== 'function') return;
+        window.gtag('event', 'view_item', {
+            currency: 'IDR',
+            value: listing.price,
+            items: [{
+                item_id: String(listing.id),
+                item_name: listing.title,
+                item_category: listing.category ?? 'other',
+                price: listing.price,
+                quantity: 1,
+            }],
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const addToCart = useCallback(() => {
         if (!auth?.user) {
@@ -64,6 +81,20 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                 setCartAdded(true);
                 setCartLoading(false);
                 setTimeout(() => setCartAdded(false), 3000);
+                // GA4: add_to_cart
+                if (typeof window.gtag === 'function') {
+                    window.gtag('event', 'add_to_cart', {
+                        currency: 'IDR',
+                        value: listing.price,
+                        items: [{
+                            item_id: String(listing.id),
+                            item_name: listing.title,
+                            item_category: listing.category ?? 'other',
+                            price: listing.price,
+                            quantity: 1,
+                        }],
+                    });
+                }
             },
             onError: () => setCartLoading(false),
         });
@@ -78,13 +109,13 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => setFavLoading(false),
-            onError:   () => { setFavorited(!next); setFavLoading(false); }, 
+            onError: () => { setFavorited(!next); setFavLoading(false); },
         });
     };
 
     const teamStyle = TEAM_BADGE[listing.featured_member_team] || null;
-    const condInfo   = CONDITION_LABEL[listing.condition] || CONDITION_LABEL.Used;
-    const isOwner    = auth?.user?.id === listing.seller?.id;
+    const condInfo = CONDITION_LABEL[listing.condition] || CONDITION_LABEL.Used;
+    const isOwner = auth?.user?.id === listing.seller?.id;
     const isAvailable = listing.status === 'Available';
 
     const sellerAvatar =
@@ -98,14 +129,14 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                 <Navbar auth={auth} />
 
                 <main className="flex-1 w-full pt-32 pb-20">
-                    
+
                     {/* E-Commerce Standard Layout with Brutalist Style */}
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        
+
                         {/* Breadcrumbs / Back button */}
                         <div className="flex items-center gap-6 mb-10">
-                            <Link 
-                                href={route('products.index')} 
+                            <Link
+                                href={route('products.index')}
                                 className="w-12 h-12 rounded-xl bg-white border-4 border-surface-900 flex items-center justify-center text-surface-900 shadow-[4px_4px_0_#0f172a] hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0_#0f172a] hover:bg-[#FEF08A] transition-all"
                             >
                                 <IconArrowLeft />
@@ -121,13 +152,13 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
 
                         {/* Grid Layout: [Image (4)] [Info (5)] [Action Box (3)] */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                            
+
                             {/* LEFT: Product Image */}
                             <div className="col-span-1 lg:col-span-5">
                                 <div className="relative w-full flex items-center justify-center rounded-3xl bg-[#BAE6FD] border-4 border-surface-900 overflow-hidden shadow-[12px_12px_0_#0f172a] group p-6 sm:p-8 lg:p-10">
                                     {/* Abstract background pattern for the image container */}
                                     <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.2]"></div>
-                                    
+
                                     {imgError || !listing.image_url ? (
                                         <div className="w-full aspect-[3/4] flex items-center justify-center relative z-10">
                                             <IconPackage />
@@ -143,7 +174,7 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                                             onError={() => setImgError(true)}
                                         />
                                     )}
-                                    
+
                                     {/* Overlay Tags */}
                                     <div className="absolute top-6 left-6 flex flex-col gap-3 z-10">
                                         <span className={`px-4 py-2 rounded-xl text-xs font-black tracking-widest uppercase border-4 shadow-[4px_4px_0_0_#0f172a] transform -rotate-2 ${condInfo.style}`}>
@@ -232,7 +263,7 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                             <div className="col-span-1 lg:col-span-3 relative">
                                 <div className="sticky top-32 bg-[#FECDD3] rounded-3xl border-4 border-surface-900 p-8 shadow-[12px_12px_0_#0f172a] flex flex-col gap-8 transform rotate-1">
                                     <div className="absolute inset-0 bg-[url('/img/grid.svg')] opacity-[0.2] pointer-events-none" />
-                                    
+
                                     <h2 className="text-sm font-black text-surface-900 uppercase tracking-widest pb-4 border-b-4 border-surface-900 text-center relative z-10">
                                         TRANSAKSI
                                     </h2>
@@ -259,11 +290,10 @@ export default function Show({ listing, related, auth, is_favorited = false }) {
                                                             type="button"
                                                             onClick={addToCart}
                                                             disabled={cartLoading || cartAdded}
-                                                            className={`w-full flex items-center justify-center gap-3 py-5 rounded-xl border-4 font-black text-sm uppercase tracking-widest transition-all shadow-[6px_6px_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_0_#0f172a] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none active:translate-y-1 active:translate-x-1 active:shadow-none ${
-                                                                cartAdded
+                                                            className={`w-full flex items-center justify-center gap-3 py-5 rounded-xl border-4 font-black text-sm uppercase tracking-widest transition-all shadow-[6px_6px_0_#0f172a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_0_#0f172a] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none active:translate-y-1 active:translate-x-1 active:shadow-none ${cartAdded
                                                                     ? 'border-surface-900 bg-[#A7F3D0] text-surface-900'
                                                                     : 'border-surface-900 bg-white text-surface-900 hover:bg-[#BAE6FD]'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             <IconCart />
                                                             {cartLoading ? 'MENAMBAHKAN...' : cartAdded ? '✓ ADA DI KERANJANG' : 'KERANJANG'}
