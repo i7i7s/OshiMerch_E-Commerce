@@ -57,7 +57,7 @@ class SellerProfileController extends Controller
 
         $avgRating    = $user->reviewsReceived()->avg('rating');
         $totalReviews = $user->reviewsReceived()->count();
-        $totalSales   = $user->soldTransactions()->where('delivery_status', 'Completed')->count();
+        $totalSales   = $user->soldTransactions()->where('delivery_status', 'Delivered')->count();
 
         // Rating distribution
         $ratingDist = [];

@@ -69,7 +69,7 @@ Route::get('/', function () {
     $stats = [
         ['label' => 'Produk Aktif',      'value' => \App\Models\Listing::where('status', 'Available')->count(),                           'suffix' => ''],
         ['label' => 'Member Terdaftar',  'value' => \App\Models\User::count(),                                                             'suffix' => ''],
-        ['label' => 'Transaksi Sukses',  'value' => \App\Models\Transaction::where('delivery_status', 'Completed')->count(),               'suffix' => ''],
+        ['label' => 'Transaksi Sukses',  'value' => \App\Models\Transaction::where('delivery_status', 'Delivered')->count(),               'suffix' => ''],
         ['label' => 'Kategori Produk',   'value' => \App\Models\Listing::where('status', 'Available')->distinct()->count('category'),      'suffix' => ''],
     ];
 
