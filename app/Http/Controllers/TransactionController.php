@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Events\TransactionStatusUpdated;
+use App\Mail\ItemPackedMail;
+use App\Mail\ItemShippedMail;
+use App\Mail\PaymentConfirmedMail;
+use App\Mail\TransactionCompletedMail;
+use App\Mail\TransactionPaidMail;
 use App\Models\Listing;
 use App\Models\Notification;
 use App\Models\Setting;
@@ -12,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -295,6 +301,14 @@ class TransactionController extends Controller
             $transaction->buyer->name ?? 'Pembeli'
         );
 
+        // Email seller
+        try {
+            $transaction->load(['listing', 'buyer', 'seller']);
+            Mail::to($transaction->seller->email)->send(new TransactionPaidMail($transaction));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('[Mail] TransactionPaidMail failed: ' . $e->getMessage());
+        }
+
         return back()->with('success', 'Bukti transfer berhasil diupload. Menunggu konfirmasi penjual.');
     }
 
@@ -324,6 +338,14 @@ class TransactionController extends Controller
             'data'    => ['transaction_id' => $transaction->id],
         ]);
 
+        // Email buyer
+        try {
+            $transaction->load(['listing', 'buyer', 'seller']);
+            Mail::to($transaction->buyer->email)->send(new PaymentConfirmedMail($transaction));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('[Mail] PaymentConfirmedMail failed: ' . $e->getMessage());
+        }
+
         return back()->with('success', 'Pembayaran dikonfirmasi! Silakan input nomor resi pengiriman.');
     }
 
@@ -352,6 +374,14 @@ class TransactionController extends Controller
             'data'    => ['transaction_id' => $transaction->id, 'tracking' => $tracking],
         ]);
 
+        // Email buyer
+        try {
+            $transaction->load(['listing', 'buyer', 'seller']);
+            Mail::to($transaction->buyer->email)->send(new ItemPackedMail($transaction));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('[Mail] ItemPackedMail failed: ' . $e->getMessage());
+        }
+
         return back()->with('success', "Barang dipacking! Nomor tracking OshiGo: {$tracking}");
     }
 
@@ -371,6 +401,14 @@ class TransactionController extends Controller
             $transaction->id,
             $transaction->oshigo_tracking_number
         );
+
+        // Email buyer
+        try {
+            $transaction->load(['listing', 'buyer', 'seller']);
+            Mail::to($transaction->buyer->email)->send(new ItemShippedMail($transaction));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('[Mail] ItemShippedMail failed: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Status diupdate: Dikirim!');
     }
@@ -411,6 +449,14 @@ class TransactionController extends Controller
         try { broadcast(new TransactionStatusUpdated($transaction->fresh())); } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('[Broadcast] Failed: ' . $e->getMessage()); }
 
         Notification::transactionCompleted($transaction->seller_id, $transaction->id);
+
+        // Email seller
+        try {
+            $transaction->load(['listing', 'buyer', 'seller']);
+            Mail::to($transaction->seller->email)->send(new TransactionCompletedMail($transaction));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('[Mail] TransactionCompletedMail failed: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Transaksi selesai! Terima kasih.');
     }
