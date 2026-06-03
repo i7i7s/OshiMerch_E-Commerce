@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Review;
 use App\Models\Transaction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -10,24 +11,29 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ItemShippedMail extends Mailable
+class ReviewReceivedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Transaction $transaction) {}
+    public function __construct(
+        public Transaction $transaction,
+        public string $reviewerName,
+        public int $rating,
+        public ?string $comment
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
             replyTo: [new Address('adminoshimerch@oshimerch.store', 'OshiMerch')],
-            subject: '🚚 Barangmu Sudah Dikirim – ' . $this->transaction->listing->title,
+            subject: '⭐ Kamu Mendapat Ulasan Baru – OshiMerch',
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.item-shipped',
+            view: 'emails.review-received',
         );
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReviewReceivedMail;
 use App\Models\Review;
 use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -105,6 +107,19 @@ class ReviewController extends Controller
         ]);
 
         Notification::reviewReceived($transaction->seller_id, $transaction->id, $user->name);
+
+        // Email seller
+        try {
+            $transaction->load(['listing', 'buyer', 'seller']);
+            Mail::to($transaction->seller->email)->send(new ReviewReceivedMail(
+                $transaction,
+                $user->name,
+                $validated['rating'],
+                $validated['comment'] ?? null
+            ));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('[Mail] ReviewReceivedMail failed: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Ulasan berhasil dikirim! ⭐');
     }
