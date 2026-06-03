@@ -232,27 +232,28 @@ export default function Show({ transaction: initialTransaction }) {
     const isBuyer = user?.id === txn.buyer?.id;
     const isSeller = user?.id === txn.seller?.id;
 
-    // ─── GA4: fire purchase event once per transaction (buyer only) ──────
+    // ─── GA4: fire purchase event once, only after payment Confirmed ─────
     useEffect(() => {
         if (!isBuyer) return;
+        if (txn.payment_status !== 'Confirmed') return;
         const key = `ga_purchase_fired_${txn.id}`;
         if (sessionStorage.getItem(key)) return;
         if (typeof window.gtag !== 'function') return;
         sessionStorage.setItem(key, '1');
         window.gtag('event', 'purchase', {
             transaction_id: String(txn.id),
-            value: txn.item_price,
+            value: Number(txn.item_price),
             currency: 'IDR',
             items: [{
                 item_id: String(txn.listing?.id ?? txn.id),
                 item_name: txn.listing?.title ?? 'Merchandise',
                 item_category: txn.listing?.category ?? 'other',
-                price: txn.item_price,
+                price: Number(txn.item_price),
                 quantity: 1,
             }],
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [txn.payment_status]); // re-run when Pending → Confirmed
     useEffect(() => {
         if (!window.Echo) return;
 
@@ -362,6 +363,21 @@ export default function Show({ transaction: initialTransaction }) {
 
     const handleMidtransPay = () => {
         if (!txn.midtrans_snap_token || !window.snap) return;
+        // GA4: step 4 — user initiates payment
+        if (typeof window.gtag === 'function') {
+            window.gtag('event', 'add_payment_info', {
+                currency: 'IDR',
+                value: Number(txn.total_price ?? txn.item_price),
+                payment_type: txn.payment_method ?? 'midtrans',
+                items: [{
+                    item_id: String(txn.listing?.id ?? txn.id),
+                    item_name: txn.listing?.title ?? 'Merchandise',
+                    item_category: txn.listing?.category ?? 'other',
+                    price: Number(txn.item_price),
+                    quantity: 1,
+                }],
+            });
+        }
         window.snap.pay(txn.midtrans_snap_token, {
             onSuccess: () => {
                 setPaymentResult('success');
