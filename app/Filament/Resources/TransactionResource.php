@@ -225,6 +225,9 @@ class TransactionResource extends Resource
                     ])
                     ->action(function (Transaction $record, array $data): void {
                         $record->update(['delivery_status' => $data['delivery_status']]);
+                        if ($data['delivery_status'] === 'Delivered') {
+                            $record->listing->update(['status' => 'Sold']);
+                        }
                     }),
                 Action::make('edit_tracking')
                     ->label('Edit Resi')

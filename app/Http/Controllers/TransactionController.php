@@ -441,6 +441,13 @@ class TransactionController extends Controller
      */
     public function complete(Transaction $transaction): RedirectResponse
     {
+        // Idempotency: if admin already set delivery to Delivered (e.g. via Filament override),
+        // skip re-processing and redirect gracefully instead of throwing 403.
+        if ($transaction->delivery_status === 'Delivered') {
+            return redirect()->route('transactions.show', $transaction->uuid)
+                ->with('success', 'Transaksi sudah selesai! Terima kasih.');
+        }
+
         Gate::authorize('complete', $transaction);
 
         $transaction->update(['delivery_status' => 'Delivered']);
@@ -458,7 +465,8 @@ class TransactionController extends Controller
             \Illuminate\Support\Facades\Log::warning('[Mail] TransactionCompletedMail failed: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Transaksi selesai! Terima kasih.');
+        return redirect()->route('transactions.show', $transaction->uuid)
+            ->with('success', 'Transaksi selesai! Terima kasih.');
     }
 }
 
